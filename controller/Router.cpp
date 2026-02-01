@@ -45,7 +45,12 @@ void Router::registerAuthRoutes() const {
 
 //注册管理员图书管理的路由
 void Router::registerAdminBookRoutes() const {
-    //POST /api/admin/books - 添加图书
+    //GET /api/admin/books - 获取所有图书
+    server->Get("/api/admin/books", [this](const httplib::Request& req, httplib::Response& res) {
+        adminBookController->handleGetAllBooks(req, res);
+    });
+
+    //POST /api/admin/books/add - 添加图书
     server->Post("/api/admin/books/add", [this](const httplib::Request& req, httplib::Response& res) {
         adminBookController->handleAddBook(req, res);
     });

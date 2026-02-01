@@ -7,8 +7,8 @@ BookDAO::~BookDAO() = default;
 //添加图书
 bool BookDAO::addBook(const Book &book) const {
     const string sql =
-        "INSERT INTO book (id, title, author, category, publisher, publish_date, price, pages, description) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        "INSERT INTO book (id, title, author, category, publisher, publish_date, price, pages, description, copy_count) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0);";
 
     sqlite3_stmt* stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return false;
@@ -119,6 +119,21 @@ bool BookDAO::searchBookByTitle(const string &bookTitle, Book& book) const {
     return false;
 }
 
+//获取所有图书
+vector<Book> BookDAO::getAllBooks() const {
+    vector<Book> books;
+    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book;";
+    sqlite3_stmt* stmt = nullptr;
+    if (!bookDatabase->prepare(sql, &stmt)) return books;
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        books.push_back(extractBook(stmt));
+    }
+
+    sqlite3_finalize(stmt);
+    return books;
+}
+
 //根据图书分类查询图书信息
 vector<Book> BookDAO::searchBooksByCategory(const string &category) const {
     vector<Book> books;
@@ -166,4 +181,31 @@ bool BookDAO::isBookIdExist(const string &bookId) const {
     }
     sqlite3_finalize(stmt);
     return count > 0;
+}
+
+int BookDAO::getBookCopyCount(const string& bookId) const {
+    const string sql = "SELECT copy_count FROM book WHERE id = ?;";
+    sqlite3_stmt* stmt = nullptr;
+    if (!bookDatabase->prepare(sql, &stmt)) return 0;
+
+    sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
+
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    }
+    sqlite3_finalize(stmt);
+    return count;
+}
+
+bool BookDAO::updateBookCopyCount(const string& bookId) const {
+    const string sql = "UPDATE book SET copy_count = copy_count + 1 WHERE id = ?;";
+    sqlite3_stmt* stmt = nullptr;
+    if (!bookDatabase->prepare(sql, &stmt)) return false;
+
+    sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
+
+    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    sqlite3_finalize(stmt);
+    return success;
 }

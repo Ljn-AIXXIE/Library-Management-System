@@ -4,6 +4,36 @@ AdminBookController::AdminBookController(InventoryService *inventoryService, Sea
 
 AdminBookController::~AdminBookController() = default;
 
+//GET /api/admin/books - 获取所有图书
+void AdminBookController::handleGetAllBooks(const httplib::Request &req, httplib::Response &res) const {
+    cout << "[AdminBookController] 获取所有图书列表" << endl;
+
+    vector<Book> books = inventoryService->getAllBooks();
+
+    json booksArray = json::array();
+    for (const auto& book : books) {
+        booksArray.push_back({
+            {"isbn", book.getId()},
+            {"title", book.getTitle()},
+            {"author", book.getAuthor()},
+            {"category", book.getCategory()},
+            {"publisher", book.getPublisher()},
+            {"publishDate", book.getPublishDate()},
+            {"price", book.getPrice()},
+            {"pages", book.getPages()},
+            {"description", book.getDescription()}
+        });
+    }
+
+    json responseData = {
+        {"success", true},
+        {"data", booksArray}
+    };
+
+    cout << "[AdminBookController] 返回 " << books.size() << " 本图书" << endl;
+    res = HttpUtils::createSuccessResponse(responseData, 200);
+}
+
 void AdminBookController::handleAddBook(const httplib::Request &req, httplib::Response &res) const {
     json requestData = HttpUtils::parseRequestBody(req);
 
@@ -17,33 +47,50 @@ void AdminBookController::handleAddBook(const httplib::Request &req, httplib::Re
 
     // 构建图书对象
     string bookId = requestData["isbn"];
-    string title = requestData["title"];
-    string author = requestData["author"];
-    string category = requestData["category"];
-    string publisher = requestData.value("publisher", "");
-    string publishDate = requestData.value("publishDate", "");
-    string price = requestData.value("price", "");
-    string pages = requestData.value("pages", "");
-    string description = requestData.value("description", "");
 
-    Book book = Book(bookId, title, author, category);
+    //检查图书是否已存在,不存在需要在Book表中添加，存在则直接在BookCopy表中添加副本
+    if (!inventoryService->isBookIdExist(bookId)) {
+        string title = requestData["title"];
+        string author = requestData["author"];
+        string category = requestData["category"];
+        string publisher = requestData.value("publisher", "");
+        string publishDate = requestData.value("publishDate", "");
+        string price = requestData.value("price", "");
+        string pages = requestData.value("pages", "");
+        string description = requestData.value("description", "");
+        Book book = Book(bookId, title, author, category);
 
-    if (!publisher.empty()) book.setPublisher(publisher);
-    if (!publishDate.empty()) book.setPublishDate(publishDate);
-    if (!price.empty()) book.setPrice(price);
-    if (!pages.empty()) book.setPages(pages);
-    if (!description.empty()) book.setDescription(description);
+        if (!publisher.empty()) book.setPublisher(publisher);
+        if (!publishDate.empty()) book.setPublishDate(publishDate);
+        if (!price.empty()) book.setPrice(price);
+        if (!pages.empty()) book.setPages(pages);
+        if (!description.empty()) book.setDescription(description);
 
-    if (inventoryService->addBook(book)) {
+        if (inventoryService->addBook(book)) {
+            json responseData = {
+                {"success", true},
+                {"message", "图书添加成功"}
+            };
+            cout << "图书添加成功！" << endl;
+            res = HttpUtils::createSuccessResponse(responseData, 201);
+        } else {
+            cout << "添加图书失败" << endl;
+            res = HttpUtils::createErrorResponse("图书添加失败", 500);
+        }
+    }
+
+    string copyId = inventoryService->generateCopyId(bookId);
+    BookCopy bookCopy = BookCopy(bookId, copyId, "available");
+    if (inventoryService->addBookCopy(bookCopy) && inventoryService->updateBookCopyCount(bookId)) {
         json responseData = {
             {"success", true},
-            {"message", "图书添加成功"}
+            {"message", "图书副本添加成功"}
         };
-        cout << "图书添加成功！" << endl;
+        cout << "图书副本添加成功！" << endl;
         res = HttpUtils::createSuccessResponse(responseData, 201);
     } else {
-        cout << "添加图书失败" << endl;
-        res = HttpUtils::createErrorResponse("图书添加失败", 500);
+        cout << "添加图书副本失败" << endl;
+        res = HttpUtils::createErrorResponse("图书副本添加失败", 500);
     }
 }
 

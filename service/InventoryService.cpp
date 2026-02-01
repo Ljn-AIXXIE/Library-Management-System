@@ -24,3 +24,28 @@ bool InventoryService::deleteBookCopy(const string& copyId) const {
 bool InventoryService::updateBook(const Book& book) const {
     return db->updateBook(book);
 }
+
+vector<Book> InventoryService::getAllBooks() const {
+    return db->getAllBooks();
+}
+
+vector<BookCopy> InventoryService::getBookCopies(const string& bookId) const {
+    return bookCopyDAO->getCopiesByBookId(bookId);
+}
+
+vector<BookCopy> InventoryService::getAvailableCopies(const string& bookId) const {
+    return bookCopyDAO->getAvailableCopies(bookId);
+}
+
+bool InventoryService::isBookIdExist(const string& bookId) const {
+    return db->isBookIdExist(bookId);
+}
+
+string InventoryService::generateCopyId(const string& bookId) const {
+    int count = db->getBookCopyCount(bookId);
+    return bookId + "_" + to_string(count + 1);
+}
+
+bool InventoryService::updateBookCopyCount(const string& bookId) const {
+    return db->updateBookCopyCount(bookId);
+}

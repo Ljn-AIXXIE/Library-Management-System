@@ -32,7 +32,8 @@ bool DatabaseInitializer::createBookTable(DatabaseOperator* db) {
             publish_date TEXT,
             price TEXT,
             pages TEXT,
-            description TEXT
+            description TEXT,
+            copy_count INTEGER DEFAULT 0
         );
     )";
     

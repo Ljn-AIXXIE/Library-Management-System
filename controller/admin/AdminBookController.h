@@ -12,7 +12,10 @@ public:
     explicit AdminBookController(InventoryService *inventoryService, SearchService *searchService);
     ~AdminBookController();
 
-    //POST /api/admin/books - 添加图书
+    //GET /api/admin/books - 获取所有图书
+    void handleGetAllBooks(const httplib::Request &req, httplib::Response &res) const;
+
+    //POST /api/admin/books/add - 添加图书
     void handleAddBook(const httplib::Request &req, httplib::Response &res) const;
 
     //POST /api/admin/books/update - 更新图书
