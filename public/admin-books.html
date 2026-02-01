@@ -68,7 +68,7 @@
                 <div class="form-group"><label>ISBN *</label><input type="text" id="isbn" required></div>
                 <div class="form-group"><label>书名 *</label><input type="text" id="title" required></div>
                 <div class="form-group"><label>作者 *</label><input type="text" id="author" required></div>
-                <div class="form-group"><label>分类</label><input type="text" id="category"></div>
+                <div class="form-group"><label>分类 *</label><input type="text" id="category"></div>
                 <div class="form-group"><label>出版社</label><input type="text" id="publisher"></div>
                 <div class="form-group"><label>出版日期</label><input type="date" id="publishDate"></div>
                 <div class="form-group"><label>价格</label><input type="number" id="price" step="0.01"></div>
@@ -123,7 +123,7 @@
                     <td>${book.isbn}</td>
                     <td>${book.title}</td>
                     <td>${book.author}</td>
-                    <td>${book.category || '-'}</td>
+                    <td>${book.category}</td>
                     <td>${book.publisher || '-'}</td>
                     <td>${book.totalCount}/${book.availableCount}</td>
                     <td>
@@ -146,8 +146,8 @@
             document.getElementById('modalTitle').textContent = '编辑图书';
             document.getElementById('isbn').value = book.isbn;
             document.getElementById('isbn').disabled = true;
-            document.getElementById('title').value = book.title;
-            document.getElementById('author').value = book.author;
+            document.getElementById('title').value = book.title || '';
+            document.getElementById('author').value = book.author || '';
             document.getElementById('category').value = book.category || '';
             document.getElementById('publisher').value = book.publisher || '';
             document.getElementById('publishDate').value = book.publishDate || '';
