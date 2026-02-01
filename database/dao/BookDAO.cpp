@@ -7,8 +7,8 @@ BookDAO::~BookDAO() = default;
 //添加图书
 bool BookDAO::addBook(const Book &book) const {
     const string sql =
-        "INSERT INTO book (id, title, author, category, publisher) "
-        "VALUES (?, ?, ?, ?, ?);";
+        "INSERT INTO book (id, title, author, category, publisher, publish_date, price, pages, description) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
     sqlite3_stmt* stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return false;
@@ -18,6 +18,10 @@ bool BookDAO::addBook(const Book &book) const {
     sqlite3_bind_text(stmt, 3, book.getAuthor().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 4, book.getCategory().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 5, book.getPublisher().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 6, book.getPublishDate().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 7, book.getPrice().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 8, book.getPages().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 9, book.getDescription().c_str(), -1, SQLITE_TRANSIENT);
 
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
@@ -40,7 +44,7 @@ bool BookDAO::deleteBook(const string &bookId) const {
 
 //更新图书
 bool BookDAO::updateBook(const Book &book) const {
-    const string sql = "UPDATE book SET title=?, author=?, category=?, publisher=? "
+    const string sql = "UPDATE book SET title=?, author=?, category=?, publisher=? ,publish_date=?, price=?, pages=?, description=? "
         "WHERE id=?;";
 
     sqlite3_stmt* stmt = nullptr;
@@ -51,6 +55,10 @@ bool BookDAO::updateBook(const Book &book) const {
     sqlite3_bind_text(stmt, 3, book.getCategory().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 4, book.getPublisher().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 5, book.getId().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 6, book.getPublishDate().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 7, book.getPrice().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 8, book.getPages().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 9, book.getDescription().c_str(), -1, SQLITE_TRANSIENT);
 
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
@@ -71,12 +79,16 @@ static Book extractBook(sqlite3_stmt* stmt) {
     book.setAuthor(columnText(stmt, 2));
     book.setCategory(columnText(stmt, 3));
     book.setPublisher(columnText(stmt, 4));
+    book.setPublishDate(columnText(stmt, 5));
+    book.setPrice(columnText(stmt, 6));
+    book.setPages(columnText(stmt, 7));
+    book.setDescription(columnText(stmt, 8));
     return book;
 }
 
 //根据图书id查询图书信息
 bool BookDAO::searchBookById(const string &bookId, Book& book) const {
-    const string sql = "SELECT id, title, author, category, publisher FROM book WHERE id = ?;";
+    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE id = ?;";
 
     sqlite3_stmt* stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return false;
@@ -93,7 +105,7 @@ bool BookDAO::searchBookById(const string &bookId, Book& book) const {
 
 //根据图书名称查询图书信息
 bool BookDAO::searchBookByTitle(const string &bookTitle, Book& book) const {
-    const string sql = "SELECT id, title, author, category, publisher FROM book WHERE title = ?;";
+    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE title = ?;";
     sqlite3_stmt* stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return false;
     sqlite3_bind_text(stmt, 1, bookTitle.c_str(), -1, SQLITE_TRANSIENT);
@@ -110,7 +122,7 @@ bool BookDAO::searchBookByTitle(const string &bookTitle, Book& book) const {
 //根据图书分类查询图书信息
 vector<Book> BookDAO::searchBooksByCategory(const string &category) const {
     vector<Book> books;
-    const string sql = "SELECT id, title, author, category, publisher FROM book WHERE category = ?;";
+    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE category = ?;";
 
     sqlite3_stmt* stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return books;
@@ -126,7 +138,7 @@ vector<Book> BookDAO::searchBooksByCategory(const string &category) const {
 
 vector<Book> BookDAO::searchBookByAuthor(const string &author) const {
     vector<Book> books;
-    const string sql = "SELECT id, title, author, category, publisher FROM book WHERE author = ?;";
+    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE author = ?;";
 
     sqlite3_stmt* stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return books;

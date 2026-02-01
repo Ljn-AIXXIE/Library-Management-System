@@ -2,7 +2,8 @@
 #define AVL_BOOKSYSTEM_ROUTER_H
 
 #include "../utils/httplib.h"
-#include "AuthController.h"
+#include "user/AuthController.h"
+#include "admin/AdminBookController.h"
 #include <memory>
 
 using namespace std;
@@ -10,11 +11,14 @@ using namespace std;
 //路由管理器 - 负责注册和管理所有HTTP路由
 class Router {
     httplib::Server* server;
-
     unique_ptr<AuthController> authController;
+    unique_ptr<AdminBookController> adminBookController;
 
-    void registerAuthRoutes() const;//注册认证相关路由
-    void registerMiddleware() const;//注册中间件
+    void registerAuthRoutes() const;//注册，登录，登出的路由
+    void registerAdminBookRoutes() const;//注册管理员图书管理的路由
+
+    //注册中间件
+    void registerMiddleware() const;
     
     // CORS中间件
     void setupCORS() const;
@@ -24,10 +28,10 @@ public:
     ~Router();
 
     // 初始化所有路由
-    void initializeRoutes(UserService* userService);
+    void initializeRoutes(UserService* userService, InventoryService* inventoryService, SearchService* searchService);
 
     // 设置静态文件目录
-    void setStaticFileDirectory(const string& dir);
+    void setStaticFileDirectory(const string& dir) const;
 };
 
 #endif //AVL_BOOKSYSTEM_ROUTER_H

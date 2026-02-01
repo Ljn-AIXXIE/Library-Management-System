@@ -13,6 +13,12 @@
 #include "database/DatabaseOperator.h"
 #include "database/DatabaseInitializer.h"
 #include "database/dao/UserDAO.h"
+#include "database/dao/BookDAO.h"
+#include "database/dao/BookCopyDAO.h"
+#include "database/dao/RecordDAO.h"
+#include "service/InventoryService.h"
+#include "service/SearchService.h"
+#include "service/BorrowService.h"
 #include "service/UserService.h"
 #include "controller/Router.h"
 
@@ -49,6 +55,12 @@ int main() {
     // 2. 初始化DAO和Service层
     UserDAO* userDAO = new UserDAO(db);
     UserService* userService = new UserService(userDAO);
+
+    BookDAO* bookDAO = new BookDAO(db);
+    BookCopyDAO* bookCopyDAO = new BookCopyDAO(db);
+    InventoryService* inventoryService = new InventoryService(bookDAO, bookCopyDAO);
+    SearchService* searchService = new SearchService(bookDAO);
+
     cout << "✓ Service层初始化完成" << endl;
     cout << endl;
 
@@ -57,7 +69,7 @@ int main() {
     
     // 4. 初始化路由
     Router router(&server);
-    router.initializeRoutes(userService);
+    router.initializeRoutes(userService,inventoryService,searchService);
 
     // 设置静态文件目录（提供HTML页面）
     router.setStaticFileDirectory("D:/CLion/AVL-BookSystem/public");

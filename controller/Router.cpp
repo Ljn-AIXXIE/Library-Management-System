@@ -7,23 +7,25 @@ Router::Router(httplib::Server* server) : server(server) {}
 Router::~Router() = default;
 
 // 初始化所有路由
-void Router::initializeRoutes(UserService* userService) {
+void Router::initializeRoutes(UserService* userService, InventoryService* inventoryService, SearchService* searchService) {
     // 创建Controller实例
     authController = make_unique<AuthController>(userService);
+    adminBookController = make_unique<AdminBookController>(inventoryService, searchService);
     
     // 设置CORS
     setupCORS();
     
     // 注册中间件
     registerMiddleware();
-    
+
     // 注册路由
     registerAuthRoutes();
-    
+    registerAdminBookRoutes();
+
     cout << "✓ 路由初始化完成" << endl;
 }
 
-// 注册认证相关路由
+// 注册，登录，登出的路由
 void Router::registerAuthRoutes() const {
     // POST /api/auth/register - 用户注册
     server->Post("/api/auth/register", [this](const httplib::Request& req, httplib::Response& res) {
@@ -38,6 +40,24 @@ void Router::registerAuthRoutes() const {
     // POST /api/auth/logout - 用户登出
     server->Post("/api/auth/logout", [this](const httplib::Request& req, httplib::Response& res) {
         authController->handleLogout(req, res);
+    });
+}
+
+//注册管理员图书管理的路由
+void Router::registerAdminBookRoutes() const {
+    //POST /api/admin/books - 添加图书
+    server->Post("/api/admin/books/add", [this](const httplib::Request& req, httplib::Response& res) {
+        adminBookController->handleAddBook(req, res);
+    });
+
+    //POST /api/admin/books/update - 更新图书
+    server->Post("/api/admin/books/update", [this](const httplib::Request& req, httplib::Response& res) {
+        adminBookController->handleUpdateBook(req, res);
+    });
+
+    //POST /api/admin/books/delete - 删除图书
+    server->Post("/api/admin/books/delete", [this](const httplib::Request& req, httplib::Response& res) {
+        adminBookController->handleDeleteBook(req, res);
     });
 }
 
@@ -91,7 +111,7 @@ void Router::setupCORS() const {
 }
 
 // 设置静态文件目录
-void Router::setStaticFileDirectory(const string& dir) {
+void Router::setStaticFileDirectory(const string& dir) const {
     server->set_mount_point("/", dir);
     cout << "✓ 静态文件目录设置为: " << dir << endl;
 }

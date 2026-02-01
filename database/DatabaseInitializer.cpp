@@ -28,7 +28,11 @@ bool DatabaseInitializer::createBookTable(DatabaseOperator* db) {
             title TEXT NOT NULL,
             author TEXT NOT NULL,
             category TEXT,
-            publisher TEXT
+            publisher TEXT,
+            publish_date TEXT,
+            price TEXT,
+            pages TEXT,
+            description TEXT
         );
     )";
     

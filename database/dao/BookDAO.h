@@ -12,6 +12,10 @@ title TEXT,
 author TEXT,
 category TEXT,
 publisher TEXT,
+publish_date TEXT,
+price TEXT,
+pages TEXT,
+description TEXT
 );
 */
 

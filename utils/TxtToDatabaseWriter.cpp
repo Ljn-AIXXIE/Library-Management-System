@@ -20,9 +20,13 @@ void TxtToDatabaseWriter::writeBooksToDatabase(const string &filePath, BookDAO *
         string author;
         string category;
         string publisher;
-        iss>>bookId>>title>>author>>category>>publisher;
+        string publishDate;
+        string price;
+        string pages;
+        string description;
+        iss>>bookId>>title>>author>>category>>publisher>>publishDate>>price>>pages>>description;
 
-        Book book = Book(bookId,title,author,category,publisher);
+        Book book = Book(bookId,title,author,category,publisher,publishDate,price,pages,description);
         if (!db->addBook(book)) {
             cout << "第"<<count<<"行记录添加到数据库失败" << endl;//后续写入日志
         }
