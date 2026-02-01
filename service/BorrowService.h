@@ -5,7 +5,6 @@
 #include "../database/dao/UserDAO.h"
 
 class BorrowService {
-private:
     BookCopyDAO* bookCopyDAO;
     RecordDAO* recordDAO;
     UserDAO* userDAO;

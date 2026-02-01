@@ -1,6 +1,9 @@
 #include "BorrowService.h"
 #include <iostream>
 
+// 定义静态成员变量
+int BorrowService::MAX_BORROW_COUNT = 5;
+
 BorrowService::BorrowService(BookCopyDAO* bookCopyDAO, RecordDAO* recordDAO, UserDAO* userDAO)
 : bookCopyDAO(bookCopyDAO), recordDAO(recordDAO), userDAO(userDAO) {}
 
