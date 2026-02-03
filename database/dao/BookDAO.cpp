@@ -54,11 +54,11 @@ bool BookDAO::updateBook(const Book &book) const {
     sqlite3_bind_text(stmt, 2, book.getAuthor().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 3, book.getCategory().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 4, book.getPublisher().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 5, book.getId().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 6, book.getPublishDate().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 7, book.getPrice().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 8, book.getPages().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 9, book.getDescription().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 5, book.getPublishDate().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 6, book.getPrice().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 7, book.getPages().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 8, book.getDescription().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 9, book.getId().c_str(), -1, SQLITE_TRANSIENT);
 
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
