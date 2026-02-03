@@ -55,29 +55,14 @@ void Router::registerAdminBookRoutes() const {
         adminBookController->handleAddBook(req, res);
     });
 
-    //PUT /api/admin/books/update - 更新图书
-    server->Put("/api/admin/books/update", [this](const httplib::Request& req, httplib::Response& res) {
+    //POST /api/admin/books/update - 更新图书
+    server->Post("/api/admin/books/update", [this](const httplib::Request& req, httplib::Response& res) {
         adminBookController->handleUpdateBook(req, res);
     });
 
     //POST /api/admin/books/delete - 删除图书
     server->Post("/api/admin/books/delete", [this](const httplib::Request& req, httplib::Response& res) {
         adminBookController->handleDeleteBook(req, res);
-    });
-
-    //GET /api/admin/copies?isbn=<isbn> - 获取所有图书副本
-    server->Get("/api/admin/copies", [this](const httplib::Request& req, httplib::Response& res) {
-        adminBookController->handleGetAllBookCopies(req, res);
-    });
-
-    //POST /api/admin/copies/add - 添加图书副本
-    server->Post("/api/admin/copies/add", [this](const httplib::Request& req, httplib::Response& res) {
-        adminBookController->handleAddBookCopy(req, res);
-    });
-
-    //POST /api/admin/copies/delete - 删除图书副本
-    server->Post("/api/admin/copies/delete", [this](const httplib::Request& req, httplib::Response& res) {
-        adminBookController->handleDeleteBookCopy(req, res);
     });
 }
 

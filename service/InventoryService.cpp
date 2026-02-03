@@ -13,14 +13,6 @@ bool InventoryService::deleteBook(const string& bookId) const {
     return db->deleteBook(bookId);
 }
 
-bool InventoryService::updateBook(const Book& book) const {
-    return db->updateBook(book);
-}
-
-vector<Book> InventoryService::getAllBooks() const {
-    return db->getAllBooks();
-}
-
 bool InventoryService::addBookCopy(const BookCopy& bookCopy) const {
     return bookCopyDAO->addBookCopy(bookCopy);
 }
@@ -29,8 +21,12 @@ bool InventoryService::deleteBookCopy(const string& copyId) const {
     return bookCopyDAO->deleteBookCopy(copyId);
 }
 
-bool InventoryService::deleteAllBookCopy(const string &bookId) const {
-    return bookCopyDAO->deleteAllBookCopy(bookId);
+bool InventoryService::updateBook(const Book& book) const {
+    return db->updateBook(book);
+}
+
+vector<Book> InventoryService::getAllBooks() const {
+    return db->getAllBooks();
 }
 
 vector<BookCopy> InventoryService::getBookCopies(const string& bookId) const {
@@ -39,14 +35,6 @@ vector<BookCopy> InventoryService::getBookCopies(const string& bookId) const {
 
 vector<BookCopy> InventoryService::getAvailableCopies(const string& bookId) const {
     return bookCopyDAO->getAvailableCopies(bookId);
-}
-
-int InventoryService::getBookCopyCount(const string &bookId) const {
-    return bookCopyDAO->getCopyCountByBookId(bookId);
-}
-
-int InventoryService::getAvailableCopyCount(const string &bookId) const {
-    return bookCopyDAO->getAvailableCopyCount(bookId);
 }
 
 bool InventoryService::isBookIdExist(const string& bookId) const {

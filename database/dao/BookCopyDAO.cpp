@@ -41,19 +41,6 @@ bool BookCopyDAO::deleteBookCopy(const string& copyId) const {
     return success;
 }
 
-//删除指定图书的所有图书副本
-bool BookCopyDAO::deleteAllBookCopy(const string& bookId) const {
-    const string sql = "DELETE FROM book_copy WHERE book_id = ?;";
-
-    sqlite3_stmt* stmt = nullptr;
-    if (!bookCopyDatabase->prepare(sql, &stmt)) return false;
-    sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
-
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
-    sqlite3_finalize(stmt);
-    return success;
-}
-
 //更新图书副本状态
 bool BookCopyDAO::updateBookCopyStatus(const string& copyId, const string& status) const {
     const string sql = "UPDATE book_copy SET status = ? WHERE copy_id = ?;";
@@ -67,36 +54,6 @@ bool BookCopyDAO::updateBookCopyStatus(const string& copyId, const string& statu
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
     return success;
-}
-
-int BookCopyDAO::getCopyCountByBookId(const string& bookId) const {
-    const string sql = "SELECT COUNT(*) FROM book_copy WHERE book_id = ?;";
-    sqlite3_stmt* stmt = nullptr;
-    if (!bookCopyDatabase->prepare(sql, &stmt)) return 0;
-
-    sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
-
-    int count = 0;
-    if (sqlite3_step(stmt) == SQLITE_ROW) {
-        count = sqlite3_column_int(stmt, 0);
-    }
-    sqlite3_finalize(stmt);
-    return count;
-}
-
-int BookCopyDAO::getAvailableCopyCount(const string &bookId) const {
-    const string sql = "SELECT COUNT(*) FROM book_copy WHERE book_id = ? AND status = 'available';";
-    sqlite3_stmt* stmt = nullptr;
-    if (!bookCopyDatabase->prepare(sql, &stmt)) return 0;
-
-    sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
-
-    int count = 0;
-    if (sqlite3_step(stmt) == SQLITE_ROW) {
-        count = sqlite3_column_int(stmt, 0);
-    }
-    sqlite3_finalize(stmt);
-    return count;
 }
 
 //用于获取列文本
