@@ -54,7 +54,7 @@
         </div>
         <div class="reader-table">
             <table>
-                <thead><tr><th>用户ID</th><th>姓名</th><th>角色</th><th>当前借阅</th><th>历史借阅</th><th>账户状态</th><th>操作</th></tr></thead>
+                <thead><tr><th>用户ID</th><th>姓名</th><th>当前借阅数量</th><th>账户状态</th><th>操作</th></tr></thead>
                 <tbody id="readerTableBody"><tr><td colspan="7" style="text-align:center;padding:40px;color:#999;">加载中...</td></tr></tbody>
             </table>
         </div>
@@ -67,7 +67,6 @@
                 <div class="info-grid">
                     <div class="info-item"><div class="info-label">用户ID</div><div class="info-value" id="detailUserId">-</div></div>
                     <div class="info-item"><div class="info-label">姓名</div><div class="info-value" id="detailName">-</div></div>
-                    <div class="info-item"><div class="info-label">角色</div><div class="info-value" id="detailRole">-</div></div>
                     <div class="info-item"><div class="info-label">账户状态</div><div class="info-value" id="detailStatus">-</div></div>
                 </div>
             </div>
@@ -118,12 +117,10 @@
                 <tr>
                     <td>${reader.userId}</td>
                     <td>${reader.name}</td>
-                    <td>${reader.role === 'admin' ? '管理员' : '读者'}</td>
-                    <td>${reader.currentBorrow || 0}</td>
-                    <td>${reader.totalBorrow || 0}</td>
+                    <td>${reader.borrowedBookCount || 0}</td>
                     <td><span class="status-badge status-${reader.status === 'normal' ? 'normal' : 'frozen'}">${reader.status === 'normal' ? '正常' : '冻结'}</span></td>
                     <td>
-                        <button class="btn-small btn-view" onclick="viewReader('${reader.userId}')">查看</button>
+                        <button class="btn-small btn-view" onclick="viewReader('${reader.userId}')">查看信息</button>
                         ${reader.status === 'normal' ? 
                             `<button class="btn-small btn-freeze" onclick="freezeReader('${reader.userId}')">冻结</button>` :
                             `<button class="btn-small btn-unfreeze" onclick="unfreezeReader('${reader.userId}')">解冻</button>`
@@ -140,9 +137,8 @@
                     const reader = data.data;
                     document.getElementById('detailUserId').textContent = reader.userId;
                     document.getElementById('detailName').textContent = reader.name;
-                    document.getElementById('detailRole').textContent = reader.role === 'admin' ? '管理员' : '读者';
                     document.getElementById('detailStatus').textContent = reader.status === 'normal' ? '正常' : '冻结';
-                    document.getElementById('detailCurrent').textContent = `${reader.currentBorrow || 0} 本`;
+                    document.getElementById('detailCurrent').textContent = `${reader.borrowedBookCount || 0} 本`;
                     document.getElementById('detailTotal').textContent = `${reader.totalBorrow || 0} 本`;
                     document.getElementById('detailDueSoon').textContent = `${reader.dueSoon || 0} 本`;
                     document.getElementById('detailOverdue').textContent = `${reader.overdue || 0} 本`;

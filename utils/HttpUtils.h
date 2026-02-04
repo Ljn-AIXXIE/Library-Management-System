@@ -1,5 +1,8 @@
 #ifndef AVL_BOOKSYSTEM_HTTPUTILS_H
 #define AVL_BOOKSYSTEM_HTTPUTILS_H
+#pragma once
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include "httplib.h"
 #include "json.hpp"
 #include <vector>
