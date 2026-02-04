@@ -5,7 +5,7 @@ AdminBookController::AdminBookController(InventoryService *inventoryService, Sea
 AdminBookController::~AdminBookController() = default;
 
 //GET /api/admin/books - 获取所有图书
-void AdminBookController::handleGetAllBooks(const httplib::Request &req, httplib::Response &res) const {
+void AdminBookController::handleGetAllBooks(httplib::Response &res) const {
     cout << "[AdminBookController] 获取所有图书列表" << endl;
 
     vector<Book> books = inventoryService->getAllBooks();
@@ -136,7 +136,7 @@ void AdminBookController::handleUpdateBook(const httplib::Request &req, httplib:
     }
 }
 
-// DELETE /api/admin/books/delete - 删除图书
+// POST /api/admin/books/delete - 删除图书
 void AdminBookController::handleDeleteBook(const httplib::Request &req, httplib::Response &res) const {
     json requestData = HttpUtils::parseRequestBody(req);
     string bookId = requestData["isbn"];
