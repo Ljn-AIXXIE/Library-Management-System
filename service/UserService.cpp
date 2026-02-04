@@ -1,7 +1,7 @@
 #include "UserService.h"
 #include <iostream>
 
-UserService::UserService(UserDAO* userDAO) : db(userDAO) {}
+UserService::UserService(UserDAO* db) : db(db) {}
 
 UserService::~UserService() = default;
 
@@ -35,6 +35,14 @@ bool UserService::deleteUser(const string &userId) const {
     return db->deleteUser(userId);
 }
 
+bool UserService::getUserById(const string &userId, User &user) const {
+    return db->searchUserById(userId, user);
+}
+
+vector<User> UserService::getAllUsers() const {
+    return db->getAllUsers();
+}
+
 // bool UserService::isUserBlacklisted(const string &userId) const {
 //
 // }
@@ -49,8 +57,4 @@ bool UserService::verifyUser(const string &userId, const string &password) const
 
 bool UserService::verifyOldPassword(const string &userId, const string &oldPassword) const {
     return db->verifyUser(userId, oldPassword);
-}
-
-bool UserService::getUserById(const string &userId, User &user) const {
-    return db->searchUserById(userId, user);
 }

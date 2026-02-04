@@ -7,6 +7,7 @@ user_id        PK
 name
 role           (student / admin)
 password
+borrow_count
 */
 
 UserDAO::UserDAO(DatabaseOperator* userDatabase):userDatabase(userDatabase){}
@@ -129,6 +130,23 @@ bool UserDAO::searchUserById(const string& userId, User& user) const {
     }
     sqlite3_finalize(stmt);
     return false;
+}
+
+vector<User> UserDAO::getAllUsers() const {
+    vector<User> users;
+    const string sql = "SELECT user_id, name, borrow_count FROM user WHERE role = 'student';";
+    sqlite3_stmt* stmt = nullptr;
+    if (!userDatabase->prepare(sql, &stmt)) return users;
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        User user;
+        user.setId(columnText(stmt, 0));
+        user.setName(columnText(stmt, 1));
+        user.setBorrowedBookCount(sqlite3_column_int(stmt, 2));
+        users.push_back(user);
+    }
+    sqlite3_finalize(stmt);
+    return users;
 }
 
 //判断用户是否存在，用于登录和注册校验

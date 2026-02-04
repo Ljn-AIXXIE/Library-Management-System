@@ -3,12 +3,13 @@
 #include "../utils/PasswordUtils.h"
 using namespace std;
 
-User::User(string id,string name, string password,string type) {
+User::User(string id,string name, string password,string type,int borrowedBookCount) {
     this->id = id;
     this->name = name;
     password=PasswordUtils::encryptPassword(password);
     this->password = password;
     this->type = type;
+    this->borrowedBookCount = borrowedBookCount;
 }
 
 User::User() {
@@ -16,28 +17,37 @@ User::User() {
     this->name = "";
     this->password = "";
     this->type = "";
+    this->borrowedBookCount = 0;
 }
 
-User::~User() {}
+User::~User()=default;
 
 //获取用户id
-const string User::getId() const{
+string User::getId() const{
     return id;
 }
 
 //获取用户名
-const string User::getName() const{
+string User::getName() const{
     return name;
 }
 
 //获取用户密码
-const string User::getPassword() const{
+string User::getPassword() const{
     return password;
 }
 
 //获取用户类型
-const string User::getType() const{
+string User::getType() const{
     return type;
+}
+
+int User::getBorrowedBookCount() const{
+    return borrowedBookCount;
+}
+
+string User::getStatus() const {
+    return status;
 }
 
 // //获取借阅图书信息
@@ -56,9 +66,6 @@ const string User::getType() const{
 //     return borrowBookData;
 // }
 //
-// int User::getBorrowedBookCount() const{
-//     return borrowedBookCount;
-// }
 
 void User::setId(string id) {
     this->id = id;
@@ -79,10 +86,14 @@ void User::setType(string type) {
     this->type = type;
 }
 
-// void User::setBorrowedBookCount(int borrowedBookCount) {
-//     this->borrowedBookCount = borrowedBookCount;
-// }
-//
+void User::setBorrowedBookCount(int borrowedBookCount) {
+    this->borrowedBookCount = borrowedBookCount;
+}
+
+void User::setStatus(string status) {
+    this->status = status;
+}
+
 // //添加借阅信息
 // void User::addBorrowInfo(string bookId) {
 //     BookBorrowInfo info(bookId);

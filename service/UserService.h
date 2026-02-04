@@ -17,6 +17,7 @@ public:
 
     //查询
     bool getUserById(const string& userId, User& user) const;//根据用户ID获取用户信息
+    [[nodiscard]] vector<User> getAllUsers() const;
 
     //校验
     //[[nodiscard]] bool isUserBlacklisted(const string& userId) const;//用户是否被拉黑

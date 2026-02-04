@@ -11,6 +11,7 @@ void Router::initializeRoutes(UserService* userService, InventoryService* invent
     // 创建Controller实例
     authController = make_unique<AuthController>(userService);
     adminBookController = make_unique<AdminBookController>(inventoryService, searchService);
+    adminUserController = make_unique<AdminUserController>(userService);
     
     // 设置CORS
     setupCORS();
@@ -21,6 +22,7 @@ void Router::initializeRoutes(UserService* userService, InventoryService* invent
     // 注册路由
     registerAuthRoutes();
     registerAdminBookRoutes();
+    registerAdminUserRoutes();
 
     cout << "✓ 路由初始化完成" << endl;
 }
@@ -47,7 +49,7 @@ void Router::registerAuthRoutes() const {
 void Router::registerAdminBookRoutes() const {
     //GET /api/admin/books - 获取所有图书
     server->Get("/api/admin/books", [this](const httplib::Request& req, httplib::Response& res) {
-        adminBookController->handleGetAllBooks(req, res);
+        adminBookController->handleGetAllBooks(res);
     });
 
     //POST /api/admin/books/add - 添加图书
@@ -78,6 +80,14 @@ void Router::registerAdminBookRoutes() const {
     //POST /api/admin/copies/delete - 删除图书副本
     server->Post("/api/admin/copies/delete", [this](const httplib::Request& req, httplib::Response& res) {
         adminBookController->handleDeleteBookCopy(req, res);
+    });
+}
+
+//注册管理员用户管理的路由
+void Router::registerAdminUserRoutes() const {
+    //GET /api/admin/readers - 获取所有读者
+    server->Get("/api/admin/readers", [this](const httplib::Request& req, httplib::Response& res) {
+        adminUserController->handleGetAllUsers(res);
     });
 }
 
