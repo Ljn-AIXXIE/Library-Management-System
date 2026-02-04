@@ -1,6 +1,6 @@
 #include "AdminUserController.h"
 
-AdminUserController::AdminUserController(UserService *userService): userService(userService) {}
+AdminUserController::AdminUserController(UserService *userService,BlackListService *blackListService): userService(userService), blackListService(blackListService) {}
 
 AdminUserController::~AdminUserController()= default;
 
@@ -10,6 +10,11 @@ void AdminUserController::handleGetAllUsers(httplib::Response &res) const {
     vector<User> users = userService->getAllUsers();
 
     //通过查询黑名单来设定读者状态
+    for (auto& user : users) {
+        if (blackListService->isBlackListed(user.getId())) {
+            user.setStatus("frozen");
+        }
+    }
 
     json usersArray = json::array();
     for (const auto& user : users) {

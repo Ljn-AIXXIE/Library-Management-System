@@ -21,7 +21,9 @@
 #include "service/SearchService.h"
 #include "service/BorrowService.h"
 #include "service/UserService.h"
+#include "service/BlackListService.h"
 #include "controller/Router.h"
+#include "database/dao/BlackListDAO.h"
 
 using namespace std;
 
@@ -62,6 +64,12 @@ int main() {
     InventoryService* inventoryService = new InventoryService(bookDAO, bookCopyDAO);
     SearchService* searchService = new SearchService(bookDAO);
 
+    RecordDAO* recordDAO = new RecordDAO(db);
+    BorrowService* borrowService = new BorrowService(bookCopyDAO, recordDAO, userDAO);
+
+    BlackListDAO *blackListDAO = new BlackListDAO(db);
+    BlackListService* blackListService = new BlackListService(blackListDAO);
+
     cout << "✓ Service层初始化完成" << endl;
     cout << endl;
 
@@ -70,7 +78,7 @@ int main() {
     
     // 4. 初始化路由
     Router router(&server);
-    router.initializeRoutes(userService,inventoryService,searchService);
+    router.initializeRoutes(userService,inventoryService,searchService,blackListService);
 
     // 设置静态文件目录（提供HTML页面）
     router.setStaticFileDirectory("D:/CLion/AVL-BookSystem/public");

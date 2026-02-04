@@ -7,11 +7,12 @@ Router::Router(httplib::Server* server) : server(server) {}
 Router::~Router() = default;
 
 // 初始化所有路由
-void Router::initializeRoutes(UserService* userService, InventoryService* inventoryService, SearchService* searchService) {
+void Router::initializeRoutes(UserService* userService, InventoryService* inventoryService, SearchService* searchService, BlackListService* blackListService) {
     // 创建Controller实例
     authController = make_unique<AuthController>(userService);
     adminBookController = make_unique<AdminBookController>(inventoryService, searchService);
-    adminUserController = make_unique<AdminUserController>(userService);
+    adminUserController = make_unique<AdminUserController>(userService, blackListService);
+    adminBlackListController = make_unique<AdminBlackListController>(blackListService);
     
     // 设置CORS
     setupCORS();
@@ -88,6 +89,16 @@ void Router::registerAdminUserRoutes() const {
     //GET /api/admin/readers - 获取所有读者
     server->Get("/api/admin/readers", [this](const httplib::Request& req, httplib::Response& res) {
         adminUserController->handleGetAllUsers(res);
+    });
+
+    //POST /api/admin/readers/freeze - 冻结读者账户
+    server->Post("/api/admin/readers/freeze", [this](const httplib::Request& req, httplib::Response& res) {
+        adminBlackListController->handleFreezeUser(req, res);
+    });
+
+    //POST /api/admin/readers/unfreeze - 解冻读者账户
+    server->Post("/api/admin/readers/unfreeze", [this](const httplib::Request& req, httplib::Response& res) {
+        adminBlackListController->handleUnfreezeUser(req, res);
     });
 }
 

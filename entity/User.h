@@ -11,7 +11,7 @@ class User {
     string password;//用户密码
     string type;//用户类型
     int borrowedBookCount=0;//已借阅数量
-    string status="normal";
+    string status;
 
     // vector<BookBorrowInfo> borrowInfo;//借阅图书的相关信息，可以借阅多本，设定归还时间
 public:

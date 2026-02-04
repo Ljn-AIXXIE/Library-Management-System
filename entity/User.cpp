@@ -10,6 +10,7 @@ User::User(string id,string name, string password,string type,int borrowedBookCo
     this->password = password;
     this->type = type;
     this->borrowedBookCount = borrowedBookCount;
+    this->status = "normal";
 }
 
 User::User() {
@@ -18,6 +19,7 @@ User::User() {
     this->password = "";
     this->type = "";
     this->borrowedBookCount = 0;
+    this->status = "normal";
 }
 
 User::~User()=default;
