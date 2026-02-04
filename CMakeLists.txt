@@ -58,6 +58,12 @@ add_executable(server_main server_main.cpp
         utils/PasswordUtils.h
         utils/HttpUtils.cpp
         utils/HttpUtils.h
+        database/dao/BlackListDAO.cpp
+        database/dao/BlackListDAO.h
+        service/BlackListService.cpp
+        service/BlackListService.h
+        controller/admin/AdminBlackListController.cpp
+        controller/admin/AdminBlackListController.h
 )
 
 # 链接SQLite3库和系统库到服务器程序
