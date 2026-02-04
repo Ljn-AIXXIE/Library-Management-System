@@ -91,6 +91,11 @@ void Router::registerAdminUserRoutes() const {
         adminUserController->handleGetAllUsers(res);
     });
 
+    //GET /api/admin/readers/detail?userId=<userId> - 获取读者详细信息
+    server->Get("/api/admin/readers/detail", [this](const httplib::Request& req, httplib::Response& res) {
+        adminUserController->handleGetUserDetail(req, res);
+    });
+
     //POST /api/admin/readers/freeze - 冻结读者账户
     server->Post("/api/admin/readers/freeze", [this](const httplib::Request& req, httplib::Response& res) {
         adminBlackListController->handleFreezeUser(req, res);

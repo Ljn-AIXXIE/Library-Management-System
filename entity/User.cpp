@@ -10,7 +10,6 @@ User::User(string id,string name, string password,string type,int borrowedBookCo
     this->password = password;
     this->type = type;
     this->borrowedBookCount = borrowedBookCount;
-    this->status = "normal";
 }
 
 User::User() {
@@ -19,7 +18,6 @@ User::User() {
     this->password = "";
     this->type = "";
     this->borrowedBookCount = 0;
-    this->status = "normal";
 }
 
 User::~User()=default;
@@ -50,6 +48,18 @@ int User::getBorrowedBookCount() const{
 
 string User::getStatus() const {
     return status;
+}
+
+int User::getTotalBorrowCount() const {
+    return totalBorrowCount;
+}
+
+int User::getDueSoonCount() const {
+    return dueSoonCount;
+}
+
+int User::getOverdueCount() const {
+    return overdueCount;
 }
 
 // //获取借阅图书信息
@@ -94,6 +104,18 @@ void User::setBorrowedBookCount(int borrowedBookCount) {
 
 void User::setStatus(string status) {
     this->status = status;
+}
+
+void User::setTotalBorrowCount(int totalBorrowCount) {
+    this->totalBorrowCount = totalBorrowCount;
+}
+
+void User::setDueSoonCount(int dueSoonCount) {
+    this->dueSoonCount = dueSoonCount;
+}
+
+void User::setOverdueCount(int overdueCount) {
+    this->overdueCount = overdueCount;
 }
 
 // //添加借阅信息
