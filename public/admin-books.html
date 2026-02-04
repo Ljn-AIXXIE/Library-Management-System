@@ -108,7 +108,7 @@
         }
         async function searchBooks() {
             const keyword = document.getElementById('searchInput').value.trim();
-            if (!keyword) { loadBooks(); return; }
+            if (!keyword) { await loadBooks(); return; }
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/books/search?keyword=${encodeURIComponent(keyword)}`);
                 const data = await response.json();
@@ -175,7 +175,7 @@
                 const method = editingBook ? 'PUT' : 'POST';
                 const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bookData) });
                 const data = await response.json();
-                if (data.success) { showMessage(editingBook ? '图书更新成功' : '图书添加成功', 'success'); closeBookModal(); loadBooks(); }
+                if (data.success) { showMessage(editingBook ? '图书更新成功' : '图书添加成功', 'success'); closeBookModal(); await loadBooks(); }
                 else { showMessage(data.message || '操作失败', 'error'); }
             } catch (error) { showMessage('网络错误', 'error'); }
         });
@@ -192,7 +192,7 @@
             currentISBN = isbn;
             document.getElementById('copyBookTitle').textContent = title;
             document.getElementById('copiesModal').classList.add('show');
-            loadCopies(isbn);
+            await loadCopies(isbn);
         }
         async function loadCopies(isbn) {
             try {
