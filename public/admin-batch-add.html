@@ -99,7 +99,7 @@
     let currentUser = null;
     window.onload = function() {
         currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-        //if (!currentUser.userId || currentUser.role !== 'admin') { alert('需要管理员权限'); window.location.href = 'login.html'; }
+        if (!currentUser.userId || currentUser.role !== 'admin') { alert('需要管理员权限'); window.location.href = 'login.html'; }
     };
 
     let Files = [];
