@@ -254,18 +254,17 @@
         const file = Files[Files.findIndex(f => f.id == id)].file;
         const reader = new FileReader();
 
-        reader.onload = async (e) => {
-            const fileData = {
-                name: file.name,
-                data: e.target.result.toString(),
-            };
+        reader.onload = async () => {
             try {
                 const url = `${API_BASE_URL}/api/admin/add/batch`;
                 const method = 'POST';
+                const formData = new FormData();
+                formData.append("name", file.name);
+                formData.append("data", file);
+                formData.append("size", file.size);
                 const response = await fetch(url, {
                     method,
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(fileData)
+                    body: formData
                 });
                 const data = await response.json();
                 if (data.success) {
