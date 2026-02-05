@@ -16,6 +16,7 @@ bool DatabaseInitializer::initializeDatabase(DatabaseOperator* db) {
     if (!createBookCopyTable(db)) return false;
     if (!createRecordTable(db)) return false;
     if (!createIndexes(db)) return false;
+    if (!createBlackListTable(db)) return false;
 
     cout << "数据库初始化成功" << std::endl;
     return true;
@@ -100,6 +101,22 @@ bool DatabaseInitializer::createRecordTable(DatabaseOperator* db) {
         return false;
     }
     cout << "record表创建成功" << endl;
+    return true;
+}
+
+bool DatabaseInitializer::createBlackListTable(DatabaseOperator *db) {
+    const string sql = R"(
+        CREATE TABLE IF NOT EXISTS black_list (
+            user_id TEXT PRIMARY KEY,
+            FOREIGN KEY (user_id) REFERENCES user(user_id)
+        );
+    )";
+
+    if (!db->execute(sql)) {
+        cerr << "创建black_list表失败: " << db->getLastError() << endl;
+        return false;
+    }
+    cout << "black_list表创建成功" << endl;
     return true;
 }
 

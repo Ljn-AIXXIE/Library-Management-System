@@ -12,6 +12,7 @@ class DatabaseInitializer {
     static bool createUserTable(DatabaseOperator* db);
     static bool createBookCopyTable(DatabaseOperator* db);
     static bool createRecordTable(DatabaseOperator* db);
+    static bool createBlackListTable(DatabaseOperator* db);
     static bool createIndexes(DatabaseOperator* db);
 public:
     // 初始化数据库，创建所有表

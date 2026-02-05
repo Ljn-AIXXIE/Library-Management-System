@@ -139,9 +139,9 @@
                     document.getElementById('detailName').textContent = reader.name;
                     document.getElementById('detailStatus').textContent = reader.status === 'normal' ? '正常' : '冻结';
                     document.getElementById('detailCurrent').textContent = `${reader.borrowedBookCount || 0} 本`;
-                    document.getElementById('detailTotal').textContent = `${reader.totalBorrow || 0} 本`;
-                    document.getElementById('detailDueSoon').textContent = `${reader.dueSoon || 0} 本`;
-                    document.getElementById('detailOverdue').textContent = `${reader.overdue || 0} 本`;
+                    document.getElementById('detailTotal').textContent = `${reader.totalBorrowCount || 0} 本`;
+                    document.getElementById('detailDueSoon').textContent = `${reader.dueSoonCount || 0} 本`;
+                    document.getElementById('detailOverdue').textContent = `${reader.overdueCount || 0} 本`;
                     const borrowList = document.getElementById('borrowList');
                     if (reader.borrows && reader.borrows.length > 0) {
                         borrowList.innerHTML = reader.borrows.map(b => `<div class="borrow-item"><strong>${b.bookTitle}</strong><br><small>借阅：${b.borrowDate} | 应还：${b.dueDate}</small></div>`).join('');
