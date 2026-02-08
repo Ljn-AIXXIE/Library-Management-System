@@ -6,6 +6,8 @@
 #include "admin/AdminBookController.h"
 #include "admin/AdminUserController.h"
 #include "admin/AdminBlackListController.h"
+#include "admin/AdminBatchAddController.h"
+#include "user/BookSearchController.h"
 #include <memory>
 
 using namespace std;
@@ -17,10 +19,14 @@ class Router {
     unique_ptr<AdminBookController> adminBookController;
     unique_ptr<AdminUserController> adminUserController;
     unique_ptr<AdminBlackListController> adminBlackListController;
+    unique_ptr<AdminBatchAddController> adminBatchAddController;
+    unique_ptr<BookSearchController> bookSearchController;
 
     void registerAuthRoutes() const;//注册，登录，登出的路由
     void registerAdminBookRoutes() const;//注册管理员图书管理的路由
     void registerAdminUserRoutes() const;//注册管理员用户管理的路由
+    // void registerAdminBatchAddRoutes() const;//注册管理员批量添加数据的路由
+    void registerSearchBookRoutes() const;//注册搜索图书的路由
 
     //注册中间件
     void registerMiddleware() const;
@@ -33,7 +39,7 @@ public:
     ~Router();
 
     // 初始化所有路由
-    void initializeRoutes(UserService* userService, InventoryService* inventoryService, SearchService* searchService, BlackListService* blackListService);
+    void initializeRoutes(UserService* userService, InventoryService* inventoryService, SearchService* searchService, BlackListService* blackListService, BatchAddService* batchAddService);
 
     // 设置静态文件目录
     void setStaticFileDirectory(const string& dir) const;

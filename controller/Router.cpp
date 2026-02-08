@@ -7,12 +7,14 @@ Router::Router(httplib::Server* server) : server(server) {}
 Router::~Router() = default;
 
 // 初始化所有路由
-void Router::initializeRoutes(UserService* userService, InventoryService* inventoryService, SearchService* searchService, BlackListService* blackListService) {
+void Router::initializeRoutes(UserService* userService, InventoryService* inventoryService, SearchService* searchService, BlackListService* blackListService, BatchAddService* batchAddService) {
     // 创建Controller实例
     authController = make_unique<AuthController>(userService);
     adminBookController = make_unique<AdminBookController>(inventoryService, searchService);
     adminUserController = make_unique<AdminUserController>(userService, blackListService);
     adminBlackListController = make_unique<AdminBlackListController>(blackListService);
+    // adminBatchAddController = make_unique<AdminBatchAddController>(batchAddService);
+    bookSearchController = make_unique<BookSearchController>(searchService, inventoryService);
     
     // 设置CORS
     setupCORS();
@@ -24,6 +26,8 @@ void Router::initializeRoutes(UserService* userService, InventoryService* invent
     registerAuthRoutes();
     registerAdminBookRoutes();
     registerAdminUserRoutes();
+    // registerAdminBatchAddRoutes();
+    registerSearchBookRoutes();
 
     cout << "✓ 路由初始化完成" << endl;
 }
@@ -43,6 +47,11 @@ void Router::registerAuthRoutes() const {
     // POST /api/auth/logout - 用户登出
     server->Post("/api/auth/logout", [this](const httplib::Request& req, httplib::Response& res) {
         authController->handleLogout(req, res);
+    });
+
+    // POST /api/auth/change_password - 修改密码
+    server->Post("/api/auth/change-password", [this](const httplib::Request& req, httplib::Response& res) {
+        authController->handleChangePassword(req, res);
     });
 }
 
@@ -104,6 +113,21 @@ void Router::registerAdminUserRoutes() const {
     //POST /api/admin/readers/unfreeze - 解冻读者账户
     server->Post("/api/admin/readers/unfreeze", [this](const httplib::Request& req, httplib::Response& res) {
         adminBlackListController->handleUnfreezeUser(req, res);
+    });
+}
+
+// void Router::registerAdminBatchAddRoutes() const {
+//
+//     //POST /api/admin/add/batch - 批量添加数据
+//     server->Post("/api/admin/add/batch", [this](const httplib::Request& req, httplib::Response& res,const httplib::ContentReader &content_reader) {
+//         adminBatchAddController->handleBatchAdd(req, res, content_reader);
+//     });
+// }
+
+void Router::registerSearchBookRoutes() const {
+    //GET /api/books/search - 搜索图书
+    server->Get("/api/books/search", [this](const httplib::Request& req, httplib::Response& res) {
+        bookSearchController->handleSearchBooks(req, res);
     });
 }
 
