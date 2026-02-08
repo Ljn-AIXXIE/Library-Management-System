@@ -28,6 +28,9 @@ public:
     
     // POST /api/auth/logout - 用户登出
     static void handleLogout(const httplib::Request& req, httplib::Response& res);
+
+    // POST /api/auth/change-password - 修改密码
+    void handleChangePassword(const httplib::Request& req, httplib::Response& res) const;
 };
 
 #endif //AVL_BOOKSYSTEM_AUTHCONTROLLER_H

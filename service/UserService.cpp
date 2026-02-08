@@ -18,11 +18,7 @@ bool UserService::loginUser(const string &userId, const string &password) const 
     return false;
 }
 
-bool UserService::changePassword(const string &userId, const string &oldPassword, const string &newPassword) const {
-    if (!verifyOldPassword(userId, oldPassword)) {
-        cout<<"原密码错误"<<endl;
-        return false;
-    }
+bool UserService::changePassword(const string &userId, const string &newPassword) const {
     if (db->updateUserPassword(userId, newPassword)) {
         cout<<"密码修改成功"<<endl;
         return true;

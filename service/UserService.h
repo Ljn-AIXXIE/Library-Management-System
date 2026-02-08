@@ -12,7 +12,7 @@ public:
     //核心操作
     [[nodiscard]] bool registerUser(const User& user) const;//用户注册
     [[nodiscard]] bool loginUser(const string& userId, const string& password) const;//用户登录
-    [[nodiscard]] bool changePassword(const string& userId, const string& oldPassword, const string& newPassword) const;//修改密码
+    [[nodiscard]] bool changePassword(const string& userId, const string& newPassword) const;//修改密码
     [[nodiscard]] bool deleteUser(const string& userId) const;//删除用户
 
     //查询

@@ -120,3 +120,44 @@ void AuthController::handleLogout(const httplib::Request& req, httplib::Response
     };
     res = HttpUtils::createSuccessResponse(responseData, 200);
 }
+
+// POST /api/auth/change-password - 修改密码
+void AuthController::handleChangePassword(const httplib::Request& req, httplib::Response& res) const {
+    json requestData = HttpUtils::parseRequestBody(req);
+
+    // 验证必填字段
+    string errorMsg;
+    if (!HttpUtils::validateRequiredFields(requestData, {"userId", "oldPassword", "newPassword"}, errorMsg)) {
+        res = HttpUtils::createErrorResponse(errorMsg, 400);
+        return;
+    }
+
+    string userId = requestData["userId"];
+    string oldPassword = requestData["oldPassword"];
+    string newPassword = requestData["newPassword"];
+
+    // 验证用户是否存在
+    if (!userService->isUserExist(userId)) {
+        res = HttpUtils::createErrorResponse("用户不存在", 401);
+        return;
+    }
+
+    // 验证旧密码
+    if (!userService->verifyOldPassword(userId, oldPassword)) {
+        res = HttpUtils::createErrorResponse("原密码错误", 401);
+        return;
+    }
+
+    newPassword = PasswordUtils::encryptPassword(newPassword);
+
+    // 修改密码
+    if (userService->changePassword(userId,newPassword)) {
+        json responseData = {
+            {"success", true},
+            {"message", "密码修改成功"}
+        };
+        res = HttpUtils::createSuccessResponse(responseData, 200);
+    } else {
+        res = HttpUtils::createErrorResponse("密码修改失败", 500);
+    }
+}
