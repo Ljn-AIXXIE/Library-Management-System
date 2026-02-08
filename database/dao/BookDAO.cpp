@@ -105,10 +105,12 @@ bool BookDAO::searchBookById(const string &bookId, Book& book) const {
 
 //根据图书名称查询图书信息
 bool BookDAO::searchBookByTitle(const string &bookTitle, Book& book) const {
-    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE title = ?;";
+    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE title LIKE ?;";
     sqlite3_stmt* stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return false;
-    sqlite3_bind_text(stmt, 1, bookTitle.c_str(), -1, SQLITE_TRANSIENT);
+
+    string pattern = "%" + bookTitle + "%";
+    sqlite3_bind_text(stmt, 1, pattern.c_str(), -1, SQLITE_TRANSIENT);
 
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         book = extractBook(stmt);
@@ -137,11 +139,13 @@ vector<Book> BookDAO::getAllBooks() const {
 //根据图书分类查询图书信息
 vector<Book> BookDAO::searchBooksByCategory(const string &category) const {
     vector<Book> books;
-    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE category = ?;";
+    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE category LIKE ?;";
 
     sqlite3_stmt* stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return books;
-    sqlite3_bind_text(stmt, 1, category.c_str(), -1, SQLITE_TRANSIENT);
+
+    string pattern = "%" + category + "%";
+    sqlite3_bind_text(stmt, 1, pattern.c_str(), -1, SQLITE_TRANSIENT);
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         books.push_back(extractBook(stmt));
@@ -153,12 +157,14 @@ vector<Book> BookDAO::searchBooksByCategory(const string &category) const {
 
 vector<Book> BookDAO::searchBookByAuthor(const string &author) const {
     vector<Book> books;
-    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE author = ?;";
+    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE author LIKE ?;";
 
     sqlite3_stmt* stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return books;
 
-    sqlite3_bind_text(stmt, 1, author.c_str(), -1, SQLITE_TRANSIENT);
+    string pattern = "%" + author + "%";
+
+    sqlite3_bind_text(stmt, 1, pattern.c_str(), -1, SQLITE_TRANSIENT);
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         books.push_back(extractBook(stmt));
