@@ -14,7 +14,7 @@ void Router::initializeRoutes(UserService* userService, InventoryService* invent
     adminUserController = make_unique<AdminUserController>(userService, blackListService);
     adminBlackListController = make_unique<AdminBlackListController>(blackListService);
     // adminBatchAddController = make_unique<AdminBatchAddController>(batchAddService);
-    bookSearchController = make_unique<BookSearchController>(searchService, inventoryService);
+    bookSearchController = make_unique<BookController>(searchService, inventoryService);
     
     // 设置CORS
     setupCORS();
@@ -27,7 +27,7 @@ void Router::initializeRoutes(UserService* userService, InventoryService* invent
     registerAdminBookRoutes();
     registerAdminUserRoutes();
     // registerAdminBatchAddRoutes();
-    registerSearchBookRoutes();
+    registerBookRoutes();
 
     cout << "✓ 路由初始化完成" << endl;
 }
@@ -124,10 +124,20 @@ void Router::registerAdminUserRoutes() const {
 //     });
 // }
 
-void Router::registerSearchBookRoutes() const {
+void Router::registerBookRoutes() const {
     //GET /api/books/search - 搜索图书
     server->Get("/api/books/search", [this](const httplib::Request& req, httplib::Response& res) {
         bookSearchController->handleSearchBooks(req, res);
+    });
+
+    //GET /api/books/detail/book?isbn=<isbn> - 获取图书详细信息
+    server->Get("/api/books/detail/book", [this](const httplib::Request& req, httplib::Response& res) {
+        bookSearchController->handleGetBookDetail(req, res);
+    });
+
+    //GET /api/books/detail/copies?isbn=<isbn> - 获取图书副本信息
+    server->Get("/api/books/detail/copies", [this](const httplib::Request& req, httplib::Response& res) {
+        bookSearchController->handleGetBookCopies(req, res);
     });
 }
 

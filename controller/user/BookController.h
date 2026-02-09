@@ -5,15 +5,21 @@
 #include "../utils/HttpUtils.h"
 
 
-class BookSearchController {
+class BookController {
     SearchService *searchService;
     InventoryService *inventoryService;
 public:
-    explicit BookSearchController(SearchService *searchService, InventoryService *inventoryService);
-    ~BookSearchController();
+    explicit BookController(SearchService *searchService, InventoryService *inventoryService);
+    ~BookController();
 
     //GET /api/books/search - 搜索图书
     void handleSearchBooks(const httplib::Request& req, httplib::Response& res) const;
+
+    //GET /api/books/detail/book?isbn=<isbn> - 获取图书详细信息
+    void handleGetBookDetail(const httplib::Request& req, httplib::Response& res) const;
+
+    //GET /api/books/detail/copies?isbn=<isbn> - 获取图书副本信息
+    void handleGetBookCopies(const httplib::Request& req, httplib::Response& res) const;
 };
 
 

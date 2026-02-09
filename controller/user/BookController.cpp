@@ -1,0 +1,135 @@
+#include "BookController.h"
+
+BookController::BookController(SearchService *searchService,InventoryService *inventoryService) : searchService(searchService),inventoryService(inventoryService) {}
+
+BookController::~BookController() = default;
+
+void BookController::handleSearchBooks(const httplib::Request& req, httplib::Response& res) const {
+    cout << "[BookSearchController] 搜索图书" << endl;
+    if (!req.has_param("type") || !req.has_param("keyword")) {
+        cout << "搜索图书失败: 缺少type或keyword参数" << endl;
+        res = HttpUtils::createErrorResponse("缺少type或keyword参数", 400);
+        return;
+    }
+    string type = req.get_param_value("type");
+    string keyword = req.get_param_value("keyword");
+    vector<Book> books;
+    if (type == "title") {
+        Book book;
+        if (!searchService->searchBookByTitle(keyword, book)) {
+            cout << "搜索图书失败: 图书不存在" << endl;
+            res = HttpUtils::createErrorResponse("图书不存在", 404);
+            return;
+        }
+        books.push_back(book);
+    } else if (type == "author") {
+        books = searchService->searchBookByAuthor(keyword);
+        if (books.empty()) {
+            cout << "搜索图书失败: 图书不存在" << endl;
+            res = HttpUtils::createErrorResponse("图书不存在", 404);
+            return;
+        }
+    } else if (type == "category") {
+        books = searchService->searchBooksByCategory(keyword);
+        if (books.empty()) {
+            cout << "搜索图书失败: 图书不存在" << endl;
+            res = HttpUtils::createErrorResponse("图书不存在", 404);
+            return;
+        }
+    } else if (type == "isbn") {
+        Book book;
+        if (!searchService->searchBookById(keyword, book)) {
+            cout << "搜索图书失败: 图书不存在" << endl;
+            res = HttpUtils::createErrorResponse("图书不存在", 404);
+            return;
+        }
+        books.push_back(book);
+    } else {
+        cout << "搜索图书失败: 未知的搜索类型" << endl;
+        res = HttpUtils::createErrorResponse("未知的搜索类型", 400);
+        return;
+    }
+
+    json booksArray = json::array();
+    for (const auto& book : books) {
+        booksArray.push_back({
+            {"isbn", book.getId()},
+            {"title", book.getTitle()},
+            {"author", book.getAuthor()},
+            {"category", book.getCategory()},
+            {"totalCount", inventoryService->getBookCopyCount(book.getId())},
+            {"availableCount", inventoryService->getAvailableCopyCount(book.getId())}
+        });
+    }
+    json responseData = {
+        {"success", true},
+        {"data", booksArray}
+    };
+    res = HttpUtils::createSuccessResponse(responseData, 200);
+    cout << "[BookSearchController] 返回 " << books.size() << " 本图书" << endl;
+}
+
+//GET /api/books/detail/book?isbn=<isbn> - 获取图书详细信息
+void BookController::handleGetBookDetail(const httplib::Request &req, httplib::Response &res) const {
+    cout << "[BookController] 获取图书详细信息" << endl;
+    if (!req.has_param("isbn")) {
+        cout << "获取图书详细信息失败: 缺少isbn参数" << endl;
+        res = HttpUtils::createErrorResponse("缺少isbn参数", 400);
+        return;
+    }
+    string bookId = req.get_param_value("isbn");
+    Book book;
+    if (!searchService->searchBookById(bookId, book)) {
+        cout << "获取图书详细信息失败: 图书不存在" << endl;
+        res = HttpUtils::createErrorResponse("图书不存在", 404);
+        return;
+    }
+
+    int totalCopies = inventoryService->getBookCopyCount(bookId);
+    int availableCopies = inventoryService->getAvailableCopyCount(bookId);
+    int borrowedCopies = totalCopies - availableCopies;
+
+    json responseData = {
+        {"success", true},
+        {"data", {
+            {"isbn", book.getId()},
+            {"title", book.getTitle()},
+            {"author", book.getAuthor()},
+            {"category", book.getCategory()},
+            {"publisher", book.getPublisher()},
+            {"publishDate", book.getPublishDate()},
+            {"price", book.getPrice()},
+            {"pages", book.getPages()},
+            {"description", book.getDescription()},
+            {"totalCount", totalCopies},
+            {"availableCount", availableCopies}
+        }}
+    };
+    res = HttpUtils::createSuccessResponse(responseData, 200);
+    cout << "[BookController] 返回图书详细信息" << endl;
+}
+
+//GET /api/books/detail/copies?isbn=<isbn> - 获取图书副本信息
+void BookController::handleGetBookCopies(const httplib::Request &req, httplib::Response &res) const {
+    cout << "[BookController] 获取图书副本信息" << endl;
+    if (!req.has_param("isbn")) {
+        cout << "获取图书副本信息失败: 缺少isbn参数" << endl;
+        res = HttpUtils::createErrorResponse("缺少isbn参数", 400);
+        return;
+    }
+    string bookId = req.get_param_value("isbn");
+    vector<BookCopy> copies = inventoryService->getBookCopies(bookId);
+    json copiesArray = json::array();
+    for (const auto& copy : copies) {
+        copiesArray.push_back({
+            {"copyId", copy.getCopyId()},
+            {"status", copy.getStatus()}
+        });
+    }
+    json responseData = {
+        {"success", true},
+        {"data", copiesArray}
+    };
+    res = HttpUtils::createSuccessResponse(responseData, 200);
+    cout << "[BookController] 返回 " << copies.size() << " 个副本" << endl;
+}

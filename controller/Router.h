@@ -7,7 +7,7 @@
 #include "admin/AdminUserController.h"
 #include "admin/AdminBlackListController.h"
 #include "admin/AdminBatchAddController.h"
-#include "user/BookSearchController.h"
+#include "user/BookController.h"
 #include <memory>
 
 using namespace std;
@@ -20,13 +20,13 @@ class Router {
     unique_ptr<AdminUserController> adminUserController;
     unique_ptr<AdminBlackListController> adminBlackListController;
     unique_ptr<AdminBatchAddController> adminBatchAddController;
-    unique_ptr<BookSearchController> bookSearchController;
+    unique_ptr<BookController> bookSearchController;
 
     void registerAuthRoutes() const;//注册，登录，登出的路由
     void registerAdminBookRoutes() const;//注册管理员图书管理的路由
     void registerAdminUserRoutes() const;//注册管理员用户管理的路由
     // void registerAdminBatchAddRoutes() const;//注册管理员批量添加数据的路由
-    void registerSearchBookRoutes() const;//注册搜索图书的路由
+    void registerBookRoutes() const;//注册图书相关的路由
 
     //注册中间件
     void registerMiddleware() const;
