@@ -234,7 +234,6 @@
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             if (!user.userId) {
                 window.location.href = 'login.html';
-                return;
             }
         };
 
@@ -256,31 +255,31 @@
             const bookList = document.getElementById('bookList');
             bookList.innerHTML = '<div class="loading">🔄 搜索中...</div>';
 
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/books/search?type=${searchType}&keyword=${encodeURIComponent(searchInput)}`);
-                const data = await response.json();
-
-                if (data.success && data.data.length > 0) {
-                    displayBooks(data.data);
-                    document.getElementById('resultsInfo').textContent = `找到 ${data.data.length} 本相关图书`;
-                } else {
-                    bookList.innerHTML = `
+            fetch(`${API_BASE_URL}/api/books/search?type=${searchType}&keyword=${encodeURIComponent(searchInput)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data.length > 0) {
+                        displayBooks(data.data);
+                        document.getElementById('resultsInfo').textContent = `找到 ${data.data.length} 本相关图书`;
+                    } else {
+                        bookList.innerHTML = `
                         <div class="empty-state">
                             <div class="empty-state-icon">😔</div>
                             <p>未找到相关图书</p>
                         </div>
                     `;
-                    document.getElementById('resultsInfo').textContent = '';
-                }
-            } catch (error) {
-                console.error('搜索失败:', error);
-                bookList.innerHTML = `
+                        document.getElementById('resultsInfo').textContent = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('搜索失败:', error);
+                    bookList.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">❌</div>
                         <p>搜索失败，请稍后重试</p>
                     </div>
                 `;
-            }
+                })
         }
 
         function displayBooks(books) {
