@@ -231,7 +231,7 @@
         disappearFileText();
         FileId = 1;
     }
-    function uploadFile(id) {
+    async function uploadFile(id) {
         const fileActionElement = document.getElementById(`file-action-${id}`);
         const tagText = [
             `
@@ -252,34 +252,30 @@
         fileActionElement.innerHTML = tagText[0];
 
         const file = Files[Files.findIndex(f => f.id == id)].file;
-        const reader = new FileReader();
 
-        reader.onload = async () => {
-            try {
-                const url = `${API_BASE_URL}/api/admin/add/batch`;
-                const method = 'POST';
-                const formData = new FormData();
-                formData.append("name", file.name);
-                formData.append("data", file);
-                formData.append("size", file.size);
-                const response = await fetch(url, {
-                    method,
-                    body: formData
-                });
-                const data = await response.json();
-                if (data.success) {
-                    showMessage('上传成功', 'success');
-                    fileActionElement.innerHTML = tagText[1];
-                } else {
-                    showMessage(data.message || '操作失败', 'error');
-                    fileActionElement.innerHTML = tagText[2];
-                }
-            } catch (error) {
-                showMessage('网络错误', 'error');
+        try {
+            const url = `${API_BASE_URL}/api/admin/add/batch`;
+            const method = 'POST';
+            const formData = new FormData();
+            formData.append("name", file.name);
+            formData.append("data", file);
+            formData.append("size", file.size);
+            const response = fetch(url, {
+                method,
+                body: formData
+            });
+            const data = response.json();
+            if (data.success) {
+                showMessage('上传成功', 'success');
+                fileActionElement.innerHTML = tagText[1];
+            } else {
+                showMessage(data.message || '操作失败', 'error');
                 fileActionElement.innerHTML = tagText[2];
             }
+        } catch (error) {
+            showMessage('网络错误', 'error');
+            fileActionElement.innerHTML = tagText[2];
         }
-        reader.readAsText(file);
 
         updateDOM();
     }

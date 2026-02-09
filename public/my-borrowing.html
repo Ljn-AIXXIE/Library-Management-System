@@ -124,7 +124,7 @@
                 const data = await response.json();
                 if (data.success) {
                     showMessage('归还成功！', 'success');
-                    loadCurrentBorrows();
+                    await loadCurrentBorrows();
                 } else {
                     showMessage(data.message || '归还失败', 'error');
                 }
