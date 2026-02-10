@@ -14,21 +14,22 @@ Record::Record() {
     this->returnTime = 0;
 }
 
-Record::~Record() {}
+Record::~Record() {
+}
 
-string Record::getUserId()const {
+string Record::getUserId() const {
     return userId;
 }
 
-string Record::getCopyId()const {
+string Record::getCopyId() const {
     return copyId;
 }
 
-time_t Record::getBorrowTime()const {
+time_t Record::getBorrowTime() const {
     return borrowTime;
 }
 
-time_t Record::getReturnTime()const {
+time_t Record::getReturnTime() const {
     return returnTime;
 }
 

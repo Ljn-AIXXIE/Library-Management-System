@@ -1,8 +1,10 @@
 #include "AdminBlackListController.h"
 
-AdminBlackListController::AdminBlackListController(BlackListService *blackListService) : blackListService(blackListService) {}
+AdminBlackListController::AdminBlackListController(BlackListService *blackListService) : blackListService(
+    blackListService) {
+}
 
-AdminBlackListController::~AdminBlackListController()=default;
+AdminBlackListController::~AdminBlackListController() = default;
 
 //POST /api/admin/readers/freeze - 添加黑名单用户
 void AdminBlackListController::handleFreezeUser(const httplib::Request &req, httplib::Response &res) const {
@@ -10,7 +12,7 @@ void AdminBlackListController::handleFreezeUser(const httplib::Request &req, htt
 
     //验证必填字段
     string errorMsg;
-    if (!HttpUtils::validateRequiredFields(requestData,{"userId"},errorMsg)) {
+    if (!HttpUtils::validateRequiredFields(requestData, {"userId"}, errorMsg)) {
         cout << "添加黑名单用户失败: 缺少必填字段 - " << errorMsg << endl;
         res = HttpUtils::createErrorResponse(errorMsg, 400);
         return;
@@ -41,7 +43,7 @@ void AdminBlackListController::handleUnfreezeUser(const httplib::Request &req, h
 
     //验证必填字段
     string errorMsg;
-    if (!HttpUtils::validateRequiredFields(requestData,{"userId"},errorMsg)) {
+    if (!HttpUtils::validateRequiredFields(requestData, {"userId"}, errorMsg)) {
         cout << "移除黑名单用户失败: 缺少必填字段 - " << errorMsg << endl;
         res = HttpUtils::createErrorResponse(errorMsg, 400);
         return;
@@ -61,7 +63,7 @@ void AdminBlackListController::handleUnfreezeUser(const httplib::Request &req, h
         cout << "黑名单用户移除成功！" << endl;
         res = HttpUtils::createSuccessResponse(responseData, 200);
     } else {
-        cout<< "移除黑名单用户失败" << endl;
+        cout << "移除黑名单用户失败" << endl;
         res = HttpUtils::createErrorResponse("黑名单用户移除失败", 500);
     }
 }

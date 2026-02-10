@@ -12,21 +12,24 @@ class BookController {
     InventoryService *inventoryService;
     BorrowService *borrowService;
     BlackListService *blackListService;
+
 public:
-    explicit BookController(SearchService *searchService, InventoryService *inventoryService, BorrowService *borrowService,BlackListService *blackListService);
+    explicit BookController(SearchService *searchService, InventoryService *inventoryService,
+                            BorrowService *borrowService, BlackListService *blackListService);
+
     ~BookController();
 
     //GET /api/books/search - 搜索图书
-    void handleSearchBooks(const httplib::Request& req, httplib::Response& res) const;
+    void handleSearchBooks(const httplib::Request &req, httplib::Response &res) const;
 
     //GET /api/books/detail/book?isbn=<isbn> - 获取图书详细信息
-    void handleGetBookDetail(const httplib::Request& req, httplib::Response& res) const;
+    void handleGetBookDetail(const httplib::Request &req, httplib::Response &res) const;
 
     //GET /api/books/detail/copies?isbn=<isbn> - 获取图书副本信息
-    void handleGetBookCopies(const httplib::Request& req, httplib::Response& res) const;
+    void handleGetBookCopies(const httplib::Request &req, httplib::Response &res) const;
 
     //POST /api/borrow - 借阅图书
-    void handleBorrowBook(const httplib::Request& req, httplib::Response& res) const;
+    void handleBorrowBook(const httplib::Request &req, httplib::Response &res) const;
 };
 
 

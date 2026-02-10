@@ -7,15 +7,24 @@ class BookCopy {
     string bookId;
     string copyId;
     string status;
+
 public:
-    BookCopy(string bookId, string copyId, string status="available");
+    BookCopy(string bookId, string copyId, string status = "available");
+
     BookCopy();
+
     ~BookCopy();
-    string getBookId()const;
-    string getCopyId()const;
-    string getStatus()const;
+
+    string getBookId() const;
+
+    string getCopyId() const;
+
+    string getStatus() const;
+
     void setBookId(string bookId);
+
     void setCopyId(string copyId);
+
     void setStatus(string status);
 };
 

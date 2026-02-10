@@ -1,16 +1,17 @@
 #include "BookDAO.h"
 
-BookDAO::BookDAO(DatabaseOperator* bookDatabase):bookDatabase(bookDatabase){}
+BookDAO::BookDAO(DatabaseOperator *bookDatabase) : bookDatabase(bookDatabase) {
+}
 
 BookDAO::~BookDAO() = default;
 
 //添加图书
 bool BookDAO::addBook(const Book &book) const {
     const string sql =
-        "INSERT INTO book (id, title, author, category, publisher, publish_date, price, pages, description, copy_count) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0);";
+            "INSERT INTO book (id, title, author, category, publisher, publish_date, price, pages, description, copy_count) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0);";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return false;
 
     sqlite3_bind_text(stmt, 1, book.getId().c_str(), -1, SQLITE_TRANSIENT);
@@ -32,7 +33,7 @@ bool BookDAO::addBook(const Book &book) const {
 bool BookDAO::deleteBook(const string &bookId) const {
     const string sql = "DELETE FROM book WHERE id = ?;";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return false;
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
@@ -44,10 +45,11 @@ bool BookDAO::deleteBook(const string &bookId) const {
 
 //更新图书
 bool BookDAO::updateBook(const Book &book) const {
-    const string sql = "UPDATE book SET title=?, author=?, category=?, publisher=? ,publish_date=?, price=?, pages=?, description=? "
-        "WHERE id=?;";
+    const string sql =
+            "UPDATE book SET title=?, author=?, category=?, publisher=? ,publish_date=?, price=?, pages=?, description=? "
+            "WHERE id=?;";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return false;
 
     sqlite3_bind_text(stmt, 1, book.getTitle().c_str(), -1, SQLITE_TRANSIENT);
@@ -66,13 +68,13 @@ bool BookDAO::updateBook(const Book &book) const {
 }
 
 //用于获取列文本
-static string columnText(sqlite3_stmt* stmt, int col) {
-    const unsigned char* text = sqlite3_column_text(stmt, col);
-    return text ? reinterpret_cast<const char*>(text) : "";
+static string columnText(sqlite3_stmt *stmt, int col) {
+    const unsigned char *text = sqlite3_column_text(stmt, col);
+    return text ? reinterpret_cast<const char *>(text) : "";
 }
 
 //从查询结果中提取图书信息
-static Book extractBook(sqlite3_stmt* stmt) {
+static Book extractBook(sqlite3_stmt *stmt) {
     Book book;
     book.setBookId(columnText(stmt, 0));
     book.setBookTitle(columnText(stmt, 1));
@@ -87,10 +89,11 @@ static Book extractBook(sqlite3_stmt* stmt) {
 }
 
 //根据图书id查询图书信息
-bool BookDAO::searchBookById(const string &bookId, Book& book) const {
-    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE id = ?;";
+bool BookDAO::searchBookById(const string &bookId, Book &book) const {
+    const string sql =
+            "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE id = ?;";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return false;
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
 
@@ -104,9 +107,10 @@ bool BookDAO::searchBookById(const string &bookId, Book& book) const {
 }
 
 //根据图书名称查询图书信息
-bool BookDAO::searchBookByTitle(const string &bookTitle, Book& book) const {
-    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE title LIKE ?;";
-    sqlite3_stmt* stmt = nullptr;
+bool BookDAO::searchBookByTitle(const string &bookTitle, Book &book) const {
+    const string sql =
+            "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE title LIKE ?;";
+    sqlite3_stmt *stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return false;
 
     string pattern = "%" + bookTitle + "%";
@@ -124,8 +128,9 @@ bool BookDAO::searchBookByTitle(const string &bookTitle, Book& book) const {
 //获取所有图书
 vector<Book> BookDAO::getAllBooks() const {
     vector<Book> books;
-    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book;";
-    sqlite3_stmt* stmt = nullptr;
+    const string sql =
+            "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book;";
+    sqlite3_stmt *stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return books;
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -139,9 +144,10 @@ vector<Book> BookDAO::getAllBooks() const {
 //根据图书分类查询图书信息
 vector<Book> BookDAO::searchBooksByCategory(const string &category) const {
     vector<Book> books;
-    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE category LIKE ?;";
+    const string sql =
+            "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE category LIKE ?;";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return books;
 
     string pattern = "%" + category + "%";
@@ -157,9 +163,10 @@ vector<Book> BookDAO::searchBooksByCategory(const string &category) const {
 
 vector<Book> BookDAO::searchBookByAuthor(const string &author) const {
     vector<Book> books;
-    const string sql = "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE author LIKE ?;";
+    const string sql =
+            "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE author LIKE ?;";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return books;
 
     string pattern = "%" + author + "%";
@@ -176,7 +183,7 @@ vector<Book> BookDAO::searchBookByAuthor(const string &author) const {
 
 bool BookDAO::isBookIdExist(const string &bookId) const {
     const string sql = "SELECT COUNT(*) FROM book WHERE id = ?;";
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return false;
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
@@ -189,9 +196,9 @@ bool BookDAO::isBookIdExist(const string &bookId) const {
     return count > 0;
 }
 
-int BookDAO::getBookCopyCount(const string& bookId) const {
+int BookDAO::getBookCopyCount(const string &bookId) const {
     const string sql = "SELECT copy_count FROM book WHERE id = ?;";
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return 0;
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
@@ -204,9 +211,9 @@ int BookDAO::getBookCopyCount(const string& bookId) const {
     return count;
 }
 
-bool BookDAO::updateBookCopyCount(const string& bookId) const {
+bool BookDAO::updateBookCopyCount(const string &bookId) const {
     const string sql = "UPDATE book SET copy_count = copy_count + 1 WHERE id = ?;";
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) return false;
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);

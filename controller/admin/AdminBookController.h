@@ -9,8 +9,10 @@
 class AdminBookController {
     InventoryService *inventoryService;
     SearchService *searchService;
+
 public:
     explicit AdminBookController(InventoryService *inventoryService, SearchService *searchService);
+
     ~AdminBookController();
 
     //GET /api/admin/books - 获取所有图书

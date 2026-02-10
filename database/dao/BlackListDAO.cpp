@@ -1,15 +1,16 @@
 #include "BlackListDAO.h"
 
-BlackListDAO::BlackListDAO(DatabaseOperator* blackListDatabase):blackListDatabase(blackListDatabase){}
+BlackListDAO::BlackListDAO(DatabaseOperator *blackListDatabase) : blackListDatabase(blackListDatabase) {
+}
 
-BlackListDAO::~BlackListDAO()=default;
+BlackListDAO::~BlackListDAO() = default;
 
-bool BlackListDAO::addBlackList(const string& userId) const {
+bool BlackListDAO::addBlackList(const string &userId) const {
     const string sql =
-        "INSERT INTO black_list (user_id) "
-        "VALUES (?);";
+            "INSERT INTO black_list (user_id) "
+            "VALUES (?);";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!blackListDatabase->prepare(sql, &stmt)) return false;
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
@@ -19,10 +20,10 @@ bool BlackListDAO::addBlackList(const string& userId) const {
     return success;
 }
 
-bool BlackListDAO::removeBlackList(const string& userId) const {
+bool BlackListDAO::removeBlackList(const string &userId) const {
     const string sql = "DELETE FROM black_list WHERE user_id = ?;";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!blackListDatabase->prepare(sql, &stmt)) return false;
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
@@ -34,7 +35,7 @@ bool BlackListDAO::removeBlackList(const string& userId) const {
 
 bool BlackListDAO::isBlackListed(const string &userId) const {
     const string sql = "SELECT COUNT(*) FROM black_list WHERE user_id = ?;";
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!blackListDatabase->prepare(sql, &stmt)) return false;
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);

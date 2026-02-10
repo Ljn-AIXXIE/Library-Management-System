@@ -7,22 +7,23 @@ BookCopy::BookCopy(string bookId, string copyId, string status) {
     this->status = status;
 }
 
-BookCopy::BookCopy() {}
+BookCopy::BookCopy() {
+}
 
-BookCopy::~BookCopy() {}
+BookCopy::~BookCopy() = default;
 
 //获取图书id
-string BookCopy::getBookId()const {
+string BookCopy::getBookId() const {
     return bookId;
 }
 
 //获取实体书id
-string BookCopy::getCopyId()const {
+string BookCopy::getCopyId() const {
     return copyId;
 }
 
 //获取图书状态
-string BookCopy::getStatus()const {
+string BookCopy::getStatus() const {
     return status;
 }
 

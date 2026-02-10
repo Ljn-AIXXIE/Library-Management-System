@@ -21,29 +21,31 @@ copy_count INTEGER//不是实际的图书副本数
 */
 
 class BookDAO {
-    DatabaseOperator* bookDatabase;
+    DatabaseOperator *bookDatabase;
+
 public:
-    explicit BookDAO(DatabaseOperator* bookDatabase);
+    explicit BookDAO(DatabaseOperator *bookDatabase);
+
     ~BookDAO();
 
     //核心操作
-    [[nodiscard]] bool addBook(const Book& book) const;//添加图书
-    [[nodiscard]] bool deleteBook(const string& bookId) const;//删除图书
-    [[nodiscard]] bool updateBook(const Book& book) const;//更新图书
+    [[nodiscard]] bool addBook(const Book &book) const; //添加图书
+    [[nodiscard]] bool deleteBook(const string &bookId) const; //删除图书
+    [[nodiscard]] bool updateBook(const Book &book) const; //更新图书
 
     //查询操作
-    bool searchBookById(const string& bookId, Book& book) const;//根据图书id查询图书信息
-    bool searchBookByTitle(const string& bookTitle, Book& book) const;//根据图书名称查询图书信息
-    [[nodiscard]] vector<Book> getAllBooks() const;//获取所有图书
-    [[nodiscard]] vector<Book> searchBooksByCategory(const string& category) const;//根据图书分类查询图书信息
-    [[nodiscard]] vector<Book> searchBookByAuthor(const string& author) const;
+    bool searchBookById(const string &bookId, Book &book) const; //根据图书id查询图书信息
+    bool searchBookByTitle(const string &bookTitle, Book &book) const; //根据图书名称查询图书信息
+    [[nodiscard]] vector<Book> getAllBooks() const; //获取所有图书
+    [[nodiscard]] vector<Book> searchBooksByCategory(const string &category) const; //根据图书分类查询图书信息
+    [[nodiscard]] vector<Book> searchBookByAuthor(const string &author) const;
 
     //业务校验
-    bool isBookIdExist(const string& bookId) const;//用于判断图书id是否已存在
+    bool isBookIdExist(const string &bookId) const; //用于判断图书id是否已存在
 
     //辅助函数
-    [[nodiscard]] int getBookCopyCount(const string& bookId) const;//获取book_copy用于生成副本id
-    [[nodiscard]] bool updateBookCopyCount(const string& bookId) const;//更新book_copy
+    [[nodiscard]] int getBookCopyCount(const string &bookId) const; //获取book_copy用于生成副本id
+    [[nodiscard]] bool updateBookCopyCount(const string &bookId) const; //更新book_copy
 };
 
 

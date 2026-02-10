@@ -1,7 +1,8 @@
 #include "UserService.h"
 #include <iostream>
 
-UserService::UserService(UserDAO* db) : db(db) {}
+UserService::UserService(UserDAO *db) : db(db) {
+}
 
 UserService::~UserService() = default;
 
@@ -11,19 +12,19 @@ bool UserService::registerUser(const User &user) const {
 
 bool UserService::loginUser(const string &userId, const string &password) const {
     if (verifyUser(userId, password)) {
-        cout<<"登录成功"<<endl;
+        cout << "登录成功" << endl;
         return true;
     }
-    cout<<"登录失败"<<endl;
+    cout << "登录失败" << endl;
     return false;
 }
 
 bool UserService::changePassword(const string &userId, const string &newPassword) const {
     if (db->updateUserPassword(userId, newPassword)) {
-        cout<<"密码修改成功"<<endl;
+        cout << "密码修改成功" << endl;
         return true;
     }
-    cout<<"密码修改失败"<<endl;
+    cout << "密码修改失败" << endl;
     return false;
 }
 

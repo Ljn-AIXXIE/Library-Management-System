@@ -28,10 +28,10 @@
 using namespace std;
 
 int main() {
-    #ifdef _WIN32
+#ifdef _WIN32
     // 设置控制台代码页为UTF-8
     system("chcp 65001 > nul");
-    #endif
+#endif
 
     cout << "========================================" << endl;
     cout << "    图书管理系统 - HTTP服务器启动      " << endl;
@@ -40,8 +40,8 @@ int main() {
 
     // 1. 初始化数据库
     string dbPath = "D:/CLion/AVL-BookSystem/library.db";
-    DatabaseOperator* db = new DatabaseOperator();
-    
+    DatabaseOperator *db = new DatabaseOperator();
+
     cout << "正在连接数据库..." << endl;
     if (!db->open(dbPath)) {
         cerr << "✗ 数据库连接失败: " << db->getLastError() << endl;
@@ -49,45 +49,49 @@ int main() {
         return 1;
     }
     cout << "✓ 数据库连接成功" << endl;
-    
+
     // 确保数据库表已创建
     cout << "正在检查数据库表..." << endl;
     DatabaseInitializer::initializeDatabase(db);
     cout << endl;
 
     // 2. 初始化DAO和Service层
-    UserDAO* userDAO = new UserDAO(db);
-    UserService* userService = new UserService(userDAO);
+    UserDAO *userDAO = new UserDAO(db);
+    UserService *userService = new UserService(userDAO);
 
-    BookDAO* bookDAO = new BookDAO(db);
-    BookCopyDAO* bookCopyDAO = new BookCopyDAO(db);
-    InventoryService* inventoryService = new InventoryService(bookDAO, bookCopyDAO);
-    SearchService* searchService = new SearchService(bookDAO);
+    BookDAO *bookDAO = new BookDAO(db);
+    BookCopyDAO *bookCopyDAO = new BookCopyDAO(db);
+    InventoryService *inventoryService = new InventoryService(bookDAO, bookCopyDAO);
+    SearchService *searchService = new SearchService(bookDAO);
 
-    RecordDAO* recordDAO = new RecordDAO(db);
-    BorrowService* borrowService = new BorrowService(bookCopyDAO, recordDAO, userDAO);
+    RecordDAO *recordDAO = new RecordDAO(db);
+    BorrowService *borrowService = new BorrowService(bookCopyDAO, recordDAO, userDAO);
 
     BlackListDAO *blackListDAO = new BlackListDAO(db);
-    BlackListService* blackListService = new BlackListService(blackListDAO);
+    BlackListService *blackListService = new BlackListService(blackListDAO);
+
+    BatchAddService *batchAddService = new BatchAddService(bookDAO, userDAO, bookCopyDAO, recordDAO, blackListDAO, db,
+                                                           inventoryService);
 
     cout << "✓ Service层初始化完成" << endl;
     cout << endl;
 
     // 3. 创建HTTP服务器
     httplib::Server server;
-    
+
     // 4. 初始化路由
     Router router(&server);
-    router.initializeRoutes(userService,inventoryService,searchService,blackListService);
+    router.initializeRoutes(userService, inventoryService, searchService, blackListService, batchAddService,
+                            borrowService);
 
     // 设置静态文件目录（提供HTML页面）
     router.setStaticFileDirectory("D:/CLion/AVL-BookSystem/public");
     cout << endl;
 
     // 5. 设置服务器参数
-    const char* host = "0.0.0.0";
+    const char *host = "0.0.0.0";
     int port = 8080;
-    
+
     cout << "========================================" << endl;
     cout << "服务器配置信息:" << endl;
     cout << "  地址: http://" << host << ":" << port << endl;
@@ -95,7 +99,7 @@ int main() {
     cout << "  数据库: " << dbPath << endl;
     cout << "========================================" << endl;
     cout << endl;
-    
+
     cout << "可用的API端点:" << endl;
     cout << "  POST   /api/auth/register        - 用户注册" << endl;
     cout << "  POST   /api/auth/login           - 用户登录" << endl;

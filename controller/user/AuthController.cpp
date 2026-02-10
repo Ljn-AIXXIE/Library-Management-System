@@ -1,11 +1,12 @@
 #include "AuthController.h"
 
-AuthController::AuthController(UserService* userService) : userService(userService) {}
+AuthController::AuthController(UserService *userService) : userService(userService) {
+}
 
 AuthController::~AuthController() = default;
 
 // POST /api/auth/register - 用户注册
-void AuthController::handleRegister(const httplib::Request& req, httplib::Response& res) const {
+void AuthController::handleRegister(const httplib::Request &req, httplib::Response &res) const {
     json requestData = HttpUtils::parseRequestBody(req);
 
     // 验证必填字段
@@ -47,11 +48,13 @@ void AuthController::handleRegister(const httplib::Request& req, httplib::Respon
         json responseData = {
             {"success", true},
             {"message", "注册成功"},
-            {"data", {
-                {"userId", userId},
-                {"name", name},
-                {"role", role}
-            }}
+            {
+                "data", {
+                    {"userId", userId},
+                    {"name", name},
+                    {"role", role}
+                }
+            }
         };
         res = HttpUtils::createSuccessResponse(responseData, 201);
     } else {
@@ -60,7 +63,7 @@ void AuthController::handleRegister(const httplib::Request& req, httplib::Respon
 }
 
 // POST /api/auth/login - 用户登录
-void AuthController::handleLogin(const httplib::Request& req, httplib::Response& res) const {
+void AuthController::handleLogin(const httplib::Request &req, httplib::Response &res) const {
     json requestData = HttpUtils::parseRequestBody(req);
 
     // 验证必填字段
@@ -95,11 +98,13 @@ void AuthController::handleLogin(const httplib::Request& req, httplib::Response&
             json responseData = {
                 {"success", true},
                 {"message", "登录成功"},
-                {"data", {
-                    {"userId", user.getId()},
-                    {"name", user.getName()},
-                    {"role", user.getType()}
-                }}
+                {
+                    "data", {
+                        {"userId", user.getId()},
+                        {"name", user.getName()},
+                        {"role", user.getType()}
+                    }
+                }
             };
             res = HttpUtils::createSuccessResponse(responseData, 200);
         } else {
@@ -113,7 +118,7 @@ void AuthController::handleLogin(const httplib::Request& req, httplib::Response&
 }
 
 // POST /api/auth/logout - 用户登出
-void AuthController::handleLogout(const httplib::Request& req, httplib::Response& res) {
+void AuthController::handleLogout(const httplib::Request &req, httplib::Response &res) {
     json responseData = {
         {"success", true},
         {"message", "登出成功"}
@@ -122,7 +127,7 @@ void AuthController::handleLogout(const httplib::Request& req, httplib::Response
 }
 
 // POST /api/auth/change-password - 修改密码
-void AuthController::handleChangePassword(const httplib::Request& req, httplib::Response& res) const {
+void AuthController::handleChangePassword(const httplib::Request &req, httplib::Response &res) const {
     json requestData = HttpUtils::parseRequestBody(req);
 
     // 验证必填字段
@@ -151,7 +156,7 @@ void AuthController::handleChangePassword(const httplib::Request& req, httplib::
     newPassword = PasswordUtils::encryptPassword(newPassword);
 
     // 修改密码
-    if (userService->changePassword(userId,newPassword)) {
+    if (userService->changePassword(userId, newPassword)) {
         json responseData = {
             {"success", true},
             {"message", "密码修改成功"}

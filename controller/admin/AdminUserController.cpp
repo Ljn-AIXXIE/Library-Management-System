@@ -1,8 +1,11 @@
 #include "AdminUserController.h"
 
-AdminUserController::AdminUserController(UserService *userService,BlackListService *blackListService): userService(userService), blackListService(blackListService) {}
+AdminUserController::AdminUserController(UserService *userService,
+                                         BlackListService *blackListService) : userService(userService),
+                                                                               blackListService(blackListService) {
+}
 
-AdminUserController::~AdminUserController()= default;
+AdminUserController::~AdminUserController() = default;
 
 void AdminUserController::handleGetAllUsers(httplib::Response &res) const {
     cout << "[AdminUserController] 获取所有用户列表" << endl;
@@ -10,14 +13,14 @@ void AdminUserController::handleGetAllUsers(httplib::Response &res) const {
     vector<User> users = userService->getAllUsers();
 
     //通过查询黑名单来设定读者状态
-    for (auto& user : users) {
+    for (auto &user: users) {
         if (blackListService->isBlackListed(user.getId())) {
             user.setStatus("frozen");
         }
     }
 
     json usersArray = json::array();
-    for (const auto& user : users) {
+    for (const auto &user: users) {
         usersArray.push_back({
             {"userId", user.getId()},
             {"name", user.getName()},
@@ -52,17 +55,19 @@ void AdminUserController::handleGetUserDetail(const httplib::Request &req, httpl
     }
     json responseData = {
         {"success", true},
-        {"data", {
-            {"userId", user.getId()},
-            {"name", user.getName()},
-            {"status", user.getStatus()},
-            {"borrowedBookCount", user.getBorrowedBookCount()},
-            {"totalBorrowCount", user.getTotalBorrowCount()},
-            {"dueSoonCount", user.getDueSoonCount()},
-            {"overdueCount", user.getOverdueCount()}
-        }}
+        {
+            "data", {
+                {"userId", user.getId()},
+                {"name", user.getName()},
+                {"status", user.getStatus()},
+                {"borrowedBookCount", user.getBorrowedBookCount()},
+                {"totalBorrowCount", user.getTotalBorrowCount()},
+                {"dueSoonCount", user.getDueSoonCount()},
+                {"overdueCount", user.getOverdueCount()}
+            }
+        }
     };
 
-    res = HttpUtils::createSuccessResponse(responseData,200);
+    res = HttpUtils::createSuccessResponse(responseData, 200);
     cout << "[AdminUserController] 获取读者详细信息成功" << endl;
 }

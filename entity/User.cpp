@@ -3,10 +3,10 @@
 #include "../utils/PasswordUtils.h"
 using namespace std;
 
-User::User(string id,string name, string password,string type,int borrowedBookCount) {
+User::User(string id, string name, string password, string type, int borrowedBookCount) {
     this->id = id;
     this->name = name;
-    password=PasswordUtils::encryptPassword(password);
+    password = PasswordUtils::encryptPassword(password);
     this->password = password;
     this->type = type;
     this->borrowedBookCount = borrowedBookCount;
@@ -20,29 +20,29 @@ User::User() {
     this->borrowedBookCount = 0;
 }
 
-User::~User()=default;
+User::~User() = default;
 
 //获取用户id
-string User::getId() const{
+string User::getId() const {
     return id;
 }
 
 //获取用户名
-string User::getName() const{
+string User::getName() const {
     return name;
 }
 
 //获取用户密码
-string User::getPassword() const{
+string User::getPassword() const {
     return password;
 }
 
 //获取用户类型
-string User::getType() const{
+string User::getType() const {
     return type;
 }
 
-int User::getBorrowedBookCount() const{
+int User::getBorrowedBookCount() const {
     return borrowedBookCount;
 }
 
@@ -89,7 +89,7 @@ void User::setName(string name) {
 
 //设置用户密码
 void User::setPassword(string password) {
-    password=PasswordUtils::encryptPassword(password);
+    password = PasswordUtils::encryptPassword(password);
     this->password = password;
 }
 

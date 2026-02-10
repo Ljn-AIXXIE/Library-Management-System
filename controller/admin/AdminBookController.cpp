@@ -1,6 +1,9 @@
 #include "AdminBookController.h"
 
-AdminBookController::AdminBookController(InventoryService *inventoryService, SearchService *searchService) : inventoryService(inventoryService) , searchService(searchService) {}
+AdminBookController::AdminBookController(InventoryService *inventoryService,
+                                         SearchService *searchService) : inventoryService(inventoryService),
+                                                                         searchService(searchService) {
+}
 
 AdminBookController::~AdminBookController() = default;
 
@@ -11,7 +14,7 @@ void AdminBookController::handleGetAllBooks(httplib::Response &res) const {
     vector<Book> books = inventoryService->getAllBooks();
 
     json booksArray = json::array();
-    for (const auto& book : books) {
+    for (const auto &book: books) {
         booksArray.push_back({
             {"isbn", book.getId()},
             {"title", book.getTitle()},
@@ -106,7 +109,7 @@ void AdminBookController::handleUpdateBook(const httplib::Request &req, httplib:
         return;
     }
 
-    auto getStringOrOld = [&](const json& reqData, const string& oldValue) {
+    auto getStringOrOld = [&](const json &reqData, const string &oldValue) {
         if (reqData.is_null()) return oldValue;
         if (reqData.is_string() && reqData.get<string>().empty()) return oldValue;
         return reqData.get<string>();
@@ -131,7 +134,7 @@ void AdminBookController::handleUpdateBook(const httplib::Request &req, httplib:
         cout << "图书更新成功" << endl;
         res = HttpUtils::createSuccessResponse(responseData, 200);
     } else {
-        cout<<"更新图书失败: 未知错误"<<endl;
+        cout << "更新图书失败: 未知错误" << endl;
         res = HttpUtils::createErrorResponse("图书更新失败", 500);
     }
 }
@@ -140,7 +143,7 @@ void AdminBookController::handleUpdateBook(const httplib::Request &req, httplib:
 void AdminBookController::handleDeleteBook(const httplib::Request &req, httplib::Response &res) const {
     json requestData = HttpUtils::parseRequestBody(req);
     string bookId = requestData["isbn"];
-    if (inventoryService->getAvailableCopyCount(bookId)!=inventoryService->getBookCopyCount(bookId)) {
+    if (inventoryService->getAvailableCopyCount(bookId) != inventoryService->getBookCopyCount(bookId)) {
         cout << "删除图书失败: 图书副本未全部归还" << endl;
         res = HttpUtils::createErrorResponse("图书副本未全部归还", 400);
         return;
@@ -171,7 +174,7 @@ void AdminBookController::handleGetAllBookCopies(const httplib::Request &req, ht
     vector<BookCopy> copies = inventoryService->getBookCopies(bookId);
 
     json copiesArray = json::array();
-    for (const auto& copy : copies) {
+    for (const auto &copy: copies) {
         copiesArray.push_back({
             {"copyId", copy.getCopyId()},
             {"status", copy.getStatus()}

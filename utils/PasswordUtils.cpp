@@ -10,7 +10,7 @@
 #undef byte
 
 // 辅助函数：将字节数组转换为十六进制字符串
-static string bytesToHex(const unsigned char* data, size_t length) {
+static string bytesToHex(const unsigned char *data, size_t length) {
     stringstream ss;
     ss << hex << setfill('0');
     for (size_t i = 0; i < length; i++) {
@@ -25,10 +25,10 @@ string PasswordUtils::generateSalt() {
 
     // 使用 BCryptGenRandom 生成随机字节
     NTSTATUS status = BCryptGenRandom(
-        nullptr,                    // 使用默认算法提供程序
-        salt,                       // 输出缓冲区
-        SALT_SIZE,                  // 缓冲区大小
-        BCRYPT_USE_SYSTEM_PREFERRED_RNG  // 使用系统首选RNG
+        nullptr, // 使用默认算法提供程序
+        salt, // 输出缓冲区
+        SALT_SIZE, // 缓冲区大小
+        BCRYPT_USE_SYSTEM_PREFERRED_RNG // 使用系统首选RNG
     );
 
     if (!BCRYPT_SUCCESS(status)) {
@@ -41,7 +41,7 @@ string PasswordUtils::generateSalt() {
 }
 
 //计算哈希值
-string PasswordUtils::hashPassword(const string& password, const string& salt) {
+string PasswordUtils::hashPassword(const string &password, const string &salt) {
     // 将密码和盐值组合
     string combined = password + salt;
 
@@ -97,7 +97,7 @@ string PasswordUtils::hashPassword(const string& password, const string& salt) {
     // 哈希数据
     status = BCryptHashData(
         hHash,
-        reinterpret_cast<PUCHAR>(const_cast<char*>(combined.c_str())),
+        reinterpret_cast<PUCHAR>(const_cast<char *>(combined.c_str())),
         static_cast<ULONG>(combined.length()),
         0
     );
@@ -130,7 +130,7 @@ string PasswordUtils::hashPassword(const string& password, const string& salt) {
 }
 
 //加密密码
-string PasswordUtils::encryptPassword(const string& password) {
+string PasswordUtils::encryptPassword(const string &password) {
     // 生成随机盐值
     string salt = generateSalt();
 
@@ -150,7 +150,7 @@ string PasswordUtils::encryptPassword(const string& password) {
 }
 
 //验证密码
-bool PasswordUtils::verifyPassword(const string& password, const string& encryptedPassword) {
+bool PasswordUtils::verifyPassword(const string &password, const string &encryptedPassword) {
     // 分割盐值和哈希值
     size_t colonPos = encryptedPassword.find(':');
     if (colonPos == string::npos) {

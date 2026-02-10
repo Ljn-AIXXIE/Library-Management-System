@@ -8,15 +8,17 @@
 class AdminUserController {
     UserService *userService;
     BlackListService *blackListService;
+
 public:
     explicit AdminUserController(UserService *userService, BlackListService *blackListService);
+
     ~AdminUserController();
 
     //GET /api/admin/readers - 获取所有读者
     void handleGetAllUsers(httplib::Response &res) const;
 
     //GET /api/admin/readers/detail?userId=<userId> - 获取读者详细信息
-    void handleGetUserDetail(const httplib::Request& req, httplib::Response& res) const;
+    void handleGetUserDetail(const httplib::Request &req, httplib::Response &res) const;
 };
 
 

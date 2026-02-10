@@ -4,7 +4,7 @@
 #include <iostream>
 using namespace std;
 
-bool DatabaseInitializer::initializeDatabase(DatabaseOperator* db) {
+bool DatabaseInitializer::initializeDatabase(DatabaseOperator *db) {
     if (!db) {
         cerr << "数据库操作对象为空" << std::endl;
         return false;
@@ -22,7 +22,7 @@ bool DatabaseInitializer::initializeDatabase(DatabaseOperator* db) {
     return true;
 }
 
-bool DatabaseInitializer::createBookTable(DatabaseOperator* db) {
+bool DatabaseInitializer::createBookTable(DatabaseOperator *db) {
     const string sql = R"(
         CREATE TABLE IF NOT EXISTS book (
             id TEXT PRIMARY KEY,
@@ -37,7 +37,7 @@ bool DatabaseInitializer::createBookTable(DatabaseOperator* db) {
             copy_count INTEGER DEFAULT 0
         );
     )";
-    
+
     if (!db->execute(sql)) {
         cerr << "创建book表失败: " << db->getLastError() << endl;
         return false;
@@ -46,7 +46,7 @@ bool DatabaseInitializer::createBookTable(DatabaseOperator* db) {
     return true;
 }
 
-bool DatabaseInitializer::createUserTable(DatabaseOperator* db) {
+bool DatabaseInitializer::createUserTable(DatabaseOperator *db) {
     const string sql = R"(
         CREATE TABLE IF NOT EXISTS user (
             user_id TEXT PRIMARY KEY,
@@ -56,7 +56,7 @@ bool DatabaseInitializer::createUserTable(DatabaseOperator* db) {
             borrow_count INTEGER DEFAULT 0
         );
     )";
-    
+
     if (!db->execute(sql)) {
         cerr << "创建user表失败: " << db->getLastError() << endl;
         return false;
@@ -65,7 +65,7 @@ bool DatabaseInitializer::createUserTable(DatabaseOperator* db) {
     return true;
 }
 
-bool DatabaseInitializer::createBookCopyTable(DatabaseOperator* db) {
+bool DatabaseInitializer::createBookCopyTable(DatabaseOperator *db) {
     const string sql = R"(
         CREATE TABLE IF NOT EXISTS book_copy (
             copy_id TEXT PRIMARY KEY,
@@ -74,7 +74,7 @@ bool DatabaseInitializer::createBookCopyTable(DatabaseOperator* db) {
             FOREIGN KEY (book_id) REFERENCES book(id)
         );
     )";
-    
+
     if (!db->execute(sql)) {
         cerr << "创建book_copy表失败: " << db->getLastError() << endl;
         return false;
@@ -83,7 +83,7 @@ bool DatabaseInitializer::createBookCopyTable(DatabaseOperator* db) {
     return true;
 }
 
-bool DatabaseInitializer::createRecordTable(DatabaseOperator* db) {
+bool DatabaseInitializer::createRecordTable(DatabaseOperator *db) {
     const string sql = R"(
         CREATE TABLE IF NOT EXISTS record (
             user_id TEXT NOT NULL,
@@ -95,7 +95,7 @@ bool DatabaseInitializer::createRecordTable(DatabaseOperator* db) {
             FOREIGN KEY (copy_id) REFERENCES book_copy(copy_id)
         );
     )";
-    
+
     if (!db->execute(sql)) {
         cerr << "创建record表失败: " << db->getLastError() << endl;
         return false;
@@ -120,7 +120,7 @@ bool DatabaseInitializer::createBlackListTable(DatabaseOperator *db) {
     return true;
 }
 
-bool DatabaseInitializer::createIndexes(DatabaseOperator* db) {
+bool DatabaseInitializer::createIndexes(DatabaseOperator *db) {
     const vector<string> indexSQLs = {
         "CREATE INDEX IF NOT EXISTS idx_book_title ON book(title);",
         "CREATE INDEX IF NOT EXISTS idx_book_author ON book(author);",
@@ -132,13 +132,13 @@ bool DatabaseInitializer::createIndexes(DatabaseOperator* db) {
         "CREATE INDEX IF NOT EXISTS idx_record_book_id ON record(book_id);"
     };
 
-    for (const auto& sql : indexSQLs) {
+    for (const auto &sql: indexSQLs) {
         if (!db->execute(sql)) {
             cerr << "创建索引失败: " << db->getLastError() << endl;
             return false;
         }
     }
-    
+
     cout << "索引创建成功" << endl;
     return true;
 }

@@ -2,7 +2,7 @@
 #include <iostream>
 using namespace std;
 
-Book::Book(const string& id, const string& title, const string& author,const string& category) {
+Book::Book(const string &id, const string &title, const string &author, const string &category) {
     this->id = id;
     this->title = title;
     this->author = author;
@@ -14,7 +14,8 @@ Book::Book(const string& id, const string& title, const string& author,const str
     this->description = "";
 }
 
-Book::Book(const string& id, const string& title, const string& author,const string& category, const string& publisher, const string& publishDate, const string& price, const string& pages, const string& description) {
+Book::Book(const string &id, const string &title, const string &author, const string &category, const string &publisher,
+           const string &publishDate, const string &price, const string &pages, const string &description) {
     this->id = id;
     this->title = title;
     this->author = author;
@@ -34,98 +35,98 @@ Book::Book() {
     this->publisher = "";
 }
 
-Book::~Book()=default;
+Book::~Book() = default;
 
 //获取图书id
-string Book::getId() const{
+string Book::getId() const {
     return id;
 }
 
 //获取图书名称
-string Book::getTitle() const{
+string Book::getTitle() const {
     return title;
 }
 
 //获取图书作者
-string Book::getAuthor() const{
+string Book::getAuthor() const {
     return author;
 }
 
 //获取图书分类
-string Book::getCategory() const{
+string Book::getCategory() const {
     return category;
 }
 
 //获取图书出版社
-string Book::getPublisher() const{
+string Book::getPublisher() const {
     return publisher;
 }
 
 //获取图书出版日期
-string Book::getPublishDate() const{
+string Book::getPublishDate() const {
     return publishDate;
 }
 
 //获取图书价格
-string Book::getPrice() const{
+string Book::getPrice() const {
     return price;
 }
 
 //获取图书页数
-string Book::getPages() const{
+string Book::getPages() const {
     return pages;
 }
 
 //获取图书简介
-string Book::getDescription() const{
+string Book::getDescription() const {
     return description;
 }
 
 //设置图书名称
-void Book::setBookTitle(const string& title) {
+void Book::setBookTitle(const string &title) {
     this->title = title;
 }
 
 //设置图书作者
-void Book::setAuthor(const string& author) {
+void Book::setAuthor(const string &author) {
     this->author = author;
 }
 
 //设置图书分类
-void Book::setCategory(const string& category) {
+void Book::setCategory(const string &category) {
     this->category = category;
 }
 
 //设置图书出版社
-void Book::setPublisher(const string& publisher) {
+void Book::setPublisher(const string &publisher) {
     this->publisher = publisher;
 }
 
-void Book::setBookId(const string& id) {
+void Book::setBookId(const string &id) {
     this->id = id;
 }
 
-void Book::setPublishDate(const string& publishDate) {
+void Book::setPublishDate(const string &publishDate) {
     this->publishDate = publishDate;
 }
 
-void Book::setPrice(const string& price) {
+void Book::setPrice(const string &price) {
     this->price = price;
 }
 
-void Book::setPages(const string& pages) {
+void Book::setPages(const string &pages) {
     this->pages = pages;
 }
 
-void Book::setDescription(const string& description) {
+void Book::setDescription(const string &description) {
     this->description = description;
 }
 
 //打印图书信息
 void Book::printBookInfo(bool isAdmin) const {
-    cout<<"书名: "<<title<<endl;
-    cout<<"作者: "<<author<<endl;
-    cout<<"id: "<<id<<endl;
-    cout<<"分类: "<<category<<endl;
-    cout<<"出版社: "<<publisher<<endl;
+    cout << "书名: " << title << endl;
+    cout << "作者: " << author << endl;
+    cout << "id: " << id << endl;
+    cout << "分类: " << category << endl;
+    cout << "出版社: " << publisher << endl;
 }

@@ -7,16 +7,18 @@ status      TEXT NOT NULL,   -- available / borrowed
 );
 */
 
-BookCopyDAO::BookCopyDAO(DatabaseOperator* bookDatabase):bookCopyDatabase(bookDatabase){}
-BookCopyDAO::~BookCopyDAO()=default;
+BookCopyDAO::BookCopyDAO(DatabaseOperator *bookDatabase) : bookCopyDatabase(bookDatabase) {
+}
+
+BookCopyDAO::~BookCopyDAO() = default;
 
 //添加图书副本
-bool BookCopyDAO::addBookCopy(const BookCopy& bookCopy) const {
+bool BookCopyDAO::addBookCopy(const BookCopy &bookCopy) const {
     const string sql =
-        "INSERT INTO book_copy (copy_id, book_id, status) "
-        "VALUES (?, ?, ?);";
+            "INSERT INTO book_copy (copy_id, book_id, status) "
+            "VALUES (?, ?, ?);";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookCopyDatabase->prepare(sql, &stmt)) return false;
 
     sqlite3_bind_text(stmt, 1, bookCopy.getCopyId().c_str(), -1, SQLITE_TRANSIENT);
@@ -29,10 +31,10 @@ bool BookCopyDAO::addBookCopy(const BookCopy& bookCopy) const {
 }
 
 //删除图书副本
-bool BookCopyDAO::deleteBookCopy(const string& copyId) const {
+bool BookCopyDAO::deleteBookCopy(const string &copyId) const {
     const string sql = "DELETE FROM book_copy WHERE copy_id = ?;";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookCopyDatabase->prepare(sql, &stmt)) return false;
     sqlite3_bind_text(stmt, 1, copyId.c_str(), -1, SQLITE_TRANSIENT);
 
@@ -42,10 +44,10 @@ bool BookCopyDAO::deleteBookCopy(const string& copyId) const {
 }
 
 //删除指定图书的所有图书副本
-bool BookCopyDAO::deleteAllBookCopy(const string& bookId) const {
+bool BookCopyDAO::deleteAllBookCopy(const string &bookId) const {
     const string sql = "DELETE FROM book_copy WHERE book_id = ?;";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookCopyDatabase->prepare(sql, &stmt)) return false;
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
 
@@ -55,10 +57,10 @@ bool BookCopyDAO::deleteAllBookCopy(const string& bookId) const {
 }
 
 //更新图书副本状态
-bool BookCopyDAO::updateBookCopyStatus(const string& copyId, const string& status) const {
+bool BookCopyDAO::updateBookCopyStatus(const string &copyId, const string &status) const {
     const string sql = "UPDATE book_copy SET status = ? WHERE copy_id = ?;";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookCopyDatabase->prepare(sql, &stmt)) return false;
 
     sqlite3_bind_text(stmt, 1, status.c_str(), -1, SQLITE_TRANSIENT);
@@ -69,9 +71,9 @@ bool BookCopyDAO::updateBookCopyStatus(const string& copyId, const string& statu
     return success;
 }
 
-int BookCopyDAO::getCopyCountByBookId(const string& bookId) const {
+int BookCopyDAO::getCopyCountByBookId(const string &bookId) const {
     const string sql = "SELECT COUNT(*) FROM book_copy WHERE book_id = ?;";
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookCopyDatabase->prepare(sql, &stmt)) return 0;
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
@@ -86,7 +88,7 @@ int BookCopyDAO::getCopyCountByBookId(const string& bookId) const {
 
 int BookCopyDAO::getAvailableCopyCount(const string &bookId) const {
     const string sql = "SELECT COUNT(*) FROM book_copy WHERE book_id = ? AND status = 'available';";
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookCopyDatabase->prepare(sql, &stmt)) return 0;
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
@@ -100,20 +102,20 @@ int BookCopyDAO::getAvailableCopyCount(const string &bookId) const {
 }
 
 //用于获取列文本
-static string columnText(sqlite3_stmt* stmt, int col) {
-    const unsigned char* text = sqlite3_column_text(stmt, col);
-    return text ? reinterpret_cast<const char*>(text) : "";
+static string columnText(sqlite3_stmt *stmt, int col) {
+    const unsigned char *text = sqlite3_column_text(stmt, col);
+    return text ? reinterpret_cast<const char *>(text) : "";
 }
 
 //根据图书id获取所有副本
-vector<BookCopy> BookCopyDAO::getCopiesByBookId(const string& bookId) const {
+vector<BookCopy> BookCopyDAO::getCopiesByBookId(const string &bookId) const {
     vector<BookCopy> copies;
     const string sql =
-        "SELECT copy_id, book_id, status "
-        "FROM book_copy "
-        "WHERE book_id = ?;";
+            "SELECT copy_id, book_id, status "
+            "FROM book_copy "
+            "WHERE book_id = ?;";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookCopyDatabase->prepare(sql, &stmt)) return copies;
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
     while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -129,14 +131,14 @@ vector<BookCopy> BookCopyDAO::getCopiesByBookId(const string& bookId) const {
 }
 
 //根据图书id获取所有可借阅的副本
-vector<BookCopy> BookCopyDAO::getAvailableCopies(const string& bookId) const {
+vector<BookCopy> BookCopyDAO::getAvailableCopies(const string &bookId) const {
     vector<BookCopy> copies;
     const string sql =
-        "SELECT copy_id, book_id, status "
-        "FROM book_copy "
-        "WHERE book_id = ? AND status = 'available';";
+            "SELECT copy_id, book_id, status "
+            "FROM book_copy "
+            "WHERE book_id = ? AND status = 'available';";
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if (!bookCopyDatabase->prepare(sql, &stmt)) return copies;
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
@@ -154,9 +156,9 @@ vector<BookCopy> BookCopyDAO::getAvailableCopies(const string& bookId) const {
 }
 
 //根据副本id判断图书是否已借出
-bool BookCopyDAO::isCopyBorrowed(const string& copyId) const {
+bool BookCopyDAO::isCopyBorrowed(const string &copyId) const {
     const string sql = "SELECT COUNT(*) FROM book_copy WHERE copy_id = ? AND status = 'borrowed';";
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
 
     if (!bookCopyDatabase->prepare(sql, &stmt)) return false;
     sqlite3_bind_text(stmt, 1, copyId.c_str(), -1, SQLITE_TRANSIENT);
