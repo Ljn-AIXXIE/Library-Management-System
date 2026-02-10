@@ -24,7 +24,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .navbar-brand {
@@ -34,7 +34,7 @@
         }
 
         .btn-back {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             border: 1px solid white;
             color: white;
             padding: 8px 20px;
@@ -45,7 +45,7 @@
         }
 
         .btn-back:hover {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .container {
@@ -59,7 +59,7 @@
             border-radius: 10px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .search-card h2 {
@@ -130,7 +130,7 @@
         }
 
         .book-item:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transform: translateY(-2px);
         }
 
@@ -197,94 +197,94 @@
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-brand" onclick="location.href='reader.html'">📚 图书管理系统</div>
-        <a href="reader.html" class="btn-back">返回主页</a>
-    </nav>
+<nav class="navbar">
+    <div class="navbar-brand" onclick="location.href='reader.html'">📚 图书管理系统</div>
+    <a href="reader.html" class="btn-back">返回主页</a>
+</nav>
 
-    <div class="container">
-        <div class="search-card">
-            <h2>🔍 图书查询</h2>
-            <div class="search-form">
-                <select id="searchType" class="search-select">
-                    <option value="title">书名</option>
-                    <option value="author">作者</option>
-                    <option value="isbn">ISBN</option>
-                    <option value="category">分类</option>
-                </select>
-                <input type="text" id="searchInput" class="search-input"
-                       placeholder="请输入搜索关键词..." onkeypress="handleKeyPress(event)">
-                <button class="btn-search" onclick="searchBooks()">搜索</button>
-            </div>
-            <div id="resultsInfo" class="results-info"></div>
+<div class="container">
+    <div class="search-card">
+        <h2>🔍 图书查询</h2>
+        <div class="search-form">
+            <select id="searchType" class="search-select">
+                <option value="title">书名</option>
+                <option value="author">作者</option>
+                <option value="isbn">ISBN</option>
+                <option value="category">分类</option>
+            </select>
+            <input type="text" id="searchInput" class="search-input"
+                   placeholder="请输入搜索关键词..." onkeypress="handleKeyPress(event)">
+            <button class="btn-search" onclick="searchBooks()">搜索</button>
         </div>
-
-        <div id="bookList" class="book-list">
-            <div class="empty-state">
-                <div class="empty-state-icon">📖</div>
-                <p>请输入关键词搜索图书</p>
-            </div>
-        </div>
+        <div id="resultsInfo" class="results-info"></div>
     </div>
 
-    <script>
-        const API_BASE_URL = 'http://localhost:8080';
+    <div id="bookList" class="book-list">
+        <div class="empty-state">
+            <div class="empty-state-icon">📖</div>
+            <p>请输入关键词搜索图书</p>
+        </div>
+    </div>
+</div>
 
-        window.onload = function() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (!user.userId) {
-                window.location.href = 'login.html';
-            }
-        };
+<script>
+    const API_BASE_URL = 'http://localhost:8080';
 
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                searchBooks();
-            }
+    window.onload = function () {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.userId) {
+            window.location.href = 'login.html';
+        }
+    };
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            searchBooks();
+        }
+    }
+
+    async function searchBooks() {
+        const searchType = document.getElementById('searchType').value;
+        const searchInput = document.getElementById('searchInput').value.trim();
+
+        if (!searchInput) {
+            alert('请输入搜索关键词');
+            return;
         }
 
-        async function searchBooks() {
-            const searchType = document.getElementById('searchType').value;
-            const searchInput = document.getElementById('searchInput').value.trim();
+        const bookList = document.getElementById('bookList');
+        bookList.innerHTML = '<div class="loading">🔄 搜索中...</div>';
 
-            if (!searchInput) {
-                alert('请输入搜索关键词');
-                return;
-            }
-
-            const bookList = document.getElementById('bookList');
-            bookList.innerHTML = '<div class="loading">🔄 搜索中...</div>';
-
-            fetch(`${API_BASE_URL}/api/books/search?type=${searchType}&keyword=${encodeURIComponent(searchInput)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.data.length > 0) {
-                        displayBooks(data.data);
-                        document.getElementById('resultsInfo').textContent = `找到 ${data.data.length} 本相关图书`;
-                    } else {
-                        bookList.innerHTML = `
+        fetch(`${API_BASE_URL}/api/books/search?type=${searchType}&keyword=${encodeURIComponent(searchInput)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    displayBooks(data.data);
+                    document.getElementById('resultsInfo').textContent = `找到 ${data.data.length} 本相关图书`;
+                } else {
+                    bookList.innerHTML = `
                         <div class="empty-state">
                             <div class="empty-state-icon">😔</div>
                             <p>未找到相关图书</p>
                         </div>
                     `;
-                        document.getElementById('resultsInfo').textContent = '';
-                    }
-                })
-                .catch(error => {
-                    console.error('搜索失败:', error);
-                    bookList.innerHTML = `
+                    document.getElementById('resultsInfo').textContent = '';
+                }
+            })
+            .catch(error => {
+                console.error('搜索失败:', error);
+                bookList.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">❌</div>
                         <p>搜索失败，请稍后重试</p>
                     </div>
                 `;
-                })
-        }
+            })
+    }
 
-        function displayBooks(books) {
-            const bookList = document.getElementById('bookList');
-            bookList.innerHTML = books.map(book => `
+    function displayBooks(books) {
+        const bookList = document.getElementById('bookList');
+        bookList.innerHTML = books.map(book => `
                 <div class="book-item" onclick="viewBookDetail('${book.isbn}')">
                     <div class="book-icon">📕</div>
                     <div class="book-info">
@@ -297,7 +297,7 @@
                         <div>
                             <div style="color: #666; font-size: 12px;">馆藏/可借</div>
                             <div style="font-size: 18px; font-weight: bold; color: #333;">
-                                ${book.availableCount}/${book.totalCount}
+                                ${book.totalCount}/${book.availableCount}
                             </div>
                         </div>
                         <span class="status-badge ${book.availableCount > 0 ? 'status-available' : 'status-unavailable'}">
@@ -306,12 +306,12 @@
                     </div>
                 </div>
             `).join('');
-        }
+    }
 
-        function viewBookDetail(isbn) {
-            window.location.href = `book-detail.html?isbn=${isbn}`;
-        }
-    </script>
+    function viewBookDetail(isbn) {
+        window.location.href = `book-detail.html?isbn=${isbn}`;
+    }
+</script>
 </body>
 </html>
 
