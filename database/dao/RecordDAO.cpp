@@ -27,8 +27,8 @@ bool RecordDAO::addBorrowRecord(const Record& record) const {
 //添加借阅记录
 bool RecordDAO::addBorrowRecord(const string &userId, const string &copyId) const{
     const string sql =
-        "INSERT INTO record (user_id, copy_id, borrow_time, return_time) "
-        "VALUES (?, ?, ?, ?);";
+        "INSERT INTO record (user_id, book_id, copy_id, borrow_time, return_time) "
+        "VALUES (?, ?, ?, ?, ?);";
 
     sqlite3_stmt* stmt = nullptr;
     if (!recordDatabase->prepare(sql, &stmt)) return false;
@@ -36,10 +36,13 @@ bool RecordDAO::addBorrowRecord(const string &userId, const string &copyId) cons
     auto now = chrono::system_clock::now();
     time_t currentTime = chrono::system_clock::to_time_t(now);
 
+    string bookId = copyId.substr(0, copyId.find_last_of('_'));
+
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 2, copyId.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_int64(stmt, 3, currentTime);
-    sqlite3_bind_int64(stmt, 4, 0);
+    sqlite3_bind_text(stmt, 2, bookId.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 3, copyId.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(stmt, 4, currentTime);
+    sqlite3_bind_int64(stmt, 5, 0);
 
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);

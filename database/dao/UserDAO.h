@@ -23,6 +23,7 @@ public:
 
     [[nodiscard]] bool exists(const string& userId) const;//判断用户是否存在，用于登录和注册校验
     [[nodiscard]] bool verifyUser(const string& userId, const string& password) const;//验证用户登录
+    [[nodiscard]] int getBorrowedBookCount(const string& userId) const;//获取用户已借阅数量
 
     //vector<User> getAllUsers();//获取所有用户信息，用于管理员查询所有用户
 };

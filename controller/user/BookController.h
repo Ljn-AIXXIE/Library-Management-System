@@ -2,14 +2,18 @@
 #define LIBRARYMANAGEMENTSYSTEM_BOOKSEARCHCONTROLLER_H
 #include "../service/SearchService.h"
 #include "../service/InventoryService.h"
+#include "../service/BorrowService.h"
+#include "../service/BlackListService.h"
 #include "../utils/HttpUtils.h"
 
 
 class BookController {
     SearchService *searchService;
     InventoryService *inventoryService;
+    BorrowService *borrowService;
+    BlackListService *blackListService;
 public:
-    explicit BookController(SearchService *searchService, InventoryService *inventoryService);
+    explicit BookController(SearchService *searchService, InventoryService *inventoryService, BorrowService *borrowService,BlackListService *blackListService);
     ~BookController();
 
     //GET /api/books/search - 搜索图书
@@ -20,6 +24,9 @@ public:
 
     //GET /api/books/detail/copies?isbn=<isbn> - 获取图书副本信息
     void handleGetBookCopies(const httplib::Request& req, httplib::Response& res) const;
+
+    //POST /api/borrow - 借阅图书
+    void handleBorrowBook(const httplib::Request& req, httplib::Response& res) const;
 };
 
 

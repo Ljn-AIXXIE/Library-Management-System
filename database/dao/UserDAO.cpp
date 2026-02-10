@@ -183,3 +183,19 @@ bool UserDAO::verifyUser(const string& userId, const string& password) const {
     sqlite3_finalize(stmt);
     return false;
 }
+
+//获取用户已借阅数量
+int UserDAO::getBorrowedBookCount(const string& userId) const {
+    const string sql = "SELECT borrow_count FROM user WHERE user_id = ?;";
+    sqlite3_stmt* stmt = nullptr;
+    if (!userDatabase->prepare(sql, &stmt)) return 0;
+
+    sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    }
+    sqlite3_finalize(stmt);
+    return count;
+}

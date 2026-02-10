@@ -1,10 +1,16 @@
 #include "BookController.h"
 
-BookController::BookController(SearchService *searchService,InventoryService *inventoryService) : searchService(searchService),inventoryService(inventoryService) {}
+BookController::BookController(SearchService *searchService, InventoryService *inventoryService,
+                               BorrowService *borrowService,
+                               BlackListService *blackListService) : searchService(searchService),
+                                                                     inventoryService(inventoryService),
+                                                                     borrowService(borrowService),
+                                                                     blackListService(blackListService) {
+}
 
 BookController::~BookController() = default;
 
-void BookController::handleSearchBooks(const httplib::Request& req, httplib::Response& res) const {
+void BookController::handleSearchBooks(const httplib::Request &req, httplib::Response &res) const {
     cout << "[BookSearchController] 搜索图书" << endl;
     if (!req.has_param("type") || !req.has_param("keyword")) {
         cout << "搜索图书失败: 缺少type或keyword参数" << endl;
@@ -51,7 +57,7 @@ void BookController::handleSearchBooks(const httplib::Request& req, httplib::Res
     }
 
     json booksArray = json::array();
-    for (const auto& book : books) {
+    for (const auto &book: books) {
         booksArray.push_back({
             {"isbn", book.getId()},
             {"title", book.getTitle()},
@@ -91,19 +97,21 @@ void BookController::handleGetBookDetail(const httplib::Request &req, httplib::R
 
     json responseData = {
         {"success", true},
-        {"data", {
-            {"isbn", book.getId()},
-            {"title", book.getTitle()},
-            {"author", book.getAuthor()},
-            {"category", book.getCategory()},
-            {"publisher", book.getPublisher()},
-            {"publishDate", book.getPublishDate()},
-            {"price", book.getPrice()},
-            {"pages", book.getPages()},
-            {"description", book.getDescription()},
-            {"totalCount", totalCopies},
-            {"availableCount", availableCopies}
-        }}
+        {
+            "data", {
+                {"isbn", book.getId()},
+                {"title", book.getTitle()},
+                {"author", book.getAuthor()},
+                {"category", book.getCategory()},
+                {"publisher", book.getPublisher()},
+                {"publishDate", book.getPublishDate()},
+                {"price", book.getPrice()},
+                {"pages", book.getPages()},
+                {"description", book.getDescription()},
+                {"totalCount", totalCopies},
+                {"availableCount", availableCopies}
+            }
+        }
     };
     res = HttpUtils::createSuccessResponse(responseData, 200);
     cout << "[BookController] 返回图书详细信息" << endl;
@@ -120,7 +128,7 @@ void BookController::handleGetBookCopies(const httplib::Request &req, httplib::R
     string bookId = req.get_param_value("isbn");
     vector<BookCopy> copies = inventoryService->getBookCopies(bookId);
     json copiesArray = json::array();
-    for (const auto& copy : copies) {
+    for (const auto &copy: copies) {
         copiesArray.push_back({
             {"copyId", copy.getCopyId()},
             {"status", copy.getStatus()}
@@ -132,4 +140,39 @@ void BookController::handleGetBookCopies(const httplib::Request &req, httplib::R
     };
     res = HttpUtils::createSuccessResponse(responseData, 200);
     cout << "[BookController] 返回 " << copies.size() << " 个副本" << endl;
+}
+
+//POST /api/borrow - 借阅图书
+void BookController::handleBorrowBook(const httplib::Request &req, httplib::Response &res) const {
+    cout << "[BookController] 借阅图书" << endl;
+    json requestData = HttpUtils::parseRequestBody(req);
+    string userId = requestData["userId"];
+    string bookId = requestData["isbn"];
+    string copyId = requestData["copyId"];
+
+    //验证用户是不是在黑名单中
+    if (blackListService->isBlackListed(userId)) {
+        cout << "借阅失败: 用户已被拉黑" << endl;
+        res = HttpUtils::createErrorResponse("用户已被拉黑", 403);
+        return;
+    }
+
+    //验证用户是否可以继续借阅
+    if (!borrowService->canUserBorrowMore(userId)) {
+        cout << "借阅失败: 用户已达到借阅上限" << endl;
+        res = HttpUtils::createErrorResponse("用户已达到借阅上限", 403);
+        return;
+    }
+
+    if (borrowService->borrowBook(userId, copyId)) {
+        json responseData = {
+            {"success", true},
+            {"message", "借阅成功,请按时归还"}
+        };
+        cout << "借阅成功" << endl;
+        res = HttpUtils::createSuccessResponse(responseData, 200);
+    } else {
+        cout << "借阅失败" << endl;
+        res = HttpUtils::createErrorResponse("借阅失败", 500);
+    }
 }
