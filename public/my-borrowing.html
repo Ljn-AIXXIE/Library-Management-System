@@ -250,7 +250,7 @@
             if (data.success && data.data.length > 0) {
                 container.innerHTML = data.data.map(borrow => {
                     const status = getStatus(borrow.dueDate);
-                    return `<div class="borrow-card"><div class="book-icon">📕</div><div class="borrow-info"><div class="book-title">${borrow.bookTitle}</div><div class="borrow-meta">借阅时间：${borrow.borrowDate}</div><div class="borrow-meta">应还时间：${borrow.dueDate}</div><div class="borrow-meta">副本ID：${borrow.copyId}</div></div><div class="borrow-actions"><span class="status-badge status-${status.class}">${status.text}</span><button class="btn-return" onclick="returnBook(${borrow.recordId})">归还图书</button></div></div>`;
+                    return `<div class="borrow-card"><div class="book-icon">📕</div><div class="borrow-info"><div class="book-title">${borrow.bookTitle}</div><div class="borrow-meta">借阅时间：${borrow.borrowDate}</div><div class="borrow-meta">应还时间：${borrow.dueDate}</div><div class="borrow-meta">副本ID：${borrow.copyId}</div></div><div class="borrow-actions"><span class="status-badge status-${status.class}">${status.text}</span><button class="btn-return" onclick="returnBook('${borrow.copyId}')">归还图书</button></div></div>`;
                 }).join('');
             } else {
                 container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><p>暂无借阅记录</p></div>';
@@ -285,13 +285,13 @@
         return {class: 'normal', text: '正常'};
     }
 
-    async function returnBook(recordId) {
+    async function returnBook(copyId) {
         if (!confirm('确认归还这本图书吗？')) return;
         try {
             const response = await fetch(`${API_BASE_URL}/api/borrow/return`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({recordId, userId: currentUser.userId})
+                body: JSON.stringify({copyId, userId: currentUser.userId})
             });
             const data = await response.json();
             if (data.success) {
