@@ -36,6 +36,9 @@ public:
 
     //GET /api/borrow/history - 获取用户借阅历史
     void handleGetUserBorrowHistory(const httplib::Request &req, httplib::Response &res) const;
+
+    //POST /api/borrow/return - 归还图书
+    void handleReturnBook(const httplib::Request &req, httplib::Response &res) const;
 };
 
 

@@ -243,3 +243,22 @@ void BookController::handleGetUserBorrowHistory(const httplib::Request &req, htt
     res = HttpUtils::createSuccessResponse(responseData, 200);
     cout << "[BookController] 返回 " << records.size() << " 条记录" << endl;
 }
+
+//POST /api/borrow/return - 归还图书
+void BookController::handleReturnBook(const httplib::Request &req, httplib::Response &res) const {
+    cout << "[BookController] 归还图书" << endl;
+    json requestData = HttpUtils::parseRequestBody(req);
+    string userId = requestData["userId"];
+    string copyId = requestData["copyId"];
+    if (borrowService->returnBook(userId, copyId)) {
+        json responseData = {
+            {"success", true},
+            {"message", "归还成功"}
+        };
+        cout << "归还成功" << endl;
+        res = HttpUtils::createSuccessResponse(responseData, 200);
+    } else {
+        cout << "归还失败" << endl;
+        res = HttpUtils::createErrorResponse("归还失败", 500);
+    }
+}
