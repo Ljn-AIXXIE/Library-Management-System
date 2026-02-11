@@ -47,6 +47,11 @@ vector<Record> BorrowService::getUserBorrowingRecords(const string &userId) cons
     return recordDAO->getActiveRecordsByUser(userId);
 }
 
+//获取用户的借阅历史
+vector<Record> BorrowService::getUserHistoryRecords(const string &userId) const {
+    return recordDAO->getHistoryRecordsByUser(userId);
+}
+
 //书本是否已借出
 bool BorrowService::isCopyBorrowed(const string &copyId) const {
     return bookCopyDAO->isCopyBorrowed(copyId);

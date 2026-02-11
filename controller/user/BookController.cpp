@@ -176,3 +176,70 @@ void BookController::handleBorrowBook(const httplib::Request &req, httplib::Resp
         res = HttpUtils::createErrorResponse("借阅失败", 500);
     }
 }
+
+//辅助函数：返回时间的字符串表示
+string formatTime(time_t timestamp) {
+    char buffer[20];
+
+    tm *timeInfo = std::localtime(&timestamp);
+
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeInfo);
+
+    return string(buffer);
+}
+
+//GET /api/borrow/current - 获取用户当前借阅的记录
+void BookController::handleGetUserBorrowingRecords(const httplib::Request &req, httplib::Response &res) const {
+    cout << "[BookController] 获取用户当前借阅的记录" << endl;
+
+    string userId = req.get_param_value("userId");
+    vector<Record> records = borrowService->getUserBorrowingRecords(userId);
+    json recordsArray = json::array();
+    for (const auto &record: records) {
+        string bookId = record.getCopyId().substr(0, record.getCopyId().find_last_of('_'));
+        string bookTitle = inventoryService->getBookTitleById(bookId);
+        string dueTime = formatTime(record.getDueTime());
+        string borrowTime = formatTime(record.getBorrowTime());
+
+        recordsArray.push_back({
+            {"dueDate", dueTime},
+            {"bookTitle", bookTitle},
+            {"copyId", record.getCopyId()},
+            {"borrowDate", borrowTime}
+        });
+    }
+    json responseData = {
+        {"success", true},
+        {"data", recordsArray}
+    };
+    res = HttpUtils::createSuccessResponse(responseData, 200);
+    cout << "[BookController] 返回 " << records.size() << " 条记录" << endl;
+}
+
+//GET /api/borrow/history - 获取用户借阅历史
+void BookController::handleGetUserBorrowHistory(const httplib::Request &req, httplib::Response &res) const {
+    cout << "[BookController] 获取用户借阅历史" << endl;
+
+    string userId = req.get_param_value("userId");
+    vector<Record> records = borrowService->getUserHistoryRecords(userId);
+    json recordsArray = json::array();
+
+    for (const auto &record: records) {
+        string bookId = record.getCopyId().substr(0, record.getCopyId().find_last_of('_'));
+        string bookTitle = inventoryService->getBookTitleById(bookId);
+        string returnTime = formatTime(record.getReturnTime());
+        string borrowTime = formatTime(record.getBorrowTime());
+
+        recordsArray.push_back({
+            {"returnDate", returnTime},
+            {"bookTitle", bookTitle},
+            {"borrowDate", borrowTime}
+        });
+    }
+    json responseData = {
+        {"success", true},
+        {"data", recordsArray}
+    };
+    res = HttpUtils::createSuccessResponse(responseData, 200);
+    cout << "[BookController] 返回 " << records.size() << " 条记录" << endl;
+}

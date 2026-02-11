@@ -9,11 +9,12 @@ class Record {
     string copyId;
     time_t borrowTime;
     time_t returnTime;
+    time_t dueTime;
 
 public:
-    Record(string userId, string copyId, time_t borrowTime, time_t returnTime);
+    Record(string userId, string copyId, time_t borrowTime);
 
-    Record();
+    Record(string userId, string copyId, time_t borrowTime, time_t returnTime);
 
     ~Record();
 
@@ -25,6 +26,8 @@ public:
 
     time_t getReturnTime() const;
 
+    time_t getDueTime() const;
+
     void setUserId(string userId);
 
     void setCopyId(string copyId);
@@ -32,6 +35,8 @@ public:
     void setBorrowTime(time_t borrowTime);
 
     void setReturnTime(time_t returnTime);
+
+    void setDueTime(time_t dueTime);
 };
 
 

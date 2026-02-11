@@ -181,6 +181,21 @@ vector<Book> BookDAO::searchBookByAuthor(const string &author) const {
     return books;
 }
 
+string BookDAO::getBookTitleById(const string &bookId) const {
+    const string sql = "SELECT title FROM book WHERE id = ?;";
+    sqlite3_stmt *stmt = nullptr;
+    if (!bookDatabase->prepare(sql, &stmt)) return "";
+
+    sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
+
+    string title = "";
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        title = columnText(stmt, 0);
+    }
+    sqlite3_finalize(stmt);
+    return title;
+}
+
 bool BookDAO::isBookIdExist(const string &bookId) const {
     const string sql = "SELECT COUNT(*) FROM book WHERE id = ?;";
     sqlite3_stmt *stmt = nullptr;

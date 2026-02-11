@@ -40,6 +40,8 @@ public:
     [[nodiscard]] vector<Book> searchBooksByCategory(const string &category) const; //根据图书分类查询图书信息
     [[nodiscard]] vector<Book> searchBookByAuthor(const string &author) const;
 
+    string getBookTitleById(const string &bookId) const;
+
     //业务校验
     bool isBookIdExist(const string &bookId) const; //用于判断图书id是否已存在
 

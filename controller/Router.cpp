@@ -148,6 +148,16 @@ void Router::registerBookRoutes() const {
     server->Post("/api/borrow", [this](const httplib::Request &req, httplib::Response &res) {
         bookSearchController->handleBorrowBook(req, res);
     });
+
+    //GET /api/borrow/current - 获取用户当前借阅的记录
+    server->Get("/api/borrow/current", [this](const httplib::Request &req, httplib::Response &res) {
+        bookSearchController->handleGetUserBorrowingRecords(req, res);
+    });
+
+    //GET /api/borrow/history - 获取用户借阅历史
+    server->Get("/api/borrow/history", [this](const httplib::Request &req, httplib::Response &res) {
+        bookSearchController->handleGetUserBorrowHistory(req, res);
+    });
 }
 
 // 注册中间件

@@ -79,7 +79,7 @@ static string columnText(sqlite3_stmt *stmt, int col) {
 vector<Record> RecordDAO::getActiveRecordsByUser(const string &userId) const {
     vector<Record> records;
     const string sql =
-            "SELECT user_id, copy_id, borrow_time, return_time FROM record WHERE user_id = ? AND return_time = 0;";
+            "SELECT user_id, copy_id, borrow_time FROM record WHERE user_id = ? AND return_time = 0;";
 
     sqlite3_stmt *stmt = nullptr;
     if (!recordDatabase->prepare(sql, &stmt)) return records;
@@ -87,10 +87,7 @@ vector<Record> RecordDAO::getActiveRecordsByUser(const string &userId) const {
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
-        Record record;
-        record.setUserId(columnText(stmt, 0));
-        record.setCopyId(columnText(stmt, 1));
-        record.setBorrowTime(sqlite3_column_int64(stmt, 2));
+        Record record(columnText(stmt, 0), columnText(stmt, 1), sqlite3_column_int64(stmt, 2));
         records.push_back(record);
     }
     sqlite3_finalize(stmt);
@@ -109,10 +106,8 @@ vector<Record> RecordDAO::getHistoryRecordsByUser(const string &userId) const {
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
-        Record record;
-        record.setUserId(columnText(stmt, 0));
-        record.setCopyId(columnText(stmt, 1));
-        record.setBorrowTime(sqlite3_column_int64(stmt, 2));
+        Record record(columnText(stmt, 0), columnText(stmt, 1), sqlite3_column_int64(stmt, 2),
+                      sqlite3_column_int64(stmt, 3));
         records.push_back(record);
     }
     sqlite3_finalize(stmt);
@@ -130,10 +125,8 @@ vector<Record> RecordDAO::getRecordsByCopyId(const string &copyId) const {
     sqlite3_bind_text(stmt, 1, copyId.c_str(), -1, SQLITE_TRANSIENT);
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
-        Record record;
-        record.setUserId(columnText(stmt, 0));
-        record.setCopyId(columnText(stmt, 1));
-        record.setBorrowTime(sqlite3_column_int64(stmt, 2));
+        Record record(columnText(stmt, 0), columnText(stmt, 1), sqlite3_column_int64(stmt, 2),
+                      sqlite3_column_int64(stmt, 3));
         records.push_back(record);
     }
     sqlite3_finalize(stmt);

@@ -30,6 +30,7 @@ public:
 
     // 查询类
     [[nodiscard]] vector<Record> getUserBorrowingRecords(const string &userId) const; //获取用户当前借阅的记录
+    [[nodiscard]] vector<Record> getUserHistoryRecords(const string &userId) const; //获取用户的借阅历史
 
     // 扩展
     bool renewBook(const string &userId, const string &copyId); //续借

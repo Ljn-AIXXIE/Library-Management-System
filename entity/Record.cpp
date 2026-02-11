@@ -1,17 +1,21 @@
 #include "../entity/Record.h"
 
+static int DAYS_TO_KEEP = 30;
+
+Record::Record(string userId, string copyId, time_t borrowTime) {
+    this->userId = userId;
+    this->copyId = copyId;
+    this->borrowTime = borrowTime;
+    this->returnTime = 0;
+    this->dueTime = borrowTime + DAYS_TO_KEEP * 24 * 60 * 60;
+}
+
 Record::Record(string userId, string copyId, time_t borrowTime, time_t returnTime) {
     this->userId = userId;
     this->copyId = copyId;
     this->borrowTime = borrowTime;
     this->returnTime = returnTime;
-}
-
-Record::Record() {
-    this->userId = "";
-    this->copyId = "";
-    this->borrowTime = 0;
-    this->returnTime = 0;
+    this->dueTime = borrowTime + DAYS_TO_KEEP * 24 * 60 * 60;
 }
 
 Record::~Record() {
@@ -33,6 +37,10 @@ time_t Record::getReturnTime() const {
     return returnTime;
 }
 
+time_t Record::getDueTime() const {
+    return dueTime;
+}
+
 void Record::setUserId(string userId) {
     this->userId = userId;
 }
@@ -47,4 +55,8 @@ void Record::setBorrowTime(time_t borrowTime) {
 
 void Record::setReturnTime(time_t returnTime) {
     this->returnTime = returnTime;
+}
+
+void Record::setDueTime(time_t dueTime) {
+    this->dueTime = dueTime;
 }

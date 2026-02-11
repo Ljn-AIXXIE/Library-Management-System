@@ -30,6 +30,12 @@ public:
 
     //POST /api/borrow - 借阅图书
     void handleBorrowBook(const httplib::Request &req, httplib::Response &res) const;
+
+    //GET /api/borrow/current - 获取用户当前借阅的记录
+    void handleGetUserBorrowingRecords(const httplib::Request &req, httplib::Response &res) const;
+
+    //GET /api/borrow/history - 获取用户借阅历史
+    void handleGetUserBorrowHistory(const httplib::Request &req, httplib::Response &res) const;
 };
 
 
