@@ -52,6 +52,40 @@ vector<Record> BorrowService::getUserHistoryRecords(const string &userId) const 
     return recordDAO->getHistoryRecordsByUser(userId);
 }
 
+//获取用户当前借阅的图书数量
+int BorrowService::getCurrentBorrowCount(const string &userId) const {
+    return userDAO->getBorrowedBookCount(userId);
+}
+
+//获取用户总借阅的图书数量
+int BorrowService::getTotalBorrowCount(const string &userId) const {
+    return recordDAO->getHistoryRecordsByUser(userId).size();
+}
+
+//获取用户即将到期的图书数量
+int BorrowService::getDueSoonCount(const string &userId) const {
+    vector<Record> records = recordDAO->getActiveRecordsByUser(userId);
+    int count = 0;
+    for (const auto &record: records) {
+        if (record.getDueTime() < time(nullptr) + 3 * 24 * 60 * 60) {
+            count++;
+        }
+    }
+    return count;
+}
+
+//获取用户超期的图书数量
+int BorrowService::getOverdueCount(const string &userId) const {
+    vector<Record> records = recordDAO->getActiveRecordsByUser(userId);
+    int count = 0;
+    for (const auto &record: records) {
+        if (record.getDueTime() < time(nullptr)) {
+            count++;
+        }
+    }
+    return count;
+}
+
 //书本是否已借出
 bool BorrowService::isCopyBorrowed(const string &copyId) const {
     return bookCopyDAO->isCopyBorrowed(copyId);

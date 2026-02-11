@@ -19,6 +19,7 @@ void Router::initializeRoutes(UserService *userService, InventoryService *invent
     // adminBatchAddController = make_unique<AdminBatchAddController>(batchAddService);
     bookSearchController = make_unique<
         BookController>(searchService, inventoryService, borrowService, blackListService);
+    userController = make_unique<UserController>(borrowService);
 
     // 设置CORS
     setupCORS();
@@ -32,6 +33,7 @@ void Router::initializeRoutes(UserService *userService, InventoryService *invent
     registerAdminUserRoutes();
     // registerAdminBatchAddRoutes();
     registerBookRoutes();
+    registerProfileRoutes();
 
     cout << "✓ 路由初始化完成" << endl;
 }
@@ -162,6 +164,14 @@ void Router::registerBookRoutes() const {
     //POST /api/borrow/return - 归还图书
     server->Post("/api/borrow/return", [this](const httplib::Request &req, httplib::Response &res) {
         bookSearchController->handleReturnBook(req, res);
+    });
+}
+
+//注册显示用户信息相关的路由
+void Router::registerProfileRoutes() const {
+    //GET /api/reader/stats - 获取用户信息
+    server->Get("/api/reader/stats", [this](const httplib::Request &req, httplib::Response &res) {
+        userController->handleGetUserDetail(req, res);
     });
 }
 

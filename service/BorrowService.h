@@ -32,6 +32,11 @@ public:
     [[nodiscard]] vector<Record> getUserBorrowingRecords(const string &userId) const; //获取用户当前借阅的记录
     [[nodiscard]] vector<Record> getUserHistoryRecords(const string &userId) const; //获取用户的借阅历史
 
+    [[nodiscard]] int getCurrentBorrowCount(const string &userId) const; //获取用户当前借阅的图书数量
+    [[nodiscard]] int getTotalBorrowCount(const string &userId) const; //获取用户总借阅的图书数量
+    [[nodiscard]] int getDueSoonCount(const string &userId) const; //获取用户即将到期的图书数量
+    [[nodiscard]] int getOverdueCount(const string &userId) const; //获取用户超期的图书数量
+
     // 扩展
     bool renewBook(const string &userId, const string &copyId); //续借
 

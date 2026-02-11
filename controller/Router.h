@@ -3,11 +3,13 @@
 
 #include "../utils/httplib.h"
 #include "user/AuthController.h"
+#include "user/UserController.h"
+#include "user/BookController.h"
+
 #include "admin/AdminBookController.h"
 #include "admin/AdminUserController.h"
 #include "admin/AdminBlackListController.h"
 #include "admin/AdminBatchAddController.h"
-#include "user/BookController.h"
 #include <memory>
 
 using namespace std;
@@ -16,17 +18,20 @@ using namespace std;
 class Router {
     httplib::Server *server;
     unique_ptr<AuthController> authController;
+    unique_ptr<BookController> bookSearchController;
+    unique_ptr<UserController> userController;
+
     unique_ptr<AdminBookController> adminBookController;
     unique_ptr<AdminUserController> adminUserController;
     unique_ptr<AdminBlackListController> adminBlackListController;
     unique_ptr<AdminBatchAddController> adminBatchAddController;
-    unique_ptr<BookController> bookSearchController;
 
     void registerAuthRoutes() const; //注册，登录，登出的路由
     void registerAdminBookRoutes() const; //注册管理员图书管理的路由
     void registerAdminUserRoutes() const; //注册管理员用户管理的路由
     // void registerAdminBatchAddRoutes() const;//注册管理员批量添加数据的路由
     void registerBookRoutes() const; //注册图书相关的路由
+    void registerProfileRoutes() const; //注册显示用户信息相关的路由
 
     //注册中间件
     void registerMiddleware() const;
