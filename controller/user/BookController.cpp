@@ -1,4 +1,5 @@
 #include "BookController.h"
+#include "../utils/TimeUtils.h"
 
 BookController::BookController(SearchService *searchService, InventoryService *inventoryService,
                                BorrowService *borrowService,
@@ -177,17 +178,6 @@ void BookController::handleBorrowBook(const httplib::Request &req, httplib::Resp
     }
 }
 
-//辅助函数：返回时间的字符串表示
-string formatTime(time_t timestamp) {
-    char buffer[20];
-
-    tm *timeInfo = std::localtime(&timestamp);
-
-    strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeInfo);
-
-    return string(buffer);
-}
-
 //GET /api/borrow/current - 获取用户当前借阅的记录
 void BookController::handleGetUserBorrowingRecords(const httplib::Request &req, httplib::Response &res) const {
     cout << "[BookController] 获取用户当前借阅的记录" << endl;
@@ -198,8 +188,8 @@ void BookController::handleGetUserBorrowingRecords(const httplib::Request &req, 
     for (const auto &record: records) {
         string bookId = record.getCopyId().substr(0, record.getCopyId().find_last_of('_'));
         string bookTitle = inventoryService->getBookTitleById(bookId);
-        string dueTime = formatTime(record.getDueTime());
-        string borrowTime = formatTime(record.getBorrowTime());
+        string dueTime = TimeUtils::formatTime(record.getDueTime());
+        string borrowTime = TimeUtils::formatTime(record.getBorrowTime());
 
         recordsArray.push_back({
             {"dueDate", dueTime},
@@ -227,8 +217,8 @@ void BookController::handleGetUserBorrowHistory(const httplib::Request &req, htt
     for (const auto &record: records) {
         string bookId = record.getCopyId().substr(0, record.getCopyId().find_last_of('_'));
         string bookTitle = inventoryService->getBookTitleById(bookId);
-        string returnTime = formatTime(record.getReturnTime());
-        string borrowTime = formatTime(record.getBorrowTime());
+        string returnTime = TimeUtils::formatTime(record.getReturnTime());
+        string borrowTime = TimeUtils::formatTime(record.getBorrowTime());
 
         recordsArray.push_back({
             {"returnDate", returnTime},
