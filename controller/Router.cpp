@@ -14,7 +14,8 @@ void Router::initializeRoutes(UserService *userService, InventoryService *invent
     // 创建Controller实例
     authController = make_unique<AuthController>(userService);
     adminBookController = make_unique<AdminBookController>(inventoryService, searchService);
-    adminUserController = make_unique<AdminUserController>(userService, blackListService);
+    adminUserController = make_unique<AdminUserController>(userService, blackListService, borrowService,
+                                                           inventoryService);
     adminBlackListController = make_unique<AdminBlackListController>(blackListService);
     // adminBatchAddController = make_unique<AdminBatchAddController>(batchAddService);
     bookSearchController = make_unique<

@@ -114,7 +114,7 @@ static string columnText(sqlite3_stmt *stmt, int col) {
 
 //根据用户id查询用户信息
 bool UserDAO::searchUserById(const string &userId, User &user) const {
-    const string sql = "SELECT user_id, name, role, password FROM user WHERE user_id = ?;";
+    const string sql = "SELECT user_id, name, role, password, borrow_count FROM user WHERE user_id = ?;";
     sqlite3_stmt *stmt = nullptr;
 
     if (!userDatabase->prepare(sql, &stmt)) return false;
@@ -126,6 +126,7 @@ bool UserDAO::searchUserById(const string &userId, User &user) const {
         user.setName(columnText(stmt, 1));
         user.setType(columnText(stmt, 2));
         user.setPassword(columnText(stmt, 3));
+        user.setBorrowedBookCount(sqlite3_column_int(stmt, 4));
         sqlite3_finalize(stmt);
         return true;
     }
