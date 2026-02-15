@@ -1,4 +1,5 @@
 #include "DatabaseInitializer.h"
+#include "../common/Logger.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -6,19 +7,36 @@ using namespace std;
 
 bool DatabaseInitializer::initializeDatabase(DatabaseOperator *db) {
     if (!db) {
-        cerr << "数据库操作对象为空" << std::endl;
+        Logger::getInstance().logError("DatabaseInitializer::initializeDatabase数据库操作对象为空");
         return false;
     }
 
     // 创建表
-    if (!createBookTable(db)) return false;
-    if (!createUserTable(db)) return false;
-    if (!createBookCopyTable(db)) return false;
-    if (!createRecordTable(db)) return false;
-    if (!createIndexes(db)) return false;
-    if (!createBlackListTable(db)) return false;
+    if (!createBookTable(db)) {
+        Logger::getInstance().logError("DatabaseInitializer::initializeDatabase创建book表失败");
+        return false;
+    }
+    if (!createUserTable(db)) {
+        Logger::getInstance().logError("DatabaseInitializer::initializeDatabase创建user表失败");
+        return false;
+    }
+    if (!createBookCopyTable(db)) {
+        Logger::getInstance().logError("DatabaseInitializer::initializeDatabase创建book_copy表失败");
+        return false;
+    }
+    if (!createRecordTable(db)) {
+        Logger::getInstance().logError("DatabaseInitializer::initializeDatabase创建record表失败");
+        return false;
+    }
+    if (!createIndexes(db)) {
+        Logger::getInstance().logError("DatabaseInitializer::initializeDatabase创建索引失败");
+        return false;
+    }
+    if (!createBlackListTable(db)) {
+        Logger::getInstance().logError("DatabaseInitializer::initializeDatabase创建black_list表失败");
+        return false;
+    }
 
-    cout << "数据库初始化成功" << std::endl;
     return true;
 }
 
@@ -39,10 +57,9 @@ bool DatabaseInitializer::createBookTable(DatabaseOperator *db) {
     )";
 
     if (!db->execute(sql)) {
-        cerr << "创建book表失败: " << db->getLastError() << endl;
+        Logger::getInstance().logError("DatabaseInitializer::createBookTable执行SQL失败:" + db->getLastError());
         return false;
     }
-    cout << "book表创建成功" << std::endl;
     return true;
 }
 
@@ -58,10 +75,9 @@ bool DatabaseInitializer::createUserTable(DatabaseOperator *db) {
     )";
 
     if (!db->execute(sql)) {
-        cerr << "创建user表失败: " << db->getLastError() << endl;
+        Logger::getInstance().logError("DatabaseInitializer::createUserTable执行SQL失败:" + db->getLastError());
         return false;
     }
-    cout << "user表创建成功" << endl;
     return true;
 }
 
@@ -76,10 +92,9 @@ bool DatabaseInitializer::createBookCopyTable(DatabaseOperator *db) {
     )";
 
     if (!db->execute(sql)) {
-        cerr << "创建book_copy表失败: " << db->getLastError() << endl;
+        Logger::getInstance().logError("DatabaseInitializer::createBookCopyTable执行SQL失败:" + db->getLastError());
         return false;
     }
-    cout << "book_copy表创建成功" << endl;
     return true;
 }
 
@@ -97,10 +112,9 @@ bool DatabaseInitializer::createRecordTable(DatabaseOperator *db) {
     )";
 
     if (!db->execute(sql)) {
-        cerr << "创建record表失败: " << db->getLastError() << endl;
+        Logger::getInstance().logError("DatabaseInitializer::createRecordTable执行SQL失败:" + db->getLastError());
         return false;
     }
-    cout << "record表创建成功" << endl;
     return true;
 }
 
@@ -113,10 +127,9 @@ bool DatabaseInitializer::createBlackListTable(DatabaseOperator *db) {
     )";
 
     if (!db->execute(sql)) {
-        cerr << "创建black_list表失败: " << db->getLastError() << endl;
+        Logger::getInstance().logError("DatabaseInitializer::createBlackListTable执行SQL失败:" + db->getLastError());
         return false;
     }
-    cout << "black_list表创建成功" << endl;
     return true;
 }
 
@@ -134,11 +147,9 @@ bool DatabaseInitializer::createIndexes(DatabaseOperator *db) {
 
     for (const auto &sql: indexSQLs) {
         if (!db->execute(sql)) {
-            cerr << "创建索引失败: " << db->getLastError() << endl;
+            Logger::getInstance().logError("DatabaseInitializer::createIndexes执行SQL失败:" + db->getLastError());
             return false;
         }
     }
-
-    cout << "索引创建成功" << endl;
     return true;
 }

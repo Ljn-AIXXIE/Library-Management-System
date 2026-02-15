@@ -1,4 +1,5 @@
 #include "BookDAO.h"
+#include "../common/Logger.h"
 
 BookDAO::BookDAO(DatabaseOperator *bookDatabase) : bookDatabase(bookDatabase) {
 }
@@ -12,7 +13,10 @@ bool BookDAO::addBook(const Book &book) const {
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0);";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!bookDatabase->prepare(sql, &stmt)) return false;
+    if (!bookDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookDAO::addBook准备SQL失败:" + bookDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, book.getId().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, book.getTitle().c_str(), -1, SQLITE_TRANSIENT);
@@ -24,9 +28,13 @@ bool BookDAO::addBook(const Book &book) const {
     sqlite3_bind_text(stmt, 8, book.getPages().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 9, book.getDescription().c_str(), -1, SQLITE_TRANSIENT);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("BookDAO::addBook执行SQL失败:" + bookDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
     sqlite3_finalize(stmt);
-    return success;
+    return true;
 }
 
 //删除图书
@@ -34,13 +42,20 @@ bool BookDAO::deleteBook(const string &bookId) const {
     const string sql = "DELETE FROM book WHERE id = ?;";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!bookDatabase->prepare(sql, &stmt)) return false;
+    if (!bookDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookDAO::deleteBook准备SQL失败:" + bookDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("BookDAO::deleteBook执行SQL失败:" + bookDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
     sqlite3_finalize(stmt);
-    return success;
+    return true;
 }
 
 //更新图书
@@ -50,7 +65,10 @@ bool BookDAO::updateBook(const Book &book) const {
             "WHERE id=?;";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!bookDatabase->prepare(sql, &stmt)) return false;
+    if (!bookDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookDAO::updateBook准备SQL失败:" + bookDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, book.getTitle().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, book.getAuthor().c_str(), -1, SQLITE_TRANSIENT);
@@ -62,9 +80,13 @@ bool BookDAO::updateBook(const Book &book) const {
     sqlite3_bind_text(stmt, 8, book.getDescription().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 9, book.getId().c_str(), -1, SQLITE_TRANSIENT);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("BookDAO::updateBook执行SQL失败:" + bookDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
     sqlite3_finalize(stmt);
-    return success;
+    return true;
 }
 
 //用于获取列文本
@@ -94,7 +116,11 @@ bool BookDAO::searchBookById(const string &bookId, Book &book) const {
             "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE id = ?;";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!bookDatabase->prepare(sql, &stmt)) return false;
+    if (!bookDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookDAO::searchBookById准备SQL失败:" + bookDatabase->getLastError());
+        return false;
+    }
+
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
 
     if (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -102,6 +128,7 @@ bool BookDAO::searchBookById(const string &bookId, Book &book) const {
         sqlite3_finalize(stmt);
         return true;
     }
+    Logger::getInstance().logError("BookDAO::searchBookById执行SQL失败:" + bookDatabase->getLastError());
     sqlite3_finalize(stmt);
     return false;
 }
@@ -111,7 +138,10 @@ bool BookDAO::searchBookByTitle(const string &bookTitle, Book &book) const {
     const string sql =
             "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE title LIKE ?;";
     sqlite3_stmt *stmt = nullptr;
-    if (!bookDatabase->prepare(sql, &stmt)) return false;
+    if (!bookDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookDAO::searchBookByTitle准备SQL失败:" + bookDatabase->getLastError());
+        return false;
+    }
 
     string pattern = "%" + bookTitle + "%";
     sqlite3_bind_text(stmt, 1, pattern.c_str(), -1, SQLITE_TRANSIENT);
@@ -121,6 +151,7 @@ bool BookDAO::searchBookByTitle(const string &bookTitle, Book &book) const {
         sqlite3_finalize(stmt);
         return true;
     }
+    Logger::getInstance().logError("BookDAO::searchBookByTitle执行SQL失败:" + bookDatabase->getLastError());
     sqlite3_finalize(stmt);
     return false;
 }
@@ -131,7 +162,10 @@ vector<Book> BookDAO::getAllBooks() const {
     const string sql =
             "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book;";
     sqlite3_stmt *stmt = nullptr;
-    if (!bookDatabase->prepare(sql, &stmt)) return books;
+    if (!bookDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookDAO::getAllBooks准备SQL失败:" + bookDatabase->getLastError());
+        return books;
+    }
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         books.push_back(extractBook(stmt));
@@ -148,7 +182,10 @@ vector<Book> BookDAO::searchBooksByCategory(const string &category) const {
             "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE category LIKE ?;";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!bookDatabase->prepare(sql, &stmt)) return books;
+    if (!bookDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookDAO::searchBooksByCategory准备SQL失败:" + bookDatabase->getLastError());
+        return books;
+    }
 
     string pattern = "%" + category + "%";
     sqlite3_bind_text(stmt, 1, pattern.c_str(), -1, SQLITE_TRANSIENT);
@@ -167,7 +204,10 @@ vector<Book> BookDAO::searchBookByAuthor(const string &author) const {
             "SELECT id, title, author, category, publisher, publish_date, price, pages, description FROM book WHERE author LIKE ?;";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!bookDatabase->prepare(sql, &stmt)) return books;
+    if (!bookDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookDAO::searchBookByAuthor准备SQL失败:" + bookDatabase->getLastError());
+        return books;
+    }
 
     string pattern = "%" + author + "%";
 
@@ -184,13 +224,18 @@ vector<Book> BookDAO::searchBookByAuthor(const string &author) const {
 string BookDAO::getBookTitleById(const string &bookId) const {
     const string sql = "SELECT title FROM book WHERE id = ?;";
     sqlite3_stmt *stmt = nullptr;
-    if (!bookDatabase->prepare(sql, &stmt)) return "";
+    if (!bookDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookDAO::getBookTitleById准备SQL失败:" + bookDatabase->getLastError());
+        return "";
+    }
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
 
     string title = "";
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         title = columnText(stmt, 0);
+    } else {
+        Logger::getInstance().logError("BookDAO::getBookTitleById执行SQL失败:" + bookDatabase->getLastError());
     }
     sqlite3_finalize(stmt);
     return title;
@@ -199,13 +244,18 @@ string BookDAO::getBookTitleById(const string &bookId) const {
 bool BookDAO::isBookIdExist(const string &bookId) const {
     const string sql = "SELECT COUNT(*) FROM book WHERE id = ?;";
     sqlite3_stmt *stmt = nullptr;
-    if (!bookDatabase->prepare(sql, &stmt)) return false;
+    if (!bookDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookDAO::isBookIdExist准备SQL失败:" + bookDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
 
     int count = 0;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("BookDAO::isBookIdExist执行SQL失败:" + bookDatabase->getLastError());
     }
     sqlite3_finalize(stmt);
     return count > 0;
@@ -214,13 +264,18 @@ bool BookDAO::isBookIdExist(const string &bookId) const {
 int BookDAO::getBookCopyCount(const string &bookId) const {
     const string sql = "SELECT copy_count FROM book WHERE id = ?;";
     sqlite3_stmt *stmt = nullptr;
-    if (!bookDatabase->prepare(sql, &stmt)) return 0;
+    if (!bookDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookDAO::getBookCopyCount准备SQL失败:" + bookDatabase->getLastError());
+        return 0;
+    }
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
 
     int count = 0;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("BookDAO::getBookCopyCount执行SQL失败:" + bookDatabase->getLastError());
     }
     sqlite3_finalize(stmt);
     return count;
@@ -229,11 +284,18 @@ int BookDAO::getBookCopyCount(const string &bookId) const {
 bool BookDAO::updateBookCopyCount(const string &bookId) const {
     const string sql = "UPDATE book SET copy_count = copy_count + 1 WHERE id = ?;";
     sqlite3_stmt *stmt = nullptr;
-    if (!bookDatabase->prepare(sql, &stmt)) return false;
+    if (!bookDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookDAO::updateBookCopyCount准备SQL失败:" + bookDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("BookDAO::updateBookCopyCount执行SQL失败:" + bookDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
     sqlite3_finalize(stmt);
-    return success;
+    return true;
 }

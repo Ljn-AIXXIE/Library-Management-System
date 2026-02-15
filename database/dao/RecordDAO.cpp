@@ -1,4 +1,5 @@
 #include "RecordDAO.h"
+#include "../common/Logger.h"
 #include <chrono>
 
 RecordDAO::RecordDAO(DatabaseOperator *recordDatabase) : recordDatabase(recordDatabase) {
@@ -13,16 +14,23 @@ bool RecordDAO::addBorrowRecord(const Record &record) const {
             "VALUES (?, ?, ?, ?);";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!recordDatabase->prepare(sql, &stmt)) return false;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::addBorrowRecord准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, record.getUserId().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, record.getCopyId().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_int64(stmt, 3, record.getBorrowTime());
     sqlite3_bind_int64(stmt, 4, record.getReturnTime());
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("RecordDAO::addBorrowRecord执行SQL失败:" + recordDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
     sqlite3_finalize(stmt);
-    return success;
+    return true;
 }
 
 //添加借阅记录
@@ -32,7 +40,10 @@ bool RecordDAO::addBorrowRecord(const string &userId, const string &copyId) cons
             "VALUES (?, ?, ?, ?, ?);";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!recordDatabase->prepare(sql, &stmt)) return false;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::addBorrowRecord准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
 
     auto now = chrono::system_clock::now();
     time_t currentTime = chrono::system_clock::to_time_t(now);
@@ -45,9 +56,13 @@ bool RecordDAO::addBorrowRecord(const string &userId, const string &copyId) cons
     sqlite3_bind_int64(stmt, 4, currentTime);
     sqlite3_bind_int64(stmt, 5, 0);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("RecordDAO::addBorrowRecord执行SQL失败:" + recordDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
     sqlite3_finalize(stmt);
-    return success;
+    return true;
 }
 
 //更新归还时间
@@ -55,7 +70,10 @@ bool RecordDAO::updateReturnTime(const string &userId, const string &copyId) con
     const string sql = "UPDATE record SET return_time = ? WHERE user_id = ? AND copy_id = ?;";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!recordDatabase->prepare(sql, &stmt)) return false;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::updateReturnTime准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
 
     auto now = chrono::system_clock::now();
     time_t currentTime = chrono::system_clock::to_time_t(now);
@@ -64,9 +82,13 @@ bool RecordDAO::updateReturnTime(const string &userId, const string &copyId) con
     sqlite3_bind_text(stmt, 2, userId.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 3, copyId.c_str(), -1, SQLITE_TRANSIENT);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("RecordDAO::updateReturnTime执行SQL失败:" + recordDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
     sqlite3_finalize(stmt);
-    return success;
+    return true;
 }
 
 //用于获取列文本
@@ -82,7 +104,10 @@ vector<Record> RecordDAO::getActiveRecordsByUser(const string &userId) const {
             "SELECT user_id, copy_id, borrow_time FROM record WHERE user_id = ? AND return_time = 0;";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!recordDatabase->prepare(sql, &stmt)) return records;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::getActiveRecordsByUser准备SQL失败:" + recordDatabase->getLastError());
+        return records;
+    }
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
@@ -101,7 +126,10 @@ vector<Record> RecordDAO::getHistoryRecordsByUser(const string &userId) const {
             "SELECT user_id, copy_id, borrow_time, return_time FROM record WHERE user_id = ? AND return_time != 0;";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!recordDatabase->prepare(sql, &stmt)) return records;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::getHistoryRecordsByUser准备SQL失败:" + recordDatabase->getLastError());
+        return records;
+    }
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
@@ -120,7 +148,10 @@ vector<Record> RecordDAO::getRecordsByCopyId(const string &copyId) const {
     const string sql = "SELECT user_id, copy_id, borrow_time, return_time FROM record WHERE copy_id = ?;";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!recordDatabase->prepare(sql, &stmt)) return records;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::getRecordsByCopyId准备SQL失败:" + recordDatabase->getLastError());
+        return records;
+    }
 
     sqlite3_bind_text(stmt, 1, copyId.c_str(), -1, SQLITE_TRANSIENT);
 
@@ -139,12 +170,17 @@ bool RecordDAO::getRecordCountByBookId(const string &bookId, int &count) const {
     const string sql = "SELECT COUNT(*) FROM record WHERE book_id = ?";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!recordDatabase->prepare(sql, &stmt)) return false;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::getRecordCountByBookId准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
 
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("RecordDAO::getRecordCountByBookId执行SQL失败:" + recordDatabase->getLastError());
     }
     sqlite3_finalize(stmt);
     return count > 0;
@@ -156,12 +192,17 @@ bool RecordDAO::getRecordCountByUserId(const string &userId, int &count) const {
     const string sql = "SELECT COUNT(*) FROM record WHERE user_id = ?";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!recordDatabase->prepare(sql, &stmt)) return false;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::getRecordCountByUserId准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("RecordDAO::getRecordCountByUserId执行SQL失败:" + recordDatabase->getLastError());
     }
     sqlite3_finalize(stmt);
     return count > 0;
@@ -172,7 +213,10 @@ bool RecordDAO::hasActiveRecordByUserId(const string &userId, const string &copy
     const string sql = "SELECT COUNT(*) FROM record WHERE user_id = ? AND copy_id = ? AND return_time = 0;";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!recordDatabase->prepare(sql, &stmt)) return false;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::hasActiveRecordByUserId准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, copyId.c_str(), -1, SQLITE_TRANSIENT);
@@ -180,6 +224,8 @@ bool RecordDAO::hasActiveRecordByUserId(const string &userId, const string &copy
     int count = 0;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("RecordDAO::hasActiveRecordByUserId执行SQL失败:" + recordDatabase->getLastError());
     }
     sqlite3_finalize(stmt);
     return count > 0;
@@ -190,13 +236,18 @@ bool RecordDAO::hasActiveRecordByCopyId(const string &copyId) const {
     const string sql = "SELECT COUNT(*) FROM record WHERE copy_id = ? AND return_time = 0;";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!recordDatabase->prepare(sql, &stmt)) return false;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::hasActiveRecordByCopyId准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, copyId.c_str(), -1, SQLITE_TRANSIENT);
 
     int count = 0;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("RecordDAO::hasActiveRecordByCopyId执行SQL失败:" + recordDatabase->getLastError());
     }
     sqlite3_finalize(stmt);
     return count > 0;

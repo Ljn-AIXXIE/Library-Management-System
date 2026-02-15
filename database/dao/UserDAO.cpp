@@ -1,5 +1,6 @@
 #include "UserDAO.h"
 #include "../../utils/PasswordUtils.h"
+#include "../common/Logger.h"
 /*
 User
 -------------------------
@@ -22,7 +23,10 @@ bool UserDAO::addUser(const User &user) const {
             "VALUES (?, ?, ?, ?, ?);";
 
     sqlite3_stmt *stmt = nullptr;
-    if (!userDatabase->prepare(sql, &stmt)) return false;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::addUser准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, user.getId().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, user.getName().c_str(), -1, SQLITE_TRANSIENT);
@@ -30,9 +34,13 @@ bool UserDAO::addUser(const User &user) const {
     sqlite3_bind_text(stmt, 4, user.getPassword().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_int(stmt, 5, 0);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("UserDAO::addUser执行SQL失败:" + userDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
     sqlite3_finalize(stmt);
-    return success;
+    return true;
 }
 
 //删除用户
@@ -40,13 +48,20 @@ bool UserDAO::deleteUser(const string &userId) const {
     const string sql = "DELETE FROM user WHERE user_id = ?;";
     sqlite3_stmt *stmt = nullptr;
 
-    if (!userDatabase->prepare(sql, &stmt)) return false;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::deleteUser准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("UserDAO::deleteUser执行SQL失败:" + userDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
     sqlite3_finalize(stmt);
-    return success;
+    return true;
 }
 
 //更新用户密码
@@ -54,14 +69,21 @@ bool UserDAO::updateUserPassword(const string &userId, const string &newPassword
     const string sql = "UPDATE user SET password = ? WHERE user_id = ?;";
     sqlite3_stmt *stmt = nullptr;
 
-    if (!userDatabase->prepare(sql, &stmt)) return false;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::updateUserPassword准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, newPassword.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, userId.c_str(), -1, SQLITE_TRANSIENT);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("UserDAO::updateUserPassword执行SQL失败:" + userDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
     sqlite3_finalize(stmt);
-    return success;
+    return true;
 }
 
 //更新用户借阅信息
@@ -71,24 +93,38 @@ bool UserDAO::updateUserBorrowInfo(const string &userId, const bool flag) const 
         const string sql = "UPDATE user SET borrow_count = borrow_count + 1 WHERE user_id = ?;";
         sqlite3_stmt *stmt = nullptr;
 
-        if (!userDatabase->prepare(sql, &stmt)) return false;
+        if (!userDatabase->prepare(sql, &stmt)) {
+            Logger::getInstance().logError("UserDAO::updateUserBorrowInfo准备SQL失败:" + userDatabase->getLastError());
+            return false;
+        }
 
         sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
-        bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            Logger::getInstance().logError("UserDAO::updateUserBorrowInfo执行SQL失败:" + userDatabase->getLastError());
+            sqlite3_finalize(stmt);
+            return false;
+        }
         sqlite3_finalize(stmt);
-        return success;
+        return true;
     }
     const string sql = "UPDATE user SET borrow_count = borrow_count - 1 WHERE user_id = ?;";
     sqlite3_stmt *stmt = nullptr;
 
-    if (!userDatabase->prepare(sql, &stmt)) return false;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::updateUserBorrowInfo准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("UserDAO::updateUserBorrowInfo执行SQL失败:" + userDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
     sqlite3_finalize(stmt);
-    return success;
+    return true;
 }
 
 //更新用户名
@@ -96,14 +132,21 @@ bool UserDAO::updateUserName(const string &userId, const string &newName) const 
     const string sql = "UPDATE user SET name = ? WHERE user_id = ?;";
     sqlite3_stmt *stmt = nullptr;
 
-    if (!userDatabase->prepare(sql, &stmt)) return false;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::updateUserName准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, newName.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, userId.c_str(), -1, SQLITE_TRANSIENT);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("UserDAO::updateUserName执行SQL失败:" + userDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
     sqlite3_finalize(stmt);
-    return success;
+    return true;
 }
 
 //用于获取列文本
@@ -117,7 +160,10 @@ bool UserDAO::searchUserById(const string &userId, User &user) const {
     const string sql = "SELECT user_id, name, role, password, borrow_count FROM user WHERE user_id = ?;";
     sqlite3_stmt *stmt = nullptr;
 
-    if (!userDatabase->prepare(sql, &stmt)) return false;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::searchUserById准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
@@ -130,6 +176,7 @@ bool UserDAO::searchUserById(const string &userId, User &user) const {
         sqlite3_finalize(stmt);
         return true;
     }
+    Logger::getInstance().logError("UserDAO::searchUserById执行SQL失败:" + userDatabase->getLastError());
     sqlite3_finalize(stmt);
     return false;
 }
@@ -138,7 +185,10 @@ vector<User> UserDAO::getAllUsers() const {
     vector<User> users;
     const string sql = "SELECT user_id, name, borrow_count FROM user WHERE role = 'student';";
     sqlite3_stmt *stmt = nullptr;
-    if (!userDatabase->prepare(sql, &stmt)) return users;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::getAllUsers准备SQL失败:" + userDatabase->getLastError());
+        return users;
+    }
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         User user;
@@ -156,13 +206,18 @@ bool UserDAO::exists(const string &userId) const {
     const string sql = "SELECT COUNT(*) FROM user WHERE user_id = ?;";
     sqlite3_stmt *stmt = nullptr;
 
-    if (!userDatabase->prepare(sql, &stmt)) return false;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::exists准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
     int count = 0;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("UserDAO::exists执行SQL失败:" + userDatabase->getLastError());
     }
     sqlite3_finalize(stmt);
     return count > 0;
@@ -173,7 +228,10 @@ bool UserDAO::verifyUser(const string &userId, const string &password) const {
     const string sql = "SELECT password FROM user WHERE user_id = ?;";
     sqlite3_stmt *stmt = nullptr;
 
-    if (!userDatabase->prepare(sql, &stmt)) return false;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::verifyUser准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
@@ -181,6 +239,8 @@ bool UserDAO::verifyUser(const string &userId, const string &password) const {
         string storedPassword = columnText(stmt, 0);
         sqlite3_finalize(stmt);
         return PasswordUtils::verifyPassword(password, storedPassword);
+    } else {
+        Logger::getInstance().logError("UserDAO::verifyUser执行SQL失败:" + userDatabase->getLastError());
     }
     sqlite3_finalize(stmt);
     return false;
@@ -190,13 +250,18 @@ bool UserDAO::verifyUser(const string &userId, const string &password) const {
 int UserDAO::getBorrowedBookCount(const string &userId) const {
     const string sql = "SELECT borrow_count FROM user WHERE user_id = ?;";
     sqlite3_stmt *stmt = nullptr;
-    if (!userDatabase->prepare(sql, &stmt)) return 0;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::getBorrowedBookCount准备SQL失败:" + userDatabase->getLastError());
+        return 0;
+    }
 
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
     int count = 0;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("UserDAO::getBorrowedBookCount执行SQL失败:" + userDatabase->getLastError());
     }
     sqlite3_finalize(stmt);
     return count;

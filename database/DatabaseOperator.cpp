@@ -1,4 +1,5 @@
 #include "DatabaseOperator.h"
+#include "../common/Logger.h"
 #include <iostream>
 using namespace std;
 
@@ -14,7 +15,7 @@ bool DatabaseOperator::open(const string &daPath) {
     int result = sqlite3_open(daPath.c_str(), &database);
     if (result != SQLITE_OK) {
         lastError = sqlite3_errmsg(database);
-        //cout<<"打开数据库失败:"<<sqlite3_errmsg(database)<<""<<endl;//后续写入日志
+        Logger::getInstance().logError("DatabaseOperator::open数据库连接失败:" + lastError);
         close();
         return false;
     }
@@ -25,7 +26,6 @@ void DatabaseOperator::close() {
     if (database) {
         sqlite3_close(database);
         database = nullptr;
-        // cout<<"数据库已关闭"<<endl;//后续写入日志
     }
 }
 
@@ -36,12 +36,10 @@ bool DatabaseOperator::execute(const string &sql) {
         lastError = errorMessage ? errorMessage : sqlite3_errmsg(database);
         sqlite3_free(errorMessage);
 
-        //cout<<"执行SQL失败:"<<lastError<<endl;//后续写入日志
+        Logger::getInstance().logError("DatabaseOperator::execute执行SQL失败:" + lastError);
 
         return false;
     }
-
-    //cout<<"执行SQL成功"<<endl;//后续写入日志
 
     return true;
 }
@@ -49,7 +47,7 @@ bool DatabaseOperator::execute(const string &sql) {
 bool DatabaseOperator::query(const string &sql, vector<vector<string> > &result) {
     sqlite3_stmt *statement = nullptr;
     if (!prepare(sql, &statement)) {
-        //cout<<"查询SQL失败"<<endl;//后续写入日志
+        Logger::getInstance().logError("DatabaseOperator::query准备SQL失败:" + lastError);
 
         return false;
     }
@@ -64,8 +62,6 @@ bool DatabaseOperator::query(const string &sql, vector<vector<string> > &result)
     }
     sqlite3_finalize(statement);
 
-    //cout<<"查询SQL成功"<<endl;//后续写入日志
-
     return true;
 }
 
@@ -78,12 +74,10 @@ bool DatabaseOperator::prepare(const string &sql, sqlite3_stmt **statement) {
         }
         lastError = sqlite3_errmsg(database);
 
-        //cout<<"准备SQL失败:"<<sqlite3_errmsg(database)<<""<<endl;//后续写入日志
+        Logger::getInstance().logError("DatabaseOperator::prepare准备SQL失败:" + lastError);
 
         return false;
     }
-
-    //cout<<"准备SQL成功"<<endl;//后续写入日志
 
     return true;
 }
