@@ -201,6 +201,26 @@ vector<User> UserDAO::getAllUsers() const {
     return users;
 }
 
+//返回读者总数
+int UserDAO::getTotalUserCount() const {
+    const std::string sql = "SELECT COUNT(*) FROM user WHERE role = 'student';";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::getReaderCount准备SQL失败:" + userDatabase->getLastError());
+        return 0;
+    }
+
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("UserDAO::getReaderCount执行SQL失败:" + userDatabase->getLastError());
+    }
+    sqlite3_finalize(stmt);
+    return count;
+}
+
 //判断用户是否存在，用于登录和注册校验
 bool UserDAO::exists(const string &userId) const {
     const string sql = "SELECT COUNT(*) FROM user WHERE user_id = ?;";

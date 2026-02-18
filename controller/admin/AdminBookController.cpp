@@ -1,5 +1,7 @@
 #include "AdminBookController.h"
 #include "../common/Logger.h"
+using std::string;
+using std::vector;
 
 AdminBookController::AdminBookController(InventoryService *inventoryService,
                                          SearchService *searchService) : inventoryService(inventoryService),
@@ -22,7 +24,7 @@ void AdminBookController::handleGetAllBooks(httplib::Response &res) const {
             {"author", book.getAuthor()},
             {"category", book.getCategory()},
             {"publisher", book.getPublisher()},
-            {"totalCount", inventoryService->getBookCopyCount(book.getId())},
+            {"totalCount", inventoryService->getBookCopyCountByBookId(book.getId())},
             {"availableCount", inventoryService->getAvailableCopyCount(book.getId())}
         });
     }
@@ -141,7 +143,7 @@ void AdminBookController::handleDeleteBook(const httplib::Request &req, httplib:
 
     json requestData = HttpUtils::parseRequestBody(req);
     string bookId = requestData["isbn"];
-    if (inventoryService->getAvailableCopyCount(bookId) != inventoryService->getBookCopyCount(bookId)) {
+    if (inventoryService->getAvailableCopyCount(bookId) != inventoryService->getBookCopyCountByBookId(bookId)) {
         res = HttpUtils::createErrorResponse("图书副本未全部归还", 400);
         return;
     }
@@ -206,7 +208,7 @@ void AdminBookController::handleAddBookCopy(const httplib::Request &req, httplib
 //POST /api/admin/copies/delete - 删除图书副本
 void AdminBookController::handleDeleteBookCopy(const httplib::Request &req, httplib::Response &res) const {
     Logger::getInstance().logAccess("POST /api/admin/copies/delete 删除图书副本");
- json requestData = HttpUtils::parseRequestBody(req);
+    json requestData = HttpUtils::parseRequestBody(req);
     string copyId = requestData["copyId"];
     if (inventoryService->deleteBookCopy(copyId)) {
         json responseData = {

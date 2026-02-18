@@ -1,6 +1,8 @@
 #include "BookController.h"
 #include "../utils/TimeUtils.h"
 #include "../common/Logger.h"
+using std::string;
+using std::vector;
 
 BookController::BookController(SearchService *searchService, InventoryService *inventoryService,
                                BorrowService *borrowService,
@@ -61,7 +63,7 @@ void BookController::handleSearchBooks(const httplib::Request &req, httplib::Res
             {"title", book.getTitle()},
             {"author", book.getAuthor()},
             {"category", book.getCategory()},
-            {"totalCount", inventoryService->getBookCopyCount(book.getId())},
+            {"totalCount", inventoryService->getBookCopyCountByBookId(book.getId())},
             {"availableCount", inventoryService->getAvailableCopyCount(book.getId())}
         });
     }
@@ -87,7 +89,7 @@ void BookController::handleGetBookDetail(const httplib::Request &req, httplib::R
         return;
     }
 
-    int totalCopies = inventoryService->getBookCopyCount(bookId);
+    int totalCopies = inventoryService->getBookCopyCountByBookId(bookId);
     int availableCopies = inventoryService->getAvailableCopyCount(bookId);
 
     json responseData = {

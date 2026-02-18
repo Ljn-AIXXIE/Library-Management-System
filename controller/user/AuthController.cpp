@@ -1,5 +1,6 @@
 #include "AuthController.h"
 #include "../common/Logger.h"
+using std::string;
 
 AuthController::AuthController(UserService *userService) : userService(userService) {
 }
@@ -70,7 +71,7 @@ void AuthController::handleLogin(const httplib::Request &req, httplib::Response 
     json requestData = HttpUtils::parseRequestBody(req);
     string errorMsg;
     if (!HttpUtils::validateRequiredFields(requestData, {"userId", "password"}, errorMsg)) {
-        cout << "登录失败: 缺少必填字段 - " << errorMsg << endl;
+        std::cout << "登录失败: 缺少必填字段 - " << errorMsg << std::endl;
         res = HttpUtils::createErrorResponse(errorMsg, 400);
         return;
     }

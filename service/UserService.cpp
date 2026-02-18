@@ -52,6 +52,10 @@ vector<User> UserService::getAllUsers() const {
     return db->getAllUsers();
 }
 
+int UserService::getTotalUserCount() const {
+    return db->getTotalUserCount();
+}
+
 bool UserService::isUserExist(const string &userId) const {
     return db->exists(userId);
 }

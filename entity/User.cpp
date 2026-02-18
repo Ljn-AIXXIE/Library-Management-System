@@ -1,9 +1,8 @@
 #include "User.h"
 #include<string>
 #include "../utils/PasswordUtils.h"
-using namespace std;
 
-User::User(string id, string name, string password, string type, int borrowedBookCount) {
+User::User(const string &id, const string &name, string password, const string &type, const int borrowedBookCount) {
     this->id = id;
     this->name = name;
     password = PasswordUtils::encryptPassword(password);

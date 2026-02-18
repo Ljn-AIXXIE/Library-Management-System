@@ -3,7 +3,8 @@
 #include "../utils/sqlite3.h"
 #include<string>
 #include <vector>
-using namespace std;
+using std::string;
+using std::vector;
 
 class DatabaseOperator {
     sqlite3 *database;

@@ -24,8 +24,9 @@
 #include "service/BlackListService.h"
 #include "controller/Router.h"
 #include "database/dao/BlackListDAO.h"
-
-using namespace std;
+using std::cout;
+using std::endl;
+using std::cerr;
 
 int main() {
 #ifdef _WIN32

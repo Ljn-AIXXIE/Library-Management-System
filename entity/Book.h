@@ -2,7 +2,7 @@
 #define AVL_BOOKSYSTEM_BOOK_H
 #include <string>
 #include <chrono>
-using namespace std;
+using std::string;
 
 class Book {
     string id; //图书的id
@@ -45,8 +45,6 @@ public:
     void setPrice(const string &price); //设置图书价格
     void setPages(const string &pages); //设置图书页数
     void setDescription(const string &description); //设置图书简介
-
-    void printBookInfo(bool isAdmin) const; //打印图书信息
 };
 
 #endif //AVL_BOOKSYSTEM_BOOK_H

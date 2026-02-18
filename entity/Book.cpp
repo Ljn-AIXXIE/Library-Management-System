@@ -1,6 +1,6 @@
 #include "Book.h"
 #include <iostream>
-using namespace std;
+using std::string;
 
 Book::Book(const string &id, const string &title, const string &author, const string &category) {
     this->id = id;
@@ -120,13 +120,4 @@ void Book::setPages(const string &pages) {
 
 void Book::setDescription(const string &description) {
     this->description = description;
-}
-
-//打印图书信息
-void Book::printBookInfo(bool isAdmin) const {
-    cout << "书名: " << title << endl;
-    cout << "作者: " << author << endl;
-    cout << "id: " << id << endl;
-    cout << "分类: " << category << endl;
-    cout << "出版社: " << publisher << endl;
 }

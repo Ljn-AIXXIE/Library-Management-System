@@ -1,7 +1,7 @@
 #ifndef AVL_BOOKSYSTEM_BOOKCOPY_H
 #define AVL_BOOKSYSTEM_BOOKCOPY_H
 #include<string>
-using namespace std;
+using std::string;
 
 class BookCopy {
     string bookId;

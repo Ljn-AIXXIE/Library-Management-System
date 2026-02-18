@@ -21,6 +21,8 @@ public:
     bool getUserById(const string &userId, User &user) const; //根据用户ID获取用户信息
     [[nodiscard]] vector<User> getAllUsers() const;
 
+    [[nodiscard]] int getTotalUserCount() const;
+
     //校验
     [[nodiscard]] bool isUserExist(const string &userId) const; //用户是否存在
     [[nodiscard]] bool verifyUser(const string &userId, const string &password) const; //验证用户登录

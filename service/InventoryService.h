@@ -24,7 +24,9 @@ public:
     [[nodiscard]] bool deleteAllBookCopy(const string &bookId) const; //删除指定图书的所有副本
     [[nodiscard]] vector<BookCopy> getBookCopies(const string &bookId) const; //获取所有图书副本
     [[nodiscard]] vector<BookCopy> getAvailableCopies(const string &bookId) const; //获取可借阅的副本
-    [[nodiscard]] int getBookCopyCount(const string &bookId) const;
+    [[nodiscard]] int getBookCopyCountByBookId(const string &bookId) const;
+
+    [[nodiscard]] int getTotalCopyCount() const;
 
     [[nodiscard]] string getBookTitleById(const string &bookId) const; //根据图书id获取图书名称
 

@@ -2,7 +2,7 @@
 
 static int DAYS_TO_KEEP = 30;
 
-Record::Record(string userId, string copyId, time_t borrowTime) {
+Record::Record(const string &userId, const string &copyId, const time_t borrowTime) {
     this->userId = userId;
     this->copyId = copyId;
     this->borrowTime = borrowTime;
@@ -10,7 +10,7 @@ Record::Record(string userId, string copyId, time_t borrowTime) {
     this->dueTime = borrowTime + DAYS_TO_KEEP * 24 * 60 * 60;
 }
 
-Record::Record(string userId, string copyId, time_t borrowTime, time_t returnTime) {
+Record::Record(const string &userId, const string &copyId, const time_t borrowTime, const time_t returnTime) {
     this->userId = userId;
     this->copyId = copyId;
     this->borrowTime = borrowTime;

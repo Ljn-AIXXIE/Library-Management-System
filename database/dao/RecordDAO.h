@@ -3,6 +3,8 @@
 #include "../DatabaseOperator.h"
 #include "../../entity/Record.h"
 #include<vector>
+using std::string;
+using std::vector;
 /*
 CREATE TABLE record (
 user_id       TEXT NOT NULL,
@@ -33,6 +35,7 @@ public:
     [[nodiscard]] vector<Record> getRecordsByCopyId(const string &copyId) const; //获取图书的借阅历史
     bool getRecordCountByBookId(const string &bookId, int &count) const; //获取图书的借阅次数
     bool getRecordCountByUserId(const string &userId, int &count) const; //获取用户的借阅次数
+    vector<Record> getActiveRecords() const; //获取当前借阅的记录数量
 
     //业务校验
     [[nodiscard]] bool hasActiveRecordByUserId(const string &userId, const string &copyId) const; //用于判断用户是否借阅该图书

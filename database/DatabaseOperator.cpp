@@ -1,7 +1,6 @@
 #include "DatabaseOperator.h"
 #include "../common/Logger.h"
 #include <iostream>
-using namespace std;
 
 DatabaseOperator::DatabaseOperator() {
     database = nullptr;

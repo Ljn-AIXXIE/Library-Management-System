@@ -1,5 +1,6 @@
 #include "BookCopyDAO.h"
 #include "../common/Logger.h"
+
 /*
 CREATE TABLE book_copy (
 copy_id     TEXT PRIMARY KEY,
@@ -135,6 +136,45 @@ int BookCopyDAO::getAvailableCopyCount(const string &bookId) const {
         count = sqlite3_column_int(stmt, 0);
     } else {
         Logger::getInstance().logError("BookCopyDAO::getAvailableCopyCount执行SQL失败:" + bookCopyDatabase->getLastError());
+    }
+    sqlite3_finalize(stmt);
+    return count;
+}
+
+//获取所有副本数量
+int BookCopyDAO::getTotalCopyCount() const {
+    const std::string sql = "SELECT COUNT(*) FROM book_copy;";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!bookCopyDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookCopyDAO::getTotalCopyCount准备SQL失败:" + bookCopyDatabase->getLastError());
+        return 0;
+    }
+
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("BookCopyDAO::getTotalCopyCount执行SQL失败:" + bookCopyDatabase->getLastError());
+    }
+    sqlite3_finalize(stmt);
+    return count;
+}
+
+//获取已借出的副本数量
+int BookCopyDAO::getBorrowedCopyCount() const {
+    const std::string sql = "SELECT COUNT(*) FROM book_copy WHERE status = 'borrowed';";
+    sqlite3_stmt *stmt = nullptr;
+    if (!bookCopyDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookCopyDAO::getBorrowedCopyCount准备SQL失败:" + bookCopyDatabase->getLastError());
+        return 0;
+    }
+
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("BookCopyDAO::getBorrowedCopyCount执行SQL失败:" + bookCopyDatabase->getLastError());
     }
     sqlite3_finalize(stmt);
     return count;

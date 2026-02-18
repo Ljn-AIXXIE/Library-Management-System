@@ -2,6 +2,12 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+using std::string;
+using std::stringstream;
+using std::hex;
+using std::setfill;
+using std::setw;
+using std::vector;
 
 // 定义这个宏以避免 Windows API 的 byte 类型与 std::byte 冲突
 #define byte win_byte_override

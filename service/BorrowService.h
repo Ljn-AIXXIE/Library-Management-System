@@ -30,6 +30,8 @@ public:
     // 查询类
     [[nodiscard]] vector<Record> getUserBorrowingRecords(const string &userId) const; //获取用户当前借阅的记录
     [[nodiscard]] vector<Record> getUserHistoryRecords(const string &userId) const; //获取用户的借阅历史
+    [[nodiscard]] int getBorrowedBookCount() const; //获取当前已被借阅的图书数量
+    [[nodiscard]] int getOverDueBookCount() const; //获取当前超期的图书数量
 
     [[nodiscard]] int getCurrentBorrowCount(const string &userId) const; //获取用户当前借阅的图书数量
     [[nodiscard]] int getTotalBorrowCount(const string &userId) const; //获取用户总借阅的图书数量

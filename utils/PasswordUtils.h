@@ -2,8 +2,7 @@
 #define AVL_BOOKSYSTEM_PASSWORDUTILS_H
 
 #include <string>
-
-using namespace std;
+using std::string;
 
 class PasswordUtils {
 public:

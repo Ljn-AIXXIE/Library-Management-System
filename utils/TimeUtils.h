@@ -2,11 +2,11 @@
 #define LIBRARYMANAGEMENTSYSTEM_TIMEUTILS_H
 #include <string>
 #include <chrono>
-using namespace std;
+using std::string;
 
 class TimeUtils {
 public:
-    static string formatTime(time_t timestamp);
+    static std::string formatTime(time_t timestamp);
 };
 
 

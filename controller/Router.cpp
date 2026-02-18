@@ -1,6 +1,7 @@
 #include "Router.h"
 #include "../utils/json.hpp"
 #include <iostream>
+using std::make_unique;
 
 Router::Router(httplib::Server *server) : server(server) {
 }
@@ -21,6 +22,7 @@ void Router::initializeRoutes(UserService *userService, InventoryService *invent
     bookSearchController = make_unique<
         BookController>(searchService, inventoryService, borrowService, blackListService);
     userController = make_unique<UserController>(borrowService);
+    adminController = make_unique<AdminController>(userService, inventoryService, borrowService);
 
     // 设置CORS
     setupCORS();
@@ -35,8 +37,6 @@ void Router::initializeRoutes(UserService *userService, InventoryService *invent
     // registerAdminBatchAddRoutes();
     registerBookRoutes();
     registerProfileRoutes();
-
-    cout << "✓ 路由初始化完成" << endl;
 }
 
 // 注册，登录，登出的路由
@@ -168,11 +168,16 @@ void Router::registerBookRoutes() const {
     });
 }
 
-//注册显示用户信息相关的路由
+//注册显示信息相关的路由
 void Router::registerProfileRoutes() const {
     //GET /api/reader/stats - 获取用户信息
     server->Get("/api/reader/stats", [this](const httplib::Request &req, httplib::Response &res) {
         userController->handleGetUserDetail(req, res);
+    });
+
+    //POST /api/admin/stats - 获取管理员统计信息
+    server->Post("/api/admin/stats", [this](const httplib::Request &req, httplib::Response &res) {
+        adminController->handleGetStats(res);
     });
 }
 
@@ -180,11 +185,11 @@ void Router::registerProfileRoutes() const {
 void Router::registerMiddleware() const {
     // 请求日志中间件
     server->set_logger([](const httplib::Request &req, const httplib::Response &res) {
-        cout << "[" << req.method << "] " << req.path;
+        std::cout << "[" << req.method << "] " << req.path;
         if (!req.body.empty()) {
-            cout << " - Body: " << req.body.substr(0, 100); // 只打印前100个字符
+            std::cout << " - Body: " << req.body.substr(0, 100); // 只打印前100个字符
         }
-        cout << " - Status: " << res.status << endl;
+        std::cout << " - Status: " << res.status << std::endl;
     });
 
     // 错误处理中间件
@@ -202,7 +207,7 @@ void Router::registerMiddleware() const {
         res.set_content(errorJson.dump(), "application/json; charset=utf-8");
     });
 
-    cout << "✓ 中间件注册完成" << endl;
+    std::cout << "✓ 中间件注册完成" << std::endl;
 }
 
 // 设置CORS
@@ -222,11 +227,11 @@ void Router::setupCORS() const {
         return httplib::Server::HandlerResponse::Unhandled;
     });
 
-    cout << "✓ CORS配置完成" << endl;
+    std::cout << "✓ CORS配置完成" << std::endl;
 }
 
 // 设置静态文件目录
-void Router::setStaticFileDirectory(const string &dir) const {
+void Router::setStaticFileDirectory(const std::string &dir) const {
     server->set_mount_point("/", dir);
-    cout << "✓ 静态文件目录设置为: " << dir << endl;
+    std::cout << "✓ 静态文件目录设置为: " << dir << std::endl;
 }

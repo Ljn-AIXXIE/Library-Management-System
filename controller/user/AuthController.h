@@ -10,7 +10,6 @@
 #include <iostream>
 
 using json = nlohmann::json;
-using namespace std;
 
 // 认证控制器 - 处理登录、注册、登出等认证相关操作
 class AuthController {

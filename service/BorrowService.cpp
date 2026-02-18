@@ -14,25 +14,20 @@ BorrowService::~BorrowService() = default;
 bool BorrowService::borrowBook(const string &userId, const string &copyId) const {
     if (recordDAO->addBorrowRecord(userId, copyId) && bookCopyDAO->updateBookCopyStatus(copyId, "borrowed") &&
         userDAO->updateUserBorrowInfo(userId, true)) {
-        cout << "借阅成功" << endl; //显示在用户界面
         return true;
     }
-    cout << "借阅失败" << endl; //显示在用户界面
     return false;
 }
 
 //归还书本
 bool BorrowService::returnBook(const string &userId, const string &copyId) const {
     if (!hasUserBorrowedCopy(userId, copyId)) {
-        cout << "你未借阅过该图书" << endl;
         return false;
     }
     if (recordDAO->updateReturnTime(userId, copyId) && bookCopyDAO->updateBookCopyStatus(copyId, "available") && userDAO
         ->updateUserBorrowInfo(userId, false)) {
-        cout << "归还成功" << endl;
         return true;
     }
-    cout << "归还失败" << endl;
     return false;
 }
 
@@ -50,6 +45,23 @@ vector<Record> BorrowService::getUserBorrowingRecords(const string &userId) cons
 //获取用户的借阅历史
 vector<Record> BorrowService::getUserHistoryRecords(const string &userId) const {
     return recordDAO->getHistoryRecordsByUser(userId);
+}
+
+//获取当前已被借阅的图书数量
+int BorrowService::getBorrowedBookCount() const {
+    return bookCopyDAO->getBorrowedCopyCount();
+}
+
+//获取当前超期的图书数量
+int BorrowService::getOverDueBookCount() const {
+    vector<Record> records = recordDAO->getActiveRecords();
+    int count = 0;
+    for (const auto &record: records) {
+        if (record.getDueTime() < time(nullptr)) {
+            count++;
+        }
+    }
+    return count;
 }
 
 //获取用户当前借阅的图书数量

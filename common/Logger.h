@@ -4,7 +4,9 @@
 #include <string>
 #include <fstream>
 #include <mutex>
-using namespace std;
+using std::ofstream;
+using std::mutex;
+using std::string;
 
 class Logger {
     Logger();
@@ -14,7 +16,7 @@ class Logger {
     ofstream errorFile;
     mutex logMutex;
 
-    static string getCurrentTimestamp() ;
+    static string getCurrentTimestamp();
 
 public:
     static Logger &getInstance();

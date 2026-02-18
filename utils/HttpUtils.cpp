@@ -1,6 +1,8 @@
 #include "HttpUtils.h"
 #include "json.hpp"
 #include <vector>
+using std::vector;
+using std::string;
 
 // 解析JSON请求体
 json HttpUtils::parseRequestBody(const httplib::Request &req) {

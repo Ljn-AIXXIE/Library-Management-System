@@ -81,8 +81,12 @@ vector<BookCopy> InventoryService::getAvailableCopies(const string &bookId) cons
     return bookCopyDAO->getAvailableCopies(bookId);
 }
 
-int InventoryService::getBookCopyCount(const string &bookId) const {
+int InventoryService::getBookCopyCountByBookId(const string &bookId) const {
     return bookCopyDAO->getCopyCountByBookId(bookId);
+}
+
+int InventoryService::getTotalCopyCount() const {
+    return bookCopyDAO->getTotalCopyCount();
 }
 
 string InventoryService::getBookTitleById(const string &bookId) const {
@@ -99,7 +103,7 @@ bool InventoryService::isBookIdExist(const string &bookId) const {
 
 string InventoryService::generateCopyId(const string &bookId) const {
     int count = db->getBookCopyCount(bookId);
-    return bookId + "_" + to_string(count + 1);
+    return bookId + "_" + std::to_string(count + 1);
 }
 
 bool InventoryService::updateBookCopyCount(const string &bookId) const {

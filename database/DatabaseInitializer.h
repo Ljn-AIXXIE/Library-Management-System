@@ -3,7 +3,8 @@
 
 #include "DatabaseOperator.h"
 #include <string>
-using namespace std;
+using std::string;
+using std::vector;
 
 //用于初始化数据库
 class DatabaseInitializer {

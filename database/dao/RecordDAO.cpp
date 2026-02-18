@@ -45,8 +45,8 @@ bool RecordDAO::addBorrowRecord(const string &userId, const string &copyId) cons
         return false;
     }
 
-    auto now = chrono::system_clock::now();
-    time_t currentTime = chrono::system_clock::to_time_t(now);
+    auto now = std::chrono::system_clock::now();
+    time_t currentTime = std::chrono::system_clock::to_time_t(now);
 
     string bookId = copyId.substr(0, copyId.find_last_of('_'));
 
@@ -75,8 +75,8 @@ bool RecordDAO::updateReturnTime(const string &userId, const string &copyId) con
         return false;
     }
 
-    auto now = chrono::system_clock::now();
-    time_t currentTime = chrono::system_clock::to_time_t(now);
+    auto now = std::chrono::system_clock::now();
+    time_t currentTime = std::chrono::system_clock::to_time_t(now);
 
     sqlite3_bind_int64(stmt, 1, currentTime);
     sqlite3_bind_text(stmt, 2, userId.c_str(), -1, SQLITE_TRANSIENT);
@@ -164,6 +164,25 @@ vector<Record> RecordDAO::getRecordsByCopyId(const string &copyId) const {
     return records;
 }
 
+//获取所有当前借阅的记录
+std::vector<Record> RecordDAO::getActiveRecords() const {
+    std::vector<Record> records;
+    const std::string sql = "SELECT user_id, copy_id, borrow_time FROM record WHERE return_time = 0;";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::getActiveRecords准备SQL失败:" + recordDatabase->getLastError());
+        return records;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        Record record(columnText(stmt, 0), columnText(stmt, 1), sqlite3_column_int64(stmt, 2));
+        records.push_back(record);
+    }
+    sqlite3_finalize(stmt);
+    return records;
+}
+
 //用于统计图书的借阅次数，为之后的推荐系统提供数据支持
 bool RecordDAO::getRecordCountByBookId(const string &bookId, int &count) const {
     count = 0;
@@ -209,8 +228,8 @@ bool RecordDAO::getRecordCountByUserId(const string &userId, int &count) const {
 }
 
 //用于判断用户是否借阅该图书
-bool RecordDAO::hasActiveRecordByUserId(const string &userId, const string &copyId) const {
-    const string sql = "SELECT COUNT(*) FROM record WHERE user_id = ? AND copy_id = ? AND return_time = 0;";
+bool RecordDAO::hasActiveRecordByUserId(const std::string &userId, const std::string &copyId) const {
+    const std::string sql = "SELECT COUNT(*) FROM record WHERE user_id = ? AND copy_id = ? AND return_time = 0;";
 
     sqlite3_stmt *stmt = nullptr;
     if (!recordDatabase->prepare(sql, &stmt)) {

@@ -1,6 +1,8 @@
 #include "AdminUserController.h"
 #include "../utils/TimeUtils.h"
 #include "../common/Logger.h"
+using std::string;
+using std::vector;
 
 AdminUserController::AdminUserController(UserService *userService,
                                          BlackListService *blackListService,

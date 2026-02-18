@@ -2,7 +2,7 @@
 #define AVL_BOOKSYSTEM_RECORD_H
 #include <string>
 #include <chrono>
-using namespace std;
+using std::string;
 
 class Record {
     string userId;
@@ -12,9 +12,9 @@ class Record {
     time_t dueTime;
 
 public:
-    Record(string userId, string copyId, time_t borrowTime);
+    Record(const string &userId, const string &copyId, time_t borrowTime);
 
-    Record(string userId, string copyId, time_t borrowTime, time_t returnTime);
+    Record(const string &userId, const string &copyId, time_t borrowTime, time_t returnTime);
 
     ~Record();
 

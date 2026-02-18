@@ -10,9 +10,10 @@
 #include "admin/AdminUserController.h"
 #include "admin/AdminBlackListController.h"
 #include "admin/AdminBatchAddController.h"
+#include "admin/AdminController.h"
 #include <memory>
+using std::unique_ptr;
 
-using namespace std;
 
 //路由管理器 - 负责注册和管理所有HTTP路由
 class Router {
@@ -25,6 +26,7 @@ class Router {
     unique_ptr<AdminUserController> adminUserController;
     unique_ptr<AdminBlackListController> adminBlackListController;
     unique_ptr<AdminBatchAddController> adminBatchAddController;
+    unique_ptr<AdminController> adminController;
 
     void registerAuthRoutes() const; //注册，登录，登出的路由
     void registerAdminBookRoutes() const; //注册管理员图书管理的路由

@@ -3,7 +3,6 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-using namespace std;
 
 bool DatabaseInitializer::initializeDatabase(DatabaseOperator *db) {
     if (!db) {
