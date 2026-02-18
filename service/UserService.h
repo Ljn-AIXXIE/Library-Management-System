@@ -22,7 +22,6 @@ public:
     [[nodiscard]] vector<User> getAllUsers() const;
 
     //校验
-    //[[nodiscard]] bool isUserBlacklisted(const string& userId) const;//用户是否被拉黑
     [[nodiscard]] bool isUserExist(const string &userId) const; //用户是否存在
     [[nodiscard]] bool verifyUser(const string &userId, const string &password) const; //验证用户登录
     [[nodiscard]] bool verifyOldPassword(const string &userId, const string &oldPassword) const; //验证旧密码

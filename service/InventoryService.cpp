@@ -1,4 +1,5 @@
 #include "InventoryService.h"
+#include "../common/Logger.h"
 
 InventoryService::InventoryService(BookDAO *bookDAO, BookCopyDAO *bookCopyDAO)
     : db(bookDAO), bookCopyDAO(bookCopyDAO) {
@@ -7,31 +8,69 @@ InventoryService::InventoryService(BookDAO *bookDAO, BookCopyDAO *bookCopyDAO)
 InventoryService::~InventoryService() = default;
 
 bool InventoryService::addBook(const Book &book) const {
-    return db->addBook(book);
+    Logger::getInstance().logBusiness("添加图书" + book.getId());
+    if (db->addBook(book)) {
+        Logger::getInstance().logBusiness("添加图书" + book.getId() + "成功");
+        return true;
+    }
+    Logger::getInstance().logError("添加图书" + book.getId() + "失败");
+    return false;
 }
 
 bool InventoryService::deleteBook(const string &bookId) const {
-    return db->deleteBook(bookId);
+    Logger::getInstance().logBusiness("删除图书" + bookId);
+    if (db->deleteBook(bookId)) {
+        Logger::getInstance().logBusiness("删除图书" + bookId + "成功");
+        return true;
+    }
+    Logger::getInstance().logError("删除图书" + bookId + "失败");
+    return false;
 }
 
 bool InventoryService::updateBook(const Book &book) const {
-    return db->updateBook(book);
+    Logger::getInstance().logBusiness("更新图书" + book.getId());
+    if (db->updateBook(book)) {
+        Logger::getInstance().logBusiness("更新图书" + book.getId() + "成功");
+        return true;
+    }
+    Logger::getInstance().logError("更新图书" + book.getId() + "失败");
+    return false;
 }
 
 vector<Book> InventoryService::getAllBooks() const {
     return db->getAllBooks();
 }
 
+
+
 bool InventoryService::addBookCopy(const BookCopy &bookCopy) const {
-    return bookCopyDAO->addBookCopy(bookCopy);
+    Logger::getInstance().logBusiness("添加图书副本" + bookCopy.getCopyId());
+    if (bookCopyDAO->addBookCopy(bookCopy)) {
+        Logger::getInstance().logBusiness("添加图书副本" + bookCopy.getCopyId() + "成功");
+        return true;
+    }
+    Logger::getInstance().logError("添加图书副本" + bookCopy.getCopyId() + "失败");
+    return false;
 }
 
 bool InventoryService::deleteBookCopy(const string &copyId) const {
-    return bookCopyDAO->deleteBookCopy(copyId);
+    Logger::getInstance().logBusiness("删除图书副本" + copyId);
+    if (bookCopyDAO->deleteBookCopy(copyId)) {
+        Logger::getInstance().logBusiness("删除图书副本" + copyId + "成功");
+        return true;
+    }
+    Logger::getInstance().logError("删除图书副本" + copyId + "失败");
+    return false;
 }
 
 bool InventoryService::deleteAllBookCopy(const string &bookId) const {
-    return bookCopyDAO->deleteAllBookCopy(bookId);
+    Logger::getInstance().logBusiness("删除所有图书副本" + bookId);
+    if (bookCopyDAO->deleteAllBookCopy(bookId)) {
+        Logger::getInstance().logBusiness("删除所有图书副本" + bookId + "成功");
+        return true;
+    }
+    Logger::getInstance().logError("删除所有图书副本" + bookId + "失败");
+    return false;
 }
 
 vector<BookCopy> InventoryService::getBookCopies(const string &bookId) const {
@@ -44,6 +83,10 @@ vector<BookCopy> InventoryService::getAvailableCopies(const string &bookId) cons
 
 int InventoryService::getBookCopyCount(const string &bookId) const {
     return bookCopyDAO->getCopyCountByBookId(bookId);
+}
+
+string InventoryService::getBookTitleById(const string &bookId) const {
+    return db->getBookTitleById(bookId);
 }
 
 int InventoryService::getAvailableCopyCount(const string &bookId) const {

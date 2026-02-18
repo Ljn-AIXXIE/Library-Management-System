@@ -1,11 +1,13 @@
 #include "UserController.h"
+#include "../common/Logger.h"
 
 UserController::UserController(BorrowService *borrowService) : borrowService(borrowService) {
 }
 
 void UserController::handleGetUserDetail(const httplib::Request &req, httplib::Response &res) const {
+    Logger::getInstance().logAccess("GET /api/reader/stats 获取用户信息");
+
     if (!req.has_param("userId")) {
-        cout << "获取用户详细信息失败: 缺少userId参数" << endl;
         res = HttpUtils::createErrorResponse("缺少userId参数", 400);
         return;
     }
@@ -29,5 +31,4 @@ void UserController::handleGetUserDetail(const httplib::Request &req, httplib::R
         }
     };
     res = HttpUtils::createSuccessResponse(responseData, 200);
-    cout << "[UserController] 返回用户详细信息" << endl;
 }

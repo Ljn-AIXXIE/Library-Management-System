@@ -1,4 +1,5 @@
 #include "AdminBookController.h"
+#include "../common/Logger.h"
 
 AdminBookController::AdminBookController(InventoryService *inventoryService,
                                          SearchService *searchService) : inventoryService(inventoryService),
@@ -9,7 +10,7 @@ AdminBookController::~AdminBookController() = default;
 
 //GET /api/admin/books - 获取所有图书
 void AdminBookController::handleGetAllBooks(httplib::Response &res) const {
-    cout << "[AdminBookController] 获取所有图书列表" << endl;
+    Logger::getInstance().logAccess("GET /api/admin/books 获取所有图书");
 
     vector<Book> books = inventoryService->getAllBooks();
 
@@ -31,18 +32,18 @@ void AdminBookController::handleGetAllBooks(httplib::Response &res) const {
         {"data", booksArray}
     };
 
-    cout << "[AdminBookController] 返回 " << books.size() << " 本图书" << endl;
     res = HttpUtils::createSuccessResponse(responseData, 200);
 }
 
 //POST /api/admin/books/add - 添加图书
 void AdminBookController::handleAddBook(const httplib::Request &req, httplib::Response &res) const {
+    Logger::getInstance().logAccess("POST /api/admin/books/add 添加图书");
+
     json requestData = HttpUtils::parseRequestBody(req);
 
     // 验证必填字段
     string errorMsg;
     if (!HttpUtils::validateRequiredFields(requestData, {"isbn", "title", "author", "category"}, errorMsg)) {
-        cout << "添加图书失败: 缺少必填字段 - " << errorMsg << endl;
         res = HttpUtils::createErrorResponse(errorMsg, 400);
         return;
     }
@@ -73,10 +74,8 @@ void AdminBookController::handleAddBook(const httplib::Request &req, httplib::Re
                 {"success", true},
                 {"message", "图书添加成功"}
             };
-            cout << "图书添加成功！" << endl;
             res = HttpUtils::createSuccessResponse(responseData, 201);
         } else {
-            cout << "添加图书失败" << endl;
             res = HttpUtils::createErrorResponse("图书添加失败", 500);
         }
     }
@@ -88,23 +87,22 @@ void AdminBookController::handleAddBook(const httplib::Request &req, httplib::Re
             {"success", true},
             {"message", "图书副本添加成功"}
         };
-        cout << "图书副本添加成功！" << endl;
         res = HttpUtils::createSuccessResponse(responseData, 201);
     } else {
-        cout << "添加图书副本失败" << endl;
         res = HttpUtils::createErrorResponse("图书副本添加失败", 500);
     }
 }
 
-//PUT /api/admin/books - 更新图书
+//POST /api/admin/books - 更新图书
 void AdminBookController::handleUpdateBook(const httplib::Request &req, httplib::Response &res) const {
+    Logger::getInstance().logAccess("POST /api/admin/books 更新图书");
+
     json requestData = HttpUtils::parseRequestBody(req);
 
     // 获取旧图书对象
     string bookId = requestData["isbn"];
     Book oldBook;
     if (!searchService->searchBookById(bookId, oldBook)) {
-        cout << "更新图书失败: 图书不存在" << endl;
         res = HttpUtils::createErrorResponse("图书不存在", 404);
         return;
     }
@@ -131,20 +129,19 @@ void AdminBookController::handleUpdateBook(const httplib::Request &req, httplib:
             {"success", true},
             {"message", "图书更新成功"}
         };
-        cout << "图书更新成功" << endl;
         res = HttpUtils::createSuccessResponse(responseData, 200);
     } else {
-        cout << "更新图书失败: 未知错误" << endl;
         res = HttpUtils::createErrorResponse("图书更新失败", 500);
     }
 }
 
 // POST /api/admin/books/delete - 删除图书
 void AdminBookController::handleDeleteBook(const httplib::Request &req, httplib::Response &res) const {
+    Logger::getInstance().logAccess("POST /api/admin/books/delete 删除图书");
+
     json requestData = HttpUtils::parseRequestBody(req);
     string bookId = requestData["isbn"];
     if (inventoryService->getAvailableCopyCount(bookId) != inventoryService->getBookCopyCount(bookId)) {
-        cout << "删除图书失败: 图书副本未全部归还" << endl;
         res = HttpUtils::createErrorResponse("图书副本未全部归还", 400);
         return;
     }
@@ -153,19 +150,17 @@ void AdminBookController::handleDeleteBook(const httplib::Request &req, httplib:
             {"success", true},
             {"message", "图书删除成功"}
         };
-        cout << "图书删除成功" << endl;
         res = HttpUtils::createSuccessResponse(responseData, 200);
     } else {
-        cout << "删除图书失败: 未知错误" << endl;
         res = HttpUtils::createErrorResponse("图书删除失败", 500);
     }
 }
 
 //GET /api/admin/copies?isbn=<isbn> - 获取所有图书副本
 void AdminBookController::handleGetAllBookCopies(const httplib::Request &req, httplib::Response &res) const {
-    cout << "[AdminBookController] 获取所有图书副本列表" << endl;
+    Logger::getInstance().logAccess("GET /api/admin/copies 获取所有图书副本");
+
     if (!req.has_param("isbn")) {
-        cout << "获取图书副本失败: 缺少isbn参数" << endl;
         res = HttpUtils::createErrorResponse("缺少isbn参数", 400);
         return;
     }
@@ -187,11 +182,12 @@ void AdminBookController::handleGetAllBookCopies(const httplib::Request &req, ht
     };
 
     res = HttpUtils::createSuccessResponse(responseData, 200);
-    cout << "返回 " << copies.size() << " 个副本" << endl;
 }
 
 //POST /api/admin/copies/add - 添加图书副本
 void AdminBookController::handleAddBookCopy(const httplib::Request &req, httplib::Response &res) const {
+    Logger::getInstance().logAccess("POST /api/admin/copies/add 添加图书副本");
+
     json requestData = HttpUtils::parseRequestBody(req);
     string bookId = requestData["isbn"];
     string copyId = inventoryService->generateCopyId(bookId);
@@ -201,27 +197,24 @@ void AdminBookController::handleAddBookCopy(const httplib::Request &req, httplib
             {"success", true},
             {"message", "图书副本添加成功"}
         };
-        cout << "图书副本添加成功！" << endl;
         res = HttpUtils::createSuccessResponse(responseData, 201);
     } else {
-        cout << "添加图书副本失败" << endl;
         res = HttpUtils::createErrorResponse("图书副本添加失败", 500);
     }
 }
 
 //POST /api/admin/copies/delete - 删除图书副本
 void AdminBookController::handleDeleteBookCopy(const httplib::Request &req, httplib::Response &res) const {
-    json requestData = HttpUtils::parseRequestBody(req);
+    Logger::getInstance().logAccess("POST /api/admin/copies/delete 删除图书副本");
+ json requestData = HttpUtils::parseRequestBody(req);
     string copyId = requestData["copyId"];
     if (inventoryService->deleteBookCopy(copyId)) {
         json responseData = {
             {"success", true},
             {"message", "图书副本删除成功"}
         };
-        cout << "图书副本删除成功" << endl;
         res = HttpUtils::createSuccessResponse(responseData, 200);
     } else {
-        cout << "删除图书副本失败" << endl;
         res = HttpUtils::createErrorResponse("图书副本删除失败", 500);
     }
 }

@@ -1,4 +1,5 @@
 #include "AuthController.h"
+#include "../common/Logger.h"
 
 AuthController::AuthController(UserService *userService) : userService(userService) {
 }
@@ -7,9 +8,9 @@ AuthController::~AuthController() = default;
 
 // POST /api/auth/register - 用户注册
 void AuthController::handleRegister(const httplib::Request &req, httplib::Response &res) const {
-    json requestData = HttpUtils::parseRequestBody(req);
+    Logger::getInstance().logAccess("POST /api/auth/register 用户注册");
 
-    // 验证必填字段
+    json requestData = HttpUtils::parseRequestBody(req);
     string errorMsg;
     if (!HttpUtils::validateRequiredFields(requestData, {"userId", "name", "password"}, errorMsg)) {
         res = HttpUtils::createErrorResponse(errorMsg, 400);
@@ -64,9 +65,9 @@ void AuthController::handleRegister(const httplib::Request &req, httplib::Respon
 
 // POST /api/auth/login - 用户登录
 void AuthController::handleLogin(const httplib::Request &req, httplib::Response &res) const {
-    json requestData = HttpUtils::parseRequestBody(req);
+    Logger::getInstance().logAccess("POST /api/auth/login 用户登录");
 
-    // 验证必填字段
+    json requestData = HttpUtils::parseRequestBody(req);
     string errorMsg;
     if (!HttpUtils::validateRequiredFields(requestData, {"userId", "password"}, errorMsg)) {
         cout << "登录失败: 缺少必填字段 - " << errorMsg << endl;
@@ -77,24 +78,17 @@ void AuthController::handleLogin(const httplib::Request &req, httplib::Response 
     string userId = requestData["userId"];
     string password = requestData["password"];
 
-    cout << "尝试登录 - 用户ID: " << userId << endl;
-
     // 检查用户是否存在
     if (!userService->isUserExist(userId)) {
-        cout << "登录失败: 用户不存在 - " << userId << endl;
         res = HttpUtils::createErrorResponse("用户不存在", 401);
         return;
     }
 
-    cout << "用户存在，开始验证密码..." << endl;
-
     // 验证用户登录
     if (userService->loginUser(userId, password)) {
-        cout << "密码验证成功" << endl;
         // 获取用户信息
         User user;
         if (userService->getUserById(userId, user)) {
-            cout << "获取用户信息成功 - 角色: " << user.getType() << endl;
             json responseData = {
                 {"success", true},
                 {"message", "登录成功"},
@@ -108,17 +102,18 @@ void AuthController::handleLogin(const httplib::Request &req, httplib::Response 
             };
             res = HttpUtils::createSuccessResponse(responseData, 200);
         } else {
-            cout << "登录失败: 获取用户信息失败" << endl;
+            Logger::getInstance().logError("用户登录成功但获取用户信息失败");
             res = HttpUtils::createErrorResponse("获取用户信息失败", 500);
         }
     } else {
-        cout << "登录失败: 密码错误" << endl;
         res = HttpUtils::createErrorResponse("用户ID或密码错误", 401);
     }
 }
 
 // POST /api/auth/logout - 用户登出
 void AuthController::handleLogout(const httplib::Request &req, httplib::Response &res) {
+    Logger::getInstance().logAccess("POST /api/auth/logout 用户登出");
+
     json responseData = {
         {"success", true},
         {"message", "登出成功"}
@@ -128,9 +123,9 @@ void AuthController::handleLogout(const httplib::Request &req, httplib::Response
 
 // POST /api/auth/change-password - 修改密码
 void AuthController::handleChangePassword(const httplib::Request &req, httplib::Response &res) const {
-    json requestData = HttpUtils::parseRequestBody(req);
+    Logger::getInstance().logAccess("POST /api/auth/change-password 修改密码");
 
-    // 验证必填字段
+    json requestData = HttpUtils::parseRequestBody(req);
     string errorMsg;
     if (!HttpUtils::validateRequiredFields(requestData, {"userId", "oldPassword", "newPassword"}, errorMsg)) {
         res = HttpUtils::createErrorResponse(errorMsg, 400);

@@ -25,7 +25,6 @@ public:
     [[nodiscard]] bool canUserBorrowMore(const string &userId) const; //用户是否可以继续借阅
     [[nodiscard]] bool isCopyBorrowed(const string &copyId) const; //书本是否已借出
     [[nodiscard]] bool hasUserBorrowedCopy(const string &userId, const string &copyId) const; //用户是否有借阅该书本
-    //[[nodiscard]] bool isUserBlacklisted(const string& userId) const;
     //bool hasOverdueBooks(const string& userId);//是否逾期
 
     // 查询类
