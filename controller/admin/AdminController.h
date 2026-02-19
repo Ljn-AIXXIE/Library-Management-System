@@ -15,7 +15,7 @@ public:
 
     ~AdminController() = default;
 
-    //POST /api/admin/stats - 获取系统统计信息
+    //GET /api/admin/stats - 获取系统统计信息
     void handleGetStats(httplib::Response &res) const;
 };
 

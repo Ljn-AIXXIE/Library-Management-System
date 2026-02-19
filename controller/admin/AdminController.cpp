@@ -5,13 +5,13 @@
 AdminController::AdminController(UserService *userService,
                                  InventoryService *inventoryService,
                                  BorrowService *borrowService) : userService(userService),
-                                                                       inventoryService(inventoryService),
-                                                                       borrowService(borrowService) {
+                                                                 inventoryService(inventoryService),
+                                                                 borrowService(borrowService) {
 }
 
-//POST /api/admin/stats - 获取管理员统计信息
+//GET /api/admin/stats - 获取管理员统计信息
 void AdminController::handleGetStats(httplib::Response &res) const {
-    Logger::getInstance().logAccess("POST /api/admin/stats 获取管理员统计信息");
+    Logger::getInstance().logAccess("GET /api/admin/stats 获取管理员统计信息");
 
     int totalBooks = inventoryService->getTotalCopyCount();
     int totalReaders = userService->getTotalUserCount();

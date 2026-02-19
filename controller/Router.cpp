@@ -175,8 +175,8 @@ void Router::registerProfileRoutes() const {
         userController->handleGetUserDetail(req, res);
     });
 
-    //POST /api/admin/stats - 获取管理员统计信息
-    server->Post("/api/admin/stats", [this](const httplib::Request &req, httplib::Response &res) {
+    //GET /api/admin/stats - 获取管理员统计信息
+    server->Get("/api/admin/stats", [this](const httplib::Request &req, httplib::Response &res) {
         adminController->handleGetStats(res);
     });
 }
