@@ -244,20 +244,39 @@
     async function loadCurrentBorrows() {
         const container = document.getElementById('currentTab');
         container.innerHTML = '<div class="empty-state">🔄 加载中...</div>';
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/borrow/current?userId=${currentUser.userId}`);
-            const data = await response.json();
-            if (data.success && data.data.length > 0) {
+
+        fetch(`${API_BASE_URL}/api/borrow/current?userId=${currentUser.userId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success || data.data.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><p>暂无借阅记录</p></div>';
+                    return;
+                }
                 container.innerHTML = data.data.map(borrow => {
                     const status = getStatus(borrow.dueDate);
-                    return `<div class="borrow-card"><div class="book-icon">📕</div><div class="borrow-info"><div class="book-title">${borrow.bookTitle}</div><div class="borrow-meta">借阅时间：${borrow.borrowDate}</div><div class="borrow-meta">应还时间：${borrow.dueDate}</div><div class="borrow-meta">副本ID：${borrow.copyId}</div></div><div class="borrow-actions"><span class="status-badge status-${status.class}">${status.text}</span><button class="btn-return" onclick="returnBook('${borrow.copyId}')">归还图书</button></div></div>`;
+                    return `
+                        <div class="borrow-card">
+                            <div class="book-icon">📕</div>
+                            <div class="borrow-info">
+                                <div class="book-title">${borrow.bookTitle}</div>
+                                <div class="borrow-meta">借阅时间：${borrow.borrowDate}</div>
+                                <div class="borrow-meta">应还时间：${borrow.dueDate}</div>
+                                <div class="borrow-meta">副本ID：${borrow.copyId}</div>
+                            </div>
+
+                            <div class="borrow-actions">
+                                <span class="status-badge status-${status.class}">${status.text}</span>
+                                <div style="display: flex; align-items: flex-end">
+                                    <button class="btn-return" onclick="coBorrowBook('${borrow.copyId}')">申请续借</button>
+                                    <button class="btn-return" onclick="returnBook('${borrow.copyId}')">归还图书</button>
+                                </div>
+                            </div>
+                        </div>`;
                 }).join('');
-            } else {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><p>暂无借阅记录</p></div>';
-            }
-        } catch (error) {
-            container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">❌</div><p>加载失败</p></div>';
-        }
+            })
+            .catch(() => {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">❌</div><p>加载失败</p></div>'
+            });
     }
 
     async function loadBorrowHistory() {
@@ -267,7 +286,20 @@
             const response = await fetch(`${API_BASE_URL}/api/borrow/history?userId=${currentUser.userId}`);
             const data = await response.json();
             if (data.success && data.data.length > 0) {
-                container.innerHTML = data.data.map(borrow => `<div class="borrow-card"><div class="book-icon">📗</div><div class="borrow-info"><div class="book-title">${borrow.bookTitle}</div><div class="borrow-meta">借阅时间：${borrow.borrowDate}</div><div class="borrow-meta">归还时间：${borrow.returnDate}</div></div><div class="borrow-actions"><span class="status-badge status-returned">已归还</span></div></div>`).join('');
+                container.innerHTML = data.data.map(borrow => `
+                    <div class="borrow-card">
+                        <div class="book-icon">📗</div>
+                        <div class="borrow-info">
+                            <div class="book-title">${borrow.bookTitle}</div>
+                            <div class="borrow-meta">借阅时间：${borrow.borrowDate}</div>
+                            <div class="borrow-meta">归还时间：${borrow.returnDate}</div>
+                        </div>
+
+                        <div class="borrow-actions">
+                            <span class="status-badge status-returned">已归还</span>
+                        </div>
+                    </div>`
+                ).join('');
             } else {
                 container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><p>暂无历史记录</p></div>';
             }
@@ -285,24 +317,46 @@
         return {class: 'normal', text: '正常'};
     }
 
+    async function coBorrowBook(copyId) {
+        if (!confirm('确认申请续借这本图书吗？')) return;
+
+        fetch(`${API_BASE_URL}/api/borrow/coBorrow`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({copyId, userId: currentUser.userId})
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    showMessage(data.message || '续借申请发送失败', 'error');
+                    return;
+                }
+
+                showMessage('续借申请已发送！', 'success');
+                loadCurrentBorrows();
+            })
+            .catch(() => showMessage('网络错误，请稍后重试', 'error'));
+    }
+
     async function returnBook(copyId) {
         if (!confirm('确认归还这本图书吗？')) return;
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/borrow/return`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({copyId, userId: currentUser.userId})
-            });
-            const data = await response.json();
-            if (data.success) {
+
+        fetch(`${API_BASE_URL}/api/borrow/return`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({copyId, userId: currentUser.userId})
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    showMessage(data.message || '归还失败', 'error');
+                    return;
+                }
+
                 showMessage('归还成功！', 'success');
-                await loadCurrentBorrows();
-            } else {
-                showMessage(data.message || '归还失败', 'error');
-            }
-        } catch (error) {
-            showMessage('网络错误，请稍后重试', 'error');
-        }
+                loadCurrentBorrows();
+            })
+            .catch(() => showMessage('网络错误，请稍后重试', 'error'));
     }
 
     function showMessage(text, type) {

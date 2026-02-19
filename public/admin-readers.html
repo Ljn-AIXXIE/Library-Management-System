@@ -252,8 +252,7 @@
 <div class="container">
     <div id="message" class="message"></div>
     <div class="toolbar">
-        <input type="text" id="searchInput" class="search-input" placeholder="搜索读者..."
-               onkeypress="if(event.key==='Enter')searchReaders()">
+        <input type="text" id="searchInput" class="search-input" placeholder="搜索读者...">
         <button class="btn-primary" onclick="searchReaders()">搜索</button>
     </div>
     <div class="reader-table">
@@ -334,6 +333,10 @@
             return;
         }
         loadReaders();
+        document.getElementById('searchInput').addEventListener('keydown', ev => {
+            ev.preventDefault();
+            if (ev.key === 'Enter') searchReaders();
+        })
     };
 
     async function loadReaders() {
@@ -349,7 +352,7 @@
     async function searchReaders() {
         const keyword = document.getElementById('searchInput').value.trim();
         if (!keyword) {
-            loadReaders();
+            await loadReaders();
             return;
         }
         try {
@@ -421,7 +424,7 @@
             const data = await response.json();
             if (data.success) {
                 showMessage('账户已冻结', 'success');
-                loadReaders();
+                await loadReaders();
             } else {
                 showMessage(data.message || '操作失败', 'error');
             }
@@ -441,7 +444,7 @@
             const data = await response.json();
             if (data.success) {
                 showMessage('账户已解冻', 'success');
-                loadReaders();
+                await loadReaders();
             } else {
                 showMessage(data.message || '操作失败', 'error');
             }
