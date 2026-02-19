@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出错啦 - 图书管理系统</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #c0392b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .error-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            animation: bounce 0.6s ease-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .error-icon-404 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .error-icon-maintenance {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .error-icon-building {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .error-icon-500 {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .error-icon-forbidden {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .error-code {
+            font-size: 72px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        .error-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            font-size: 16px;
+            color: #718096;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #c0392b 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header-logo {
+            font-size: 20px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .header-nav {
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        .header-nav a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .header-nav a:hover {
+            text-decoration: underline;
+        }
+
+        .countdown {
+            display: none;
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .countdown.active {
+            display: block;
+        }
+
+        .countdown-title {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .countdown-item {
+            text-align: center;
+        }
+
+        .countdown-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .countdown-label {
+            font-size: 12px;
+            color: #a0aec0;
+        }
+
+        .progress-bar {
+            display: none;
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar.active {
+            display: block;
+        }
+
+        .progress-title {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .progress-track {
+            background: #e2e8f0;
+            border-radius: 4px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea 0%, #c0392b 100%);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #a0aec0;
+            margin-top: 8px;
+        }
+
+        .contact-info {
+            display: none;
+            background: #fff5f5;
+            border-left: 4px solid #fc8181;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .contact-info.active {
+            display: block;
+        }
+
+        .contact-info h4 {
+            font-size: 14px;
+            color: #c53030;
+            margin-bottom: 8px;
+        }
+
+        .contact-info p {
+            font-size: 13px;
+            color: #742a2a;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 480px) {
+            .error-container {
+                padding: 40px 25px;
+            }
+
+            .error-code {
+                font-size: 48px;
+            }
+
+            .error-title {
+                font-size: 20px;
+            }
+
+            .error-icon {
+                width: 100px;
+                height: 100px;
+                font-size: 50px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="error-container">
+    <div class="header">
+        <div class="header-logo">🛡️ 图书管理系统</div>
+        <div class="header-nav">
+            <a href="admin.html">[返回主页]</a>
+        </div>
+    </div>
+
+    <div class="error-icon error-icon-404" id="errorIcon">
+        <span id="errorIconText">😕</span>
+    </div>
+    <div class="error-code" id="errorCode">404</div>
+    <div class="error-title" id="errorTitle">页面未找到</div>
+    <div class="error-message" id="errorMessage">
+        抱歉，您访问的页面不存在或已被移除。请检查 URL 或返回主页。
+    </div>
+
+    <div class="countdown" id="countdown">
+        <div class="countdown-title">⏱️ 预计恢复时间</div>
+        <div class="countdown-timer">
+            <div class="countdown-item">
+                <div class="countdown-value" id="hours">00</div>
+                <div class="countdown-label">小时</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-value" id="minutes">00</div>
+                <div class="countdown-label">分钟</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-value" id="seconds">00</div>
+                <div class="countdown-label">秒</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progressBar">
+        <div class="progress-title">🚧 开发进度</div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div class="progress-text" id="progressText">0% 完成</div>
+    </div>
+
+    <div class="contact-info" id="contactInfo">
+        <h4>📞 需要帮助？</h4>
+        <p>如问题持续存在，请联系系统管理员</p>
+    </div>
+
+    <div class="btn-group">
+        <a href="admin.html" class="btn btn-primary">
+            🏠 返回主页
+        </a>
+        <button class="btn btn-secondary" onclick="goBack()">
+            ↩️ 返回上一页
+        </button>
+    </div>
+</div>
+
+<script>
+    const errorConfig = {
+        '404': {
+            icon: '😕',
+            iconClass: 'error-icon-404',
+            code: '404',
+            title: '页面未找到',
+            message: '抱歉，您访问的页面不存在或已被移除。请检查 URL 或返回主页。',
+            showCountdown: false,
+            showProgress: false,
+            showContact: false
+        },
+        'maintenance': {
+            icon: '🔧',
+            iconClass: 'error-icon-maintenance',
+            code: '503',
+            title: '系统维护中',
+            message: '我们正在对系统进行升级维护，以提供更好的服务。给您带来不便，敬请谅解。',
+            showCountdown: true,
+            showProgress: false,
+            showContact: false
+        },
+        'building': {
+            icon: '🚧',
+            iconClass: 'error-icon-building',
+            code: 'DEV',
+            title: '功能建设中',
+            message: '该功能正在紧张开发中，敬请期待！我们将尽快完成并上线。',
+            showCountdown: false,
+            showProgress: true,
+            showContact: false
+        },
+        '500': {
+            icon: '💥',
+            iconClass: 'error-icon-500',
+            code: '500',
+            title: '服务器错误',
+            message: '抱歉，服务器遇到了一些问题。我们的技术团队正在紧急处理中。',
+            showCountdown: false,
+            showProgress: false,
+            showContact: true
+        },
+        'forbidden': {
+            icon: '🔒',
+            iconClass: 'error-icon-forbidden',
+            code: '403',
+            title: '无访问权限',
+            message: '抱歉，您没有权限访问此页面。如需访问，请联系管理员获取授权。',
+            showCountdown: false,
+            showProgress: false,
+            showContact: false
+        }
+    };
+
+    function getErrorTypeFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('type') || '404';
+    }
+
+    function setErrorPage(type) {
+        const config = errorConfig[type] || errorConfig['404'];
+
+        const errorIcon = document.getElementById('errorIcon');
+        errorIcon.className = `error-icon ${config.iconClass}`;
+        document.getElementById('errorIconText').textContent = config.icon;
+
+        document.getElementById('errorCode').textContent = config.code;
+        document.getElementById('errorTitle').textContent = config.title;
+        document.getElementById('errorMessage').textContent = config.message;
+
+        document.getElementById('countdown').classList.toggle('active', config.showCountdown);
+        document.getElementById('progressBar').classList.toggle('active', config.showProgress);
+        document.getElementById('contactInfo').classList.toggle('active', config.showContact);
+
+        if (config.showCountdown) {
+            startCountdown();
+        }
+
+        if (config.showProgress) {
+            animateProgress();
+        }
+    }
+
+    function startCountdown() {
+        const endTime = new Date().getTime() + (2 * 60 * 60 * 1000);
+
+        const timer = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+
+            if (distance < 0) {
+                clearInterval(timer);
+                document.getElementById('hours').textContent = '00';
+                document.getElementById('minutes').textContent = '00';
+                document.getElementById('seconds').textContent = '00';
+                return;
+            }
+
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }, 1000);
+    }
+
+    function animateProgress() {
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        let progress = 0;
+        const targetProgress = 65; // 目标进度
+
+        const animate = setInterval(() => {
+            if (progress >= targetProgress) {
+                clearInterval(animate);
+                return;
+            }
+            progress += Math.random() * 3;
+            if (progress > targetProgress) progress = targetProgress;
+            progressFill.style.width = `${progress}%`;
+            progressText.textContent = `${Math.floor(progress)}% 完成`;
+        }, 100);
+    }
+
+    function goBack() {
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = 'admin.html';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const errorType = getErrorTypeFromURL();
+        setErrorPage(errorType);
+    });
+
+    window.addEventListener('popstate', function(event) {
+        if (event.state && event.state.type) {
+            setErrorPage(event.state.type);
+        }
+    });
+</script>
+</body>
+</html>
+
