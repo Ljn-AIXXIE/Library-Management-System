@@ -6,8 +6,11 @@
 
 ## 使用说明
 
-克隆项目到本地后，使用CMake编译即可运行。会自动创建数据库表。
 由于文件上传功能正在施工但并未完善，克隆项目运行后可能会出错
+本项目依赖以下第三方库。请在编译前，根据指引将对应文件下载并放置到项目的 utils/ 目录下：
+httplib.h[[https://github.com/yhirose/cpp-httplib/blob/master/httplib.h]]
+json.hpp
+sqlite3.h ,sqlite3.c[[https://www.sqlite.org/2026/sqlite-amalgamation-3510200.zip]]
 
 ---
 

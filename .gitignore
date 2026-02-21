@@ -3,7 +3,6 @@ utils/sqlite3.h
 utils/sqlite3.c
 utils/httplib.h
 utils/json.hpp
-utils/cryptopp/
 
 # 可执行文件
 *.exe
