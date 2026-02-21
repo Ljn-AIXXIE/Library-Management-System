@@ -8,9 +8,22 @@
 
 由于文件上传功能正在施工但并未完善，克隆项目运行后可能会出错
 本项目依赖以下第三方库。请在编译前，根据指引将对应文件下载并放置到项目的 utils/ 目录下：
-httplib.h[[https://github.com/yhirose/cpp-httplib/blob/master/httplib.h]]
-json.hpp
-sqlite3.h ,sqlite3.c[[https://www.sqlite.org/2026/sqlite-amalgamation-3510200.zip]]
+
+- httplib.h[[https://github.com/yhirose/cpp-httplib/blob/master/httplib.h]]
+- json.hpp
+- sqlite3.h ,sqlite3.c[[https://www.sqlite.org/2026/sqlite-amalgamation-3510200.zip]]
+
+出现以下报错可以通过在server_main.cpp中添加以下代码解决
+```
+#error "cpp-httplib doesn't support Windows 8 or lower. Please use Windows 10 or later."
+```
+
+```
+#define _WIN32_WINNT 0x0A00
+#define WINVER 0x0A00
+```
+
+将user表中的role为admin的用户设置为管理员，role为student的用户设置为普通用户，需要先创建普通用户，然后通过手动修改数据库中的role字段来设置管理员用户
 
 ---
 
