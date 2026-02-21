@@ -6,8 +6,8 @@
 #include "httplib.h"
 #include "json.hpp"
 #include <vector>
-using json = nlohmann::json;
-using Response = httplib::Response;
+using nlohmann::json;
+using httplib::Response;
 
 class HttpUtils {
 public:

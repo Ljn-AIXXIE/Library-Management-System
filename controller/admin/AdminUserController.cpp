@@ -1,6 +1,6 @@
 #include "AdminUserController.h"
-#include "../utils/TimeUtils.h"
-#include "../common/Logger.h"
+#include "utils/TimeUtils.h"
+#include "common/Logger.h"
 using std::string;
 using std::vector;
 
@@ -40,7 +40,7 @@ void AdminUserController::handleGetAllUsers(httplib::Response &res) const {
         {"success", true},
         {"data", usersArray}
     };
- res = HttpUtils::createSuccessResponse(responseData, 200);
+    res = HttpUtils::createSuccessResponse(responseData, 200);
 }
 
 //GET /api/admin/readers/detail?userId=<userId> - 获取读者详细信息

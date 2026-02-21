@@ -1,5 +1,5 @@
 #include "BookDAO.h"
-#include "../common/Logger.h"
+#include "common/Logger.h"
 
 BookDAO::BookDAO(DatabaseOperator *bookDatabase) : bookDatabase(bookDatabase) {
 }

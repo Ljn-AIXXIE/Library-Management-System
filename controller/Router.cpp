@@ -1,5 +1,5 @@
 #include "Router.h"
-#include "../utils/json.hpp"
+#include "utils/json.hpp"
 #include <iostream>
 using std::make_unique;
 
@@ -11,7 +11,7 @@ Router::~Router() = default;
 // 初始化所有路由
 void Router::initializeRoutes(UserService *userService, InventoryService *inventoryService,
                               SearchService *searchService, BlackListService *blackListService,
-                              BatchAddService *batchAddService, BorrowService *borrowService) {
+                              BorrowService *borrowService) {
     // 创建Controller实例
     authController = make_unique<AuthController>(userService);
     adminBookController = make_unique<AdminBookController>(inventoryService, searchService);
@@ -124,11 +124,12 @@ void Router::registerAdminUserRoutes() const {
 }
 
 // void Router::registerAdminBatchAddRoutes() const {
-//
 //     //POST /api/admin/add/batch - 批量添加数据
-//     server->Post("/api/admin/add/batch", [this](const httplib::Request& req, httplib::Response& res,const httplib::ContentReader &content_reader) {
-//         adminBatchAddController->handleBatchAdd(req, res, content_reader);
-//     });
+//     server->Post("/api/admin/add/batch",
+//                  [this](const httplib::Request &req, httplib::Response &res,
+//                         const httplib::ContentReader &content_reader) {
+//                      adminBatchAddController->handleBatchAdd(req, res, content_reader);
+//                  });
 // }
 
 void Router::registerBookRoutes() const {

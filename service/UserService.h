@@ -1,6 +1,6 @@
 #ifndef AVL_BOOKSYSTEM_USERSERVICE_H
 #define AVL_BOOKSYSTEM_USERSERVICE_H
-#include "../database/dao/UserDAO.h"
+#include "database/dao/UserDAO.h"
 
 //用于管理用户，包括用户注册、登录、修改密码等操作
 class UserService {

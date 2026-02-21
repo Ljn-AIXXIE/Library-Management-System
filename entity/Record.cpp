@@ -1,4 +1,4 @@
-#include "../entity/Record.h"
+#include "entity/Record.h"
 
 static int DAYS_TO_KEEP = 30;
 

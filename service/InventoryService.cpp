@@ -1,5 +1,5 @@
 #include "InventoryService.h"
-#include "../common/Logger.h"
+#include "common/Logger.h"
 
 InventoryService::InventoryService(BookDAO *bookDAO, BookCopyDAO *bookCopyDAO)
     : db(bookDAO), bookCopyDAO(bookCopyDAO) {
@@ -40,7 +40,6 @@ bool InventoryService::updateBook(const Book &book) const {
 vector<Book> InventoryService::getAllBooks() const {
     return db->getAllBooks();
 }
-
 
 
 bool InventoryService::addBookCopy(const BookCopy &bookCopy) const {

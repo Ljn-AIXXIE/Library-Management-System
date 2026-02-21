@@ -1,5 +1,5 @@
 #include "AdminBlackListController.h"
-#include "../common/Logger.h"
+#include "common/Logger.h"
 using std::string;
 
 AdminBlackListController::AdminBlackListController(BlackListService *blackListService) : blackListService(

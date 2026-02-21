@@ -1,7 +1,7 @@
 #ifndef LIBRARYMANAGEMENTSYSTEM_USERCONTROLLER_H
 #define LIBRARYMANAGEMENTSYSTEM_USERCONTROLLER_H
-#include "../utils/HttpUtils.h"
-#include "../service/BorrowService.h"
+#include "utils/HttpUtils.h"
+#include "service/BorrowService.h"
 
 class UserController {
     BorrowService *borrowService;

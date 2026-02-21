@@ -1,6 +1,7 @@
 #ifndef LIBRARYMANAGEMENTSYSTEM_BLACKLISTDAO_H
 #define LIBRARYMANAGEMENTSYSTEM_BLACKLISTDAO_H
-#include "../DatabaseOperator.h"
+#include "database/DatabaseOperator.h"
+#include <string>
 using std::string;
 
 

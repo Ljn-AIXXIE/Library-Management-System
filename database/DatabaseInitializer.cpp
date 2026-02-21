@@ -1,5 +1,5 @@
 #include "DatabaseInitializer.h"
-#include "../common/Logger.h"
+#include "common/Logger.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>

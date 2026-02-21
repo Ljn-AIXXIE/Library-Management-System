@@ -1,9 +1,9 @@
 #ifndef AVL_BOOKSYSTEM_ADMINUSERCONTROLLER_H
 #define AVL_BOOKSYSTEM_ADMINUSERCONTROLLER_H
-#include "../service/UserService.h"
-#include "../service/BlackListService.h"
-#include "../service/BorrowService.h"
-#include "../service/InventoryService.h"
+#include "service/UserService.h"
+#include "service/BlackListService.h"
+#include "service/BorrowService.h"
+#include "service/InventoryService.h"
 #include "HttpUtils.h"
 
 //读者管理（查看读者信息，冻结/解冻账户）

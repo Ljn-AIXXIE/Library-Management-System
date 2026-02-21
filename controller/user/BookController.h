@@ -1,10 +1,10 @@
 #ifndef LIBRARYMANAGEMENTSYSTEM_BOOKSEARCHCONTROLLER_H
 #define LIBRARYMANAGEMENTSYSTEM_BOOKSEARCHCONTROLLER_H
-#include "../service/SearchService.h"
-#include "../service/InventoryService.h"
-#include "../service/BorrowService.h"
-#include "../service/BlackListService.h"
-#include "../utils/HttpUtils.h"
+#include "service/SearchService.h"
+#include "service/InventoryService.h"
+#include "service/BorrowService.h"
+#include "service/BlackListService.h"
+#include "utils/HttpUtils.h"
 
 
 class BookController {

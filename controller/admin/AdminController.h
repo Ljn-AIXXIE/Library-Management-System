@@ -1,9 +1,9 @@
 #ifndef LIBRARYMANAGEMENTSYSTEM_ADMINCONTROLLER_H
 #define LIBRARYMANAGEMENTSYSTEM_ADMINCONTROLLER_H
-#include "../service/UserService.h"
-#include "../service/InventoryService.h"
-#include "../service/BorrowService.h"
-#include "../utils/httplib.h"
+#include "service/UserService.h"
+#include "service/InventoryService.h"
+#include "service/BorrowService.h"
+#include "utils/httplib.h"
 
 class AdminController {
     UserService *userService;

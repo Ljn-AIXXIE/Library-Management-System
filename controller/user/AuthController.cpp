@@ -1,5 +1,5 @@
 #include "AuthController.h"
-#include "../common/Logger.h"
+#include "common/Logger.h"
 using std::string;
 
 AuthController::AuthController(UserService *userService) : userService(userService) {

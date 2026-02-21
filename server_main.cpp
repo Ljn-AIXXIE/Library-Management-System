@@ -28,6 +28,7 @@ using std::cout;
 using std::endl;
 using std::cerr;
 
+
 int main() {
 #ifdef _WIN32
     // 设置控制台代码页为UTF-8
@@ -40,11 +41,15 @@ int main() {
     cout << endl;
 
     // 1. 初始化数据库
-    string dbPath = "D:/CLion/AVL-BookSystem/library.db";
+    std::filesystem::path exePath = std::filesystem::current_path();
+    std::filesystem::path projectRoot = exePath.parent_path();
+    std::filesystem::path dbPath = projectRoot / "library.db";
+
+    string dbPathStr = dbPath.string();
     DatabaseOperator *db = new DatabaseOperator();
 
     cout << "正在连接数据库..." << endl;
-    if (!db->open(dbPath)) {
+    if (!db->open(dbPathStr)) {
         cerr << "✗ 数据库连接失败: " << db->getLastError() << endl;
         delete db;
         return 1;
@@ -71,8 +76,8 @@ int main() {
     BlackListDAO *blackListDAO = new BlackListDAO(db);
     BlackListService *blackListService = new BlackListService(blackListDAO);
 
-    BatchAddService *batchAddService = new BatchAddService(bookDAO, userDAO, bookCopyDAO, recordDAO, blackListDAO, db,
-                                                           inventoryService);
+    // BatchAddService *batchAddService = new BatchAddService(bookDAO, userDAO, bookCopyDAO, recordDAO, blackListDAO, db,
+    //                                                        inventoryService);
 
     cout << "✓ Service层初始化完成" << endl;
     cout << endl;
@@ -82,11 +87,12 @@ int main() {
 
     // 4. 初始化路由
     Router router(&server);
-    router.initializeRoutes(userService, inventoryService, searchService, blackListService, batchAddService,
+    router.initializeRoutes(userService, inventoryService, searchService, blackListService,
                             borrowService);
 
-    // 设置静态文件目录（提供HTML页面）
-    router.setStaticFileDirectory("D:/CLion/AVL-BookSystem/public");
+    std::filesystem::path StaticFilePath = projectRoot / "public";
+    string StaticFilePathStr = StaticFilePath.string();
+    router.setStaticFileDirectory(StaticFilePathStr);
     cout << endl;
 
     // 5. 设置服务器参数

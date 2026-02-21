@@ -1,5 +1,5 @@
 #include "DatabaseOperator.h"
-#include "../common/Logger.h"
+#include "common/Logger.h"
 #include <iostream>
 
 DatabaseOperator::DatabaseOperator() {

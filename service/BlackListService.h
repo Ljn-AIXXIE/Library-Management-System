@@ -1,6 +1,6 @@
 #ifndef LIBRARYMANAGEMENTSYSTEM_BLACKLISTSERVICE_H
 #define LIBRARYMANAGEMENTSYSTEM_BLACKLISTSERVICE_H
-#include "../database/dao/BlackListDAO.h"
+#include "database/dao/BlackListDAO.h"
 
 class BlackListService {
     BlackListDAO *db;

@@ -1,7 +1,7 @@
 #ifndef LIBRARYMANAGEMENTSYSTEM_ADMINBLACKLISTCONTROLLER_H
 #define LIBRARYMANAGEMENTSYSTEM_ADMINBLACKLISTCONTROLLER_H
-#include"../service/BlackListService.h"
-#include"../utils/HttpUtils.h"
+#include"service/BlackListService.h"
+#include"utils/HttpUtils.h"
 
 class AdminBlackListController {
     BlackListService *blackListService;

@@ -1,6 +1,6 @@
 #include "User.h"
 #include<string>
-#include "../utils/PasswordUtils.h"
+#include "utils/PasswordUtils.h"
 
 User::User(const string &id, const string &name, string password, const string &type, const int borrowedBookCount) {
     this->id = id;

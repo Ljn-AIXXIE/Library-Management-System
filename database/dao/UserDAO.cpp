@@ -1,6 +1,6 @@
 #include "UserDAO.h"
-#include "../../utils/PasswordUtils.h"
-#include "../common/Logger.h"
+#include "utils/PasswordUtils.h"
+#include "common/Logger.h"
 /*
 User
 -------------------------

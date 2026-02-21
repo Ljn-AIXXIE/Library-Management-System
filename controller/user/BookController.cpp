@@ -1,6 +1,6 @@
 #include "BookController.h"
-#include "../utils/TimeUtils.h"
-#include "../common/Logger.h"
+#include "utils/TimeUtils.h"
+#include "common/Logger.h"
 using std::string;
 using std::vector;
 

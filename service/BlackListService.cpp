@@ -1,5 +1,5 @@
 #include "BlackListService.h"
-#include "../common/Logger.h"
+#include "common/Logger.h"
 
 BlackListService::BlackListService(BlackListDAO *db) : db(db) {
 }

@@ -1,7 +1,7 @@
 #ifndef AVL_BOOKSYSTEM_BOOKCOPYDAO_H
 #define AVL_BOOKSYSTEM_BOOKCOPYDAO_H
-#include "../../database/DatabaseOperator.h"
-#include "../../entity/BookCopy.h"
+#include "database/DatabaseOperator.h"
+#include "entity/BookCopy.h"
 #include <string>
 using std::string;
 using std::vector;

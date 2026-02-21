@@ -1,7 +1,7 @@
 #ifndef AVL_BOOKSYSTEM_USERDAO_H
 #define AVL_BOOKSYSTEM_USERDAO_H
-#include "../DatabaseOperator.h"
-#include "../../entity/User.h"
+#include "database/DatabaseOperator.h"
+#include "entity/User.h"
 #include <string>
 using std::string;
 using std::vector;

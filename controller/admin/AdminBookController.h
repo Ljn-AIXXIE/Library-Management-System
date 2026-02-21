@@ -1,9 +1,9 @@
 #ifndef AVL_BOOKSYSTEM_ADMINBOOKCONTROLLER_H
 #define AVL_BOOKSYSTEM_ADMINBOOKCONTROLLER_H
 #include "HttpUtils.h"
-#include "../service/InventoryService.h"
-#include "../service/SearchService.h"
-#include "../database/dao/BookCopyDAO.h"
+#include "service/InventoryService.h"
+#include "service/SearchService.h"
+#include "database/dao/BookCopyDAO.h"
 
 //图书管理（添加，编辑，删除图书及副本）
 class AdminBookController {

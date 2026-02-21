@@ -1,5 +1,5 @@
 #include "BookCopyDAO.h"
-#include "../common/Logger.h"
+#include "common/Logger.h"
 
 /*
 CREATE TABLE book_copy (

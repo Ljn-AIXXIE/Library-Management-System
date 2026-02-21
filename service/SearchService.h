@@ -1,6 +1,6 @@
 #ifndef AVL_BOOKSYSTEM_SEARCHSERVICE_H
 #define AVL_BOOKSYSTEM_SEARCHSERVICE_H
-#include "../database/dao/BookDAO.h"
+#include "database/dao/BookDAO.h"
 
 //用于管理图书的查询等操作
 class SearchService {

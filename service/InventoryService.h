@@ -1,7 +1,7 @@
 #ifndef AVL_BOOKSYSTEM_INVENTORYSERVICE_H
 #define AVL_BOOKSYSTEM_INVENTORYSERVICE_H
-#include "../database/dao/BookDAO.h"
-#include "../database/dao/BookCopyDAO.h"
+#include "database/dao/BookDAO.h"
+#include "database/dao/BookCopyDAO.h"
 
 //用于管理库存，包括图书的添加、删除、修改和获取图书信息等操作
 class InventoryService {

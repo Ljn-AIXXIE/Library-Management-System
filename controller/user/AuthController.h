@@ -1,11 +1,11 @@
 #ifndef AVL_BOOKSYSTEM_AUTHCONTROLLER_H
 #define AVL_BOOKSYSTEM_AUTHCONTROLLER_H
 
-#include "../../utils/httplib.h"
-#include "../../service/UserService.h"
-#include "../../utils/PasswordUtils.h"
-#include "../../utils/json.hpp"
-#include "../../utils/HttpUtils.h"
+#include "utils/httplib.h"
+#include "service/UserService.h"
+#include "utils/PasswordUtils.h"
+#include "utils/json.hpp"
+#include "utils/HttpUtils.h"
 #include <string>
 #include <iostream>
 

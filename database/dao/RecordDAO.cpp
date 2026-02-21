@@ -1,5 +1,5 @@
 #include "RecordDAO.h"
-#include "../common/Logger.h"
+#include "common/Logger.h"
 #include <chrono>
 
 RecordDAO::RecordDAO(DatabaseOperator *recordDatabase) : recordDatabase(recordDatabase) {

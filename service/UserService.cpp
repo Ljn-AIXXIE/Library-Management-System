@@ -1,5 +1,5 @@
 #include "UserService.h"
-#include "../common/Logger.h"
+#include "common/Logger.h"
 #include <iostream>
 
 UserService::UserService(UserDAO *db) : db(db) {

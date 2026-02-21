@@ -1,6 +1,6 @@
 #include "AdminController.h"
-#include "../common/Logger.h"
-#include "../utils/HttpUtils.h"
+#include "common/Logger.h"
+#include "utils/HttpUtils.h"
 
 AdminController::AdminController(UserService *userService,
                                  InventoryService *inventoryService,

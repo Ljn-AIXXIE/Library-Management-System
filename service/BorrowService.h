@@ -1,8 +1,8 @@
 #ifndef AVL_BOOKSYSTEM_BORROWSERVICE_H
 #define AVL_BOOKSYSTEM_BORROWSERVICE_H
-#include "../database/dao/BookCopyDAO.h"
-#include "../database/dao/RecordDAO.h"
-#include "../database/dao/UserDAO.h"
+#include "database/dao/BookCopyDAO.h"
+#include "database/dao/RecordDAO.h"
+#include "database/dao/UserDAO.h"
 
 class BorrowService {
     BookCopyDAO *bookCopyDAO;

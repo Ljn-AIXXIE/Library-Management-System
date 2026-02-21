@@ -1,5 +1,5 @@
 #include "AdminBookController.h"
-#include "../common/Logger.h"
+#include "common/Logger.h"
 using std::string;
 using std::vector;
 
