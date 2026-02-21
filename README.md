@@ -13,7 +13,8 @@
 - json.hpp
 - sqlite3.h ,sqlite3.c[[https://www.sqlite.org/2026/sqlite-amalgamation-3510200.zip]]
 
-出现以下报错可以通过在server_main.cpp中添加以下代码解决
+出现以下报错可以通过在server_main.cpp中添加以下代码到文件开头来解决
+
 ```
 #error "cpp-httplib doesn't support Windows 8 or lower. Please use Windows 10 or later."
 ```
@@ -23,7 +24,7 @@
 #define WINVER 0x0A00
 ```
 
-将user表中的role为admin的用户设置为管理员，role为student的用户设置为普通用户，需要先创建普通用户，然后通过手动修改数据库中的role字段来设置管理员用户
+user表中role为admin的用户为管理员，role为student的用户为普通用户，需要先创建普通用户，然后通过手动修改数据库中的role字段来设置管理员用户
 
 ---
 
