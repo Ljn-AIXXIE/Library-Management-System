@@ -7,13 +7,13 @@
 ## 使用说明
 
 由于文件上传功能正在施工但并未完善，克隆项目运行后可能会出错
-本项目依赖以下第三方库。请在编译前，根据指引将对应文件下载并放置到项目的 utils/ 目录下：
+本项目依赖以下第三方库。请在编译前，将对应文件下载并放置到项目的 external/include 目录（需要自己创建）下：
 
 - httplib.h[[https://github.com/yhirose/cpp-httplib/blob/master/httplib.h]]
 - json.hpp
-- sqlite3.h ,sqlite3.c[[https://www.sqlite.org/2026/sqlite-amalgamation-3510200.zip]]
+- sqlite3.h [[https://www.sqlite.org/2026/sqlite-amalgamation-3510200.zip]]
 
-出现以下报错可以通过在server_main.cpp中添加以下代码到文件开头来解决
+出现以下报错可以通过在main.cpp中添加以下代码到文件开头来解决
 
 ```
 #error "cpp-httplib doesn't support Windows 8 or lower. Please use Windows 10 or later."
@@ -59,7 +59,7 @@ user表中role为admin的用户为管理员，role为student的用户为普通�
 6. [ ] 人工还书
 7. [ ] 提交书籍异常处理报告
 8. [x] 统计图书总数，读者总数，当前借阅，超期图书
-9. [ ] 文件上传（批量添加）
+9. [x] 文件上传（批量添加:txt）
 10. [ ] 对超期图书进行操作
 
 ##### 其他
