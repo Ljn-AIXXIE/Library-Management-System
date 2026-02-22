@@ -6,7 +6,6 @@
 
 ## 使用说明
 
-由于文件上传功能正在施工但并未完善，克隆项目运行后可能会出错
 本项目依赖以下第三方库。请在编译前，将对应文件下载并放置到项目的 external/include 目录（需要自己创建）下：
 
 - httplib.h[[https://github.com/yhirose/cpp-httplib/blob/master/httplib.h]]
