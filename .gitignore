@@ -1,8 +1,6 @@
 # 忽略文件
-utils/sqlite3.h
-utils/sqlite3.c
-utils/httplib.h
-utils/json.hpp
+assets/library.db
+external
 
 # 可执行文件
 *.exe

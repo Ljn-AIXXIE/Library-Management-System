@@ -1,0 +1,63 @@
+#include "controllers/admin/AdminBlackListController.h"
+
+#include "common/Logger.h"
+
+using std::string;
+
+//POST /api/admin/readers/freeze - 添加黑名单用户
+void AdminBlackListController::handleFreezeUser(const httplib::Request &req, httplib::Response &res) const {
+    Logger::getInstance().logAccess("POST /api/admin/readers/freeze - 添加黑名单用户");
+
+    nlohmann::json requestData = HttpUtils::parseRequestBody(req);
+
+    //验证必填字段
+    string errorMsg;
+    if (!HttpUtils::validateRequiredFields(requestData, {"userId"}, errorMsg)) {
+        res = HttpUtils::createErrorResponse(errorMsg, 400);
+        return;
+    }
+
+    string userId = requestData["userId"];
+    if (blackListService->isBlackListed(userId)) {
+        res = HttpUtils::createErrorResponse("用户已存在黑名单中", 400);
+        return;
+    }
+    if (blackListService->addBlackList(userId)) {
+        const nlohmann::json responseData = {
+            {"success", true},
+            {"message", "黑名单用户添加成功"}
+        };
+        res = HttpUtils::createSuccessResponse(responseData, 201);
+    } else {
+        res = HttpUtils::createErrorResponse("黑名单用户添加失败", 500);
+    }
+}
+
+//POST /api/admin/readers/unfreeze - 移除黑名单用户
+void AdminBlackListController::handleUnfreezeUser(const httplib::Request &req, httplib::Response &res) const {
+    Logger::getInstance().logAccess("POST /api/admin/readers/unfreeze - 移除黑名单用户");
+
+    nlohmann::json requestData = HttpUtils::parseRequestBody(req);
+
+    //验证必填字段
+    string errorMsg;
+    if (!HttpUtils::validateRequiredFields(requestData, {"userId"}, errorMsg)) {
+        res = HttpUtils::createErrorResponse(errorMsg, 400);
+        return;
+    }
+
+    string userId = requestData["userId"];
+    if (!blackListService->isBlackListed(userId)) {
+        res = HttpUtils::createErrorResponse("用户不存在黑名单中", 400);
+        return;
+    }
+    if (blackListService->removeBlackList(userId)) {
+        const nlohmann::json responseData = {
+            {"success", true},
+            {"message", "黑名单用户移除成功"}
+        };
+        res = HttpUtils::createSuccessResponse(responseData, 200);
+    } else {
+        res = HttpUtils::createErrorResponse("黑名单用户移除失败", 500);
+    }
+}

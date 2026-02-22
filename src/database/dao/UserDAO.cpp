@@ -1,0 +1,291 @@
+#include "database/dao/UserDAO.h"
+
+#include "utils/PasswordUtils.h"
+#include "common/Logger.h"
+
+/*
+User
+-------------------------
+user_id        PK
+name
+role           (student / admin)
+password
+borrow_count
+*/
+
+//添加用户
+bool UserDAO::addUser(const User &user) const {
+    const std::string sql =
+            "INSERT INTO user (user_id, name, role, password, borrow_count) "
+            "VALUES (?, ?, ?, ?, ?);";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::addUser准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, user.getId().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, user.getName().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 3, user.getType().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 4, user.getPassword().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 5, 0);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        userDatabase->setLastError(sqlite3_errmsg(userDatabase->getDB()));
+        Logger::getInstance().logError("UserDAO::addUser执行SQL失败:" + userDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    sqlite3_finalize(stmt);
+    return true;
+}
+
+//删除用户
+bool UserDAO::deleteUser(const std::string &userId) const {
+    const std::string sql = "DELETE FROM user WHERE user_id = ?;";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::deleteUser准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        userDatabase->setLastError(sqlite3_errmsg(userDatabase->getDB()));
+        Logger::getInstance().logError("UserDAO::deleteUser执行SQL失败:" + userDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    sqlite3_finalize(stmt);
+    return true;
+}
+
+//更新用户密码
+bool UserDAO::updateUserPassword(const std::string &userId, const std::string &newPassword) const {
+    const std::string sql = "UPDATE user SET password = ? WHERE user_id = ?;";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::updateUserPassword准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, newPassword.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        userDatabase->setLastError(sqlite3_errmsg(userDatabase->getDB()));
+        Logger::getInstance().logError("UserDAO::updateUserPassword执行SQL失败:" + userDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    sqlite3_finalize(stmt);
+    return true;
+}
+
+//更新用户借阅信息
+bool UserDAO::updateUserBorrowInfo(const std::string &userId, const bool flag) const {
+    //flag为true时，借阅数量加1，否则减1
+    if (flag) {
+        const std::string sql = "UPDATE user SET borrow_count = borrow_count + 1 WHERE user_id = ?;";
+        sqlite3_stmt *stmt = nullptr;
+
+        if (!userDatabase->prepare(sql, &stmt)) {
+            Logger::getInstance().logError("UserDAO::updateUserBorrowInfo准备SQL失败:" + userDatabase->getLastError());
+            return false;
+        }
+
+        sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            userDatabase->setLastError(sqlite3_errmsg(userDatabase->getDB()));
+            Logger::getInstance().logError("UserDAO::updateUserBorrowInfo执行SQL失败:" + userDatabase->getLastError());
+            sqlite3_finalize(stmt);
+            return false;
+        }
+        sqlite3_finalize(stmt);
+        return true;
+    }
+    const std::string sql = "UPDATE user SET borrow_count = borrow_count - 1 WHERE user_id = ?;";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::updateUserBorrowInfo准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        userDatabase->setLastError(sqlite3_errmsg(userDatabase->getDB()));
+        Logger::getInstance().logError("UserDAO::updateUserBorrowInfo执行SQL失败:" + userDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    sqlite3_finalize(stmt);
+    return true;
+}
+
+//更新用户名
+bool UserDAO::updateUserName(const std::string &userId, const std::string &newName) const {
+    const std::string sql = "UPDATE user SET name = ? WHERE user_id = ?;";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::updateUserName准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, newName.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        userDatabase->setLastError(sqlite3_errmsg(userDatabase->getDB()));
+        Logger::getInstance().logError("UserDAO::updateUserName执行SQL失败:" + userDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    sqlite3_finalize(stmt);
+    return true;
+}
+
+//用于获取列文本
+static std::string columnText(sqlite3_stmt *stmt, int col) {
+    const unsigned char *text = sqlite3_column_text(stmt, col);
+    return text ? reinterpret_cast<const char *>(text) : "";
+}
+
+//根据用户id查询用户信息
+bool UserDAO::searchUserById(const std::string &userId, User &user) const {
+    const std::string sql = "SELECT user_id, name, role, password, borrow_count FROM user WHERE user_id = ?;";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::searchUserById准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        user.setId(columnText(stmt, 0));
+        user.setName(columnText(stmt, 1));
+        user.setType(columnText(stmt, 2));
+        user.setPassword(columnText(stmt, 3));
+        user.setBorrowedBookCount(sqlite3_column_int(stmt, 4));
+        sqlite3_finalize(stmt);
+        return true;
+    }
+    Logger::getInstance().logError("UserDAO::searchUserById执行SQL失败:" + userDatabase->getLastError());
+    sqlite3_finalize(stmt);
+    return false;
+}
+
+std::vector<User> UserDAO::getAllUsers() const {
+    std::vector<User> users;
+    const std::string sql = "SELECT user_id, name, borrow_count FROM user WHERE role = 'student';";
+    sqlite3_stmt *stmt = nullptr;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::getAllUsers准备SQL失败:" + userDatabase->getLastError());
+        return users;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        User user;
+        user.setId(columnText(stmt, 0));
+        user.setName(columnText(stmt, 1));
+        user.setBorrowedBookCount(sqlite3_column_int(stmt, 2));
+        users.push_back(user);
+    }
+    sqlite3_finalize(stmt);
+    return users;
+}
+
+//返回读者总数
+int UserDAO::getTotalUserCount() const {
+    const std::string sql = "SELECT COUNT(*) FROM user WHERE role = 'student';";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::getReaderCount准备SQL失败:" + userDatabase->getLastError());
+        return 0;
+    }
+
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("UserDAO::getReaderCount执行SQL失败:" + userDatabase->getLastError());
+    }
+    sqlite3_finalize(stmt);
+    return count;
+}
+
+//判断用户是否存在，用于登录和注册校验
+bool UserDAO::exists(const std::string &userId) const {
+    const std::string sql = "SELECT COUNT(*) FROM user WHERE user_id = ?;";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::exists准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("UserDAO::exists执行SQL失败:" + userDatabase->getLastError());
+    }
+    sqlite3_finalize(stmt);
+    return count > 0;
+}
+
+//验证用户密码
+bool UserDAO::verifyUser(const std::string &userId, const std::string &password) const {
+    const std::string sql = "SELECT password FROM user WHERE user_id = ?;";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::verifyUser准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        std::string storedPassword = columnText(stmt, 0);
+        sqlite3_finalize(stmt);
+        return PasswordUtils::verifyPassword(password, storedPassword);
+    } else {
+        Logger::getInstance().logError("UserDAO::verifyUser执行SQL失败:" + userDatabase->getLastError());
+    }
+    sqlite3_finalize(stmt);
+    return false;
+}
+
+//获取用户已借阅数量
+int UserDAO::getBorrowedBookCount(const std::string &userId) const {
+    const std::string sql = "SELECT borrow_count FROM user WHERE user_id = ?;";
+    sqlite3_stmt *stmt = nullptr;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::getBorrowedBookCount准备SQL失败:" + userDatabase->getLastError());
+        return 0;
+    }
+
+    sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("UserDAO::getBorrowedBookCount执行SQL失败:" + userDatabase->getLastError());
+    }
+    sqlite3_finalize(stmt);
+    return count;
+}

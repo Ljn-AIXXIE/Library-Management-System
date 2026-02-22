@@ -1,0 +1,271 @@
+#include "database/dao/RecordDAO.h"
+
+#include <chrono>
+
+#include "common/Logger.h"
+
+//为TxtToDatabaseWriter提供接口
+bool RecordDAO::addBorrowRecord(const Record &record) const {
+    const std::string sql =
+            "INSERT INTO record (user_id, copy_id, borrow_time, return_time) "
+            "VALUES (?, ?, ?, ?);";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::addBorrowRecord准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, record.getUserId().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, record.getCopyId().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(stmt, 3, record.getBorrowTime());
+    sqlite3_bind_int64(stmt, 4, record.getReturnTime());
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        recordDatabase->setLastError(sqlite3_errmsg(recordDatabase->getDB()));
+        Logger::getInstance().logError("RecordDAO::addBorrowRecord执行SQL失败:" + recordDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    sqlite3_finalize(stmt);
+    return true;
+}
+
+//添加借阅记录
+bool RecordDAO::addBorrowRecord(const std::string &userId, const std::string &copyId) const {
+    const std::string sql =
+            "INSERT INTO record (user_id, book_id, copy_id, borrow_time, return_time) "
+            "VALUES (?, ?, ?, ?, ?);";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::addBorrowRecord准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
+
+    auto now = std::chrono::system_clock::now();
+    time_t currentTime = std::chrono::system_clock::to_time_t(now);
+
+    std::string bookId = copyId.substr(0, copyId.find_last_of('_'));
+
+    sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, bookId.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 3, copyId.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(stmt, 4, currentTime);
+    sqlite3_bind_int64(stmt, 5, 0);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("RecordDAO::addBorrowRecord执行SQL失败:" + recordDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    sqlite3_finalize(stmt);
+    return true;
+}
+
+//更新归还时间
+bool RecordDAO::updateReturnTime(const std::string &userId, const std::string &copyId) const {
+    const std::string sql = "UPDATE record SET return_time = ? WHERE user_id = ? AND copy_id = ?;";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::updateReturnTime准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
+
+    auto now = std::chrono::system_clock::now();
+    time_t currentTime = std::chrono::system_clock::to_time_t(now);
+
+    sqlite3_bind_int64(stmt, 1, currentTime);
+    sqlite3_bind_text(stmt, 2, userId.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 3, copyId.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("RecordDAO::updateReturnTime执行SQL失败:" + recordDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    sqlite3_finalize(stmt);
+    return true;
+}
+
+//用于获取列文本
+static std::string columnText(sqlite3_stmt *stmt, int col) {
+    const unsigned char *text = sqlite3_column_text(stmt, col);
+    return text ? reinterpret_cast<const char *>(text) : "";
+}
+
+//获取用户当前借阅的图书
+std::vector<Record> RecordDAO::getActiveRecordsByUser(const std::string &userId) const {
+    std::vector<Record> records;
+    const std::string sql =
+            "SELECT user_id, copy_id, borrow_time FROM record WHERE user_id = ? AND return_time = 0;";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::getActiveRecordsByUser准备SQL失败:" + recordDatabase->getLastError());
+        return records;
+    }
+
+    sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        Record record(columnText(stmt, 0), columnText(stmt, 1), sqlite3_column_int64(stmt, 2));
+        records.push_back(record);
+    }
+    sqlite3_finalize(stmt);
+    return records;
+}
+
+//获取用户的历史借阅记录
+std::vector<Record> RecordDAO::getHistoryRecordsByUser(const std::string &userId) const {
+    std::vector<Record> records;
+    const std::string sql =
+            "SELECT user_id, copy_id, borrow_time, return_time FROM record WHERE user_id = ? AND return_time != 0;";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::getHistoryRecordsByUser准备SQL失败:" + recordDatabase->getLastError());
+        return records;
+    }
+
+    sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        Record record(columnText(stmt, 0), columnText(stmt, 1), sqlite3_column_int64(stmt, 2),
+                      sqlite3_column_int64(stmt, 3));
+        records.push_back(record);
+    }
+    sqlite3_finalize(stmt);
+    return records;
+}
+
+//获取图书的借阅历史
+std::vector<Record> RecordDAO::getRecordsByCopyId(const std::string &copyId) const {
+    std::vector<Record> records;
+    const std::string sql = "SELECT user_id, copy_id, borrow_time, return_time FROM record WHERE copy_id = ?;";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::getRecordsByCopyId准备SQL失败:" + recordDatabase->getLastError());
+        return records;
+    }
+
+    sqlite3_bind_text(stmt, 1, copyId.c_str(), -1, SQLITE_TRANSIENT);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        Record record(columnText(stmt, 0), columnText(stmt, 1), sqlite3_column_int64(stmt, 2),
+                      sqlite3_column_int64(stmt, 3));
+        records.push_back(record);
+    }
+    sqlite3_finalize(stmt);
+    return records;
+}
+
+//获取所有当前借阅的记录
+std::vector<Record> RecordDAO::getActiveRecords() const {
+    std::vector<Record> records;
+    const std::string sql = "SELECT user_id, copy_id, borrow_time FROM record WHERE return_time = 0;";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::getActiveRecords准备SQL失败:" + recordDatabase->getLastError());
+        return records;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        Record record(columnText(stmt, 0), columnText(stmt, 1), sqlite3_column_int64(stmt, 2));
+        records.push_back(record);
+    }
+    sqlite3_finalize(stmt);
+    return records;
+}
+
+//用于统计图书的借阅次数，为之后的推荐系统提供数据支持
+bool RecordDAO::getRecordCountByBookId(const std::string &bookId, int &count) const {
+    count = 0;
+    const std::string sql = "SELECT COUNT(*) FROM record WHERE book_id = ?";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::getRecordCountByBookId准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, bookId.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("RecordDAO::getRecordCountByBookId执行SQL失败:" + recordDatabase->getLastError());
+    }
+    sqlite3_finalize(stmt);
+    return count > 0;
+}
+
+//用于统计用户借阅次数,为之后的推荐系统提供数据支持
+bool RecordDAO::getRecordCountByUserId(const std::string &userId, int &count) const {
+    count = 0;
+    const std::string sql = "SELECT COUNT(*) FROM record WHERE user_id = ?";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::getRecordCountByUserId准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("RecordDAO::getRecordCountByUserId执行SQL失败:" + recordDatabase->getLastError());
+    }
+    sqlite3_finalize(stmt);
+    return count > 0;
+}
+
+//用于判断用户是否借阅该图书
+bool RecordDAO::hasActiveRecordByUserId(const std::string &userId, const std::string &copyId) const {
+    const std::string sql = "SELECT COUNT(*) FROM record WHERE user_id = ? AND copy_id = ? AND return_time = 0;";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::hasActiveRecordByUserId准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, copyId.c_str(), -1, SQLITE_TRANSIENT);
+
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("RecordDAO::hasActiveRecordByUserId执行SQL失败:" + recordDatabase->getLastError());
+    }
+    sqlite3_finalize(stmt);
+    return count > 0;
+}
+
+//用于判断图书是否已借出
+bool RecordDAO::hasActiveRecordByCopyId(const std::string &copyId) const {
+    const std::string sql = "SELECT COUNT(*) FROM record WHERE copy_id = ? AND return_time = 0;";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!recordDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("RecordDAO::hasActiveRecordByCopyId准备SQL失败:" + recordDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, copyId.c_str(), -1, SQLITE_TRANSIENT);
+
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("RecordDAO::hasActiveRecordByCopyId执行SQL失败:" + recordDatabase->getLastError());
+    }
+    sqlite3_finalize(stmt);
+    return count > 0;
+}

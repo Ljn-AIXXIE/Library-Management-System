@@ -1,95 +1,80 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 4.1)
+project(Library_Management_System)
 add_compile_definitions(_WIN32_WINNT=0x0A00)
-project(LibraryManagementSystem)
 
 set(CMAKE_CXX_STANDARD 20)
+set(LIBRARIES_DIR ${CMAKE_SOURCE_DIR}/external/libraries)
 
-# 修复 MinGW 汇编器不支持 gdwarf-5 的问题
-if (MINGW)
-    string(REPLACE "-g" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-    string(REPLACE "-g" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g0")
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g0")
-endif ()
+add_executable(Library_Management_System
+        include/common/Logger.h
+        include/controllers/admin/AdminBatchAddController.h
+        include/controllers/admin/AdminBlackListController.h
+        include/controllers/admin/AdminBookController.h
+        include/controllers/admin/AdminController.h
+        include/controllers/admin/AdminUserController.h
+        include/controllers/user/AuthController.h
+        include/controllers/user/BookController.h
+        include/controllers/user/UserController.h
+        include/controllers/Router.h
+        include/database/DatabaseOperator.h
+        include/database/DatabaseInitializer.h
+        include/database/dao/BlackListDAO.h
+        include/database/dao/BookCopyDAO.h
+        include/database/dao/BookDAO.h
+        include/database/dao/RecordDAO.h
+        include/database/dao/UserDAO.h
+        include/entities/BatchResult.h
+        include/entities/Book.h
+        include/entities/BookCopy.h
+        include/entities/Record.h
+        include/entities/User.h
+        include/services/BatchAddService.h
+        include/services/BlackListService.h
+        include/services/BorrowService.h
+        include/services/InventoryService.h
+        include/services/SearchService.h
+        include/services/UserService.h
+        include/utils/FileProcessor.h
+        include/utils/HttpUtils.h
+        include/utils/PasswordUtils.h
+        include/utils/SqlToDatabaseWriter.h
+        include/utils/TimeUtils.h
+        include/utils/TxtToDatabaseWriter.h
 
-# 添加 SQLite3 库
-add_library(sqlite3 STATIC utils/sqlite3.c)
-target_include_directories(sqlite3 PUBLIC utils)
-
-# 添加HTTP服务器程序
-add_executable(server_main server_main.cpp
-        database/DatabaseOperator.cpp
-        database/DatabaseOperator.h
-        database/DatabaseInitializer.cpp
-        database/DatabaseInitializer.h
-        database/dao/UserDAO.cpp
-        database/dao/UserDAO.h
-        database/dao/BookDAO.cpp
-        database/dao/BookDAO.h
-        database/dao/BookCopyDAO.cpp
-        database/dao/BookCopyDAO.h
-        database/dao/RecordDAO.cpp
-        database/dao/RecordDAO.h
-        service/UserService.cpp
-        service/UserService.h
-        service/InventoryService.cpp
-        service/InventoryService.h
-        service/SearchService.cpp
-        service/SearchService.h
-        service/borrowService.cpp
-        service/borrowService.h
-        controller/user/AuthController.cpp
-        controller/user/AuthController.h
-        controller/admin/AdminBookController.cpp
-        controller/admin/AdminBookController.h
-        controller/admin/AdminUserController.cpp
-        controller/admin/AdminUserController.h
-        controller/Router.cpp
-        controller/Router.h
-        entity/User.cpp
-        entity/User.h
-        entity/Book.cpp
-        entity/Book.h
-        entity/BookCopy.cpp
-        entity/BookCopy.h
-        entity/Record.cpp
-        entity/Record.h
-        utils/PasswordUtils.cpp
-        utils/PasswordUtils.h
-        utils/HttpUtils.cpp
-        utils/HttpUtils.h
-        database/dao/BlackListDAO.cpp
-        database/dao/BlackListDAO.h
-        service/BlackListService.cpp
-        service/BlackListService.h
-        controller/admin/AdminBlackListController.cpp
-        controller/admin/AdminBlackListController.h
-        #        controller/admin/AdminBatchAddController.cpp
-        #        controller/admin/AdminBatchAddController.h
-        #        service/BatchAddService.cpp
-        #        service/BatchAddService.h
-        #        utils/TxtToDatabaseWriter.cpp
-        #        utils/TxtToDatabaseWriter.h
-        #        utils/SqlToDatabaseWriter.cpp
-        #        utils/SqlToDatabaseWriter.h
-        #        utils/FileProcessor.cpp
-        #        utils/FileProcessor.h
-        controller/user/BookController.cpp
-        controller/user/BookController.h
-        controller/user/UserController.cpp
-        controller/user/UserController.h
-        utils/TimeUtils.cpp
-        utils/TimeUtils.h
-        common/Logger.cpp
-        common/Logger.h
-        controller/admin/AdminController.cpp
-        controller/admin/AdminController.h
-        #        entity/BatchResult.cpp
-        #        entity/BatchResult.h
+        src/common/Logger.cpp
+        src/controllers/admin/AdminBatchAddController.cpp
+        src/controllers/admin/AdminBlackListController.cpp
+        src/controllers/admin/AdminBookController.cpp
+        src/controllers/admin/AdminController.cpp
+        src/controllers/admin/AdminUserController.cpp
+        src/controllers/user/AuthController.cpp
+        src/controllers/user/BookController.cpp
+        src/controllers/user/UserController.cpp
+        src/controllers/Router.cpp
+        src/database/DatabaseInitializer.cpp
+        src/database/DatabaseOperator.cpp
+        src/database/dao/BlackListDAO.cpp
+        src/database/dao/BookCopyDAO.cpp
+        src/database/dao/BookDAO.cpp
+        src/database/dao/RecordDAO.cpp
+        src/database/dao/UserDAO.cpp
+        src/services/BatchAddService.cpp
+        src/services/BlackListService.cpp
+        src/services/BorrowService.cpp
+        src/services/InventoryService.cpp
+        src/services/SearchService.cpp
+        src/services/UserService.cpp
+        src/utils/FileProcessor.cpp
+        src/utils/HttpUtils.cpp
+        src/utils/PasswordUtils.cpp
+        src/utils/SqlToDatabaseWriter.cpp
+        src/utils/TxtToDatabaseWriter.cpp
+        src/main.cpp
 )
 
-target_include_directories(server_main PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(Library_Management_System PRIVATE
+        bcrypt ws2_32
+        ${LIBRARIES_DIR}/libsqlite3.a)
 
-# 链接SQLite3库和系统库到服务器程序
-target_link_libraries(server_main PRIVATE sqlite3 ws2_32 bcrypt)
+target_include_directories(Library_Management_System PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/include)
+target_include_directories(Library_Management_System PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)

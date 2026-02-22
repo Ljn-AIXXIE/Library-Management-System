@@ -1,0 +1,53 @@
+#ifndef LIBRARY_MANAGEMENT_SYSTEM_BOOKDAO_H
+#define LIBRARY_MANAGEMENT_SYSTEM_BOOKDAO_H
+
+#include <string>
+#include <vector>
+
+#include "database/DatabaseOperator.h"
+#include "entities/Book.h"
+
+/*
+CREATE TABLE book (
+    id INTEGER PRIMARY KEY,
+    title TEXT,
+    author TEXT,
+    category TEXT,
+    publisher TEXT,
+    publish_date TEXT,
+    price TEXT,
+    pages TEXT,
+    description TEXT
+    copy_count INTEGER//不是实际的图书副本数
+);
+*/
+
+class BookDAO {
+    DatabaseOperator *bookDatabase;
+public:
+    explicit BookDAO(DatabaseOperator *bookDatabase) : bookDatabase(bookDatabase) {}
+
+    //核心操作
+    [[nodiscard]] bool addBook(const Book &book) const; //添加图书
+    [[nodiscard]] bool deleteBook(const std::string &bookId) const; //删除图书
+    [[nodiscard]] bool updateBook(const Book &book) const; //更新图书
+
+    //查询操作
+    [[nodiscard]] bool searchBookById(const std::string &bookId, Book &book) const; //根据图书id查询图书信息
+    [[nodiscard]] bool searchBookByTitle(const std::string &bookTitle, Book &book) const; //根据图书名称查询图书信息
+    [[nodiscard]] std::vector<Book> getAllBooks() const; //获取所有图书
+    [[nodiscard]] std::vector<Book> searchBooksByCategory(const std::string &category) const; //根据图书分类查询图书信息
+    [[nodiscard]] std::vector<Book> searchBookByAuthor(const std::string &author) const;
+
+    [[nodiscard]] std::string getBookTitleById(const std::string &bookId) const;
+
+    //业务校验
+    [[nodiscard]] bool isBookIdExist(const std::string &bookId) const; //用于判断图书id是否已存在
+
+    //辅助函数
+    [[nodiscard]] int getBookCopyCount(const std::string &bookId) const; //获取book_copy用于生成副本id
+    [[nodiscard]] bool updateBookCopyCount(const std::string &bookId) const; //更新book_copy
+};
+
+
+#endif //LIBRARY_MANAGEMENT_SYSTEM_BOOKDAO_H
