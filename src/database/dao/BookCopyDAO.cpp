@@ -262,3 +262,25 @@ bool BookCopyDAO::isCopyBorrowed(const std::string &copyId) const {
     sqlite3_finalize(stmt);
     return count > 0;
 }
+
+//判断副本id是否存在
+bool BookCopyDAO::isCopyBookIdExist(const std::string &copyId) const {
+    const std::string sql = "SELECT EXISTS(SELECT 1 FROM book_copy WHERE copy_id = ?) AS exists;";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!bookCopyDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookCopyDAO::isCopyBookIdExist准备SQL失败:" + bookCopyDatabase->getLastError());
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, copyId.c_str(), -1, SQLITE_TRANSIENT);
+
+    int exists = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        exists = sqlite3_column_int(stmt, 0);
+    } else {
+        Logger::getInstance().logError("BookCopyDAO::isCopyBookIdExist执行SQL失败:" + bookCopyDatabase->getLastError());
+    }
+    sqlite3_finalize(stmt);
+    return exists > 0;
+}

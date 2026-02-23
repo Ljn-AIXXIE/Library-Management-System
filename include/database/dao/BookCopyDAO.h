@@ -8,8 +8,10 @@
 
 class BookCopyDAO {
     DatabaseOperator *bookCopyDatabase;
+
 public:
-    explicit BookCopyDAO(DatabaseOperator *bookDatabase) : bookCopyDatabase(bookDatabase) {}
+    explicit BookCopyDAO(DatabaseOperator *bookDatabase) : bookCopyDatabase(bookDatabase) {
+    }
 
     //核心操作
     [[nodiscard]] bool addBookCopy(const BookCopy &bookCopy) const; //添加图书副本
@@ -27,6 +29,7 @@ public:
 
     //校验
     [[nodiscard]] bool isCopyBorrowed(const std::string &copyId) const; //根据副本id判断图书是否已借出
+    [[nodiscard]] bool isCopyBookIdExist(const std::string &copyId) const; //根据副本id判断图书副本是否已存在
 };
 
 #endif //LIBRARY_MANAGEMENT_SYSTEM_BOOKCOPYDAO_H

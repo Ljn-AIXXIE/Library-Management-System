@@ -95,6 +95,10 @@ bool InventoryService::isBookIdExist(const std::string &bookId) const {
     return db->isBookIdExist(bookId);
 }
 
+bool InventoryService::isCopyBookIdExist(const std::string &copyId) const {
+    return bookCopyDAO->isCopyBookIdExist(copyId);
+}
+
 std::string InventoryService::generateCopyId(const std::string &bookId) const {
     int count = db->getBookCopyCount(bookId);
     return bookId + "_" + std::to_string(count + 1);

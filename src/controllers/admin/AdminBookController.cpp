@@ -215,3 +215,35 @@ void AdminBookController::handleDeleteBookCopy(const httplib::Request &req, http
         res = HttpUtils::createErrorResponse("图书副本删除失败", 500);
     }
 }
+
+//POST /api/admin/borrow/manual - 人工借书
+void AdminBookController::handleManualBorrowBookCopy(const httplib::Request &req, httplib::Response &res) const {
+    Logger::getInstance().logAccess("POST /api/admin/borrow/manual 人工借书");
+
+    nlohmann::json requestData = HttpUtils::parseRequestBody(req);
+    string userId = requestData["userId"];
+    string copyId = requestData["borrowCopyId"];
+
+    //检查userId是否存在
+    if (!userService->isUserExist(userId)) {
+        res = HttpUtils::createErrorResponse("用户不存在", 404);
+        return;
+    }
+
+    //检查borrowCopyId是否存在
+    if (!inventoryService->isCopyBookIdExist(copyId)) {
+        res = HttpUtils::createErrorResponse("图书副本不存在", 404);
+        return;
+    }
+
+    //借阅
+    if (borrowService->borrowBook(userId, copyId)) {
+        const nlohmann::json responseData = {
+            {"success", true},
+            {"message", "图书借阅成功"}
+        };
+        res = HttpUtils::createSuccessResponse(responseData, 200);
+    } else {
+        res = HttpUtils::createErrorResponse("图书借阅失败", 500);
+    }
+}

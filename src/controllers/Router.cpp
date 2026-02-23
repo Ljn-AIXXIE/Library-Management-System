@@ -11,7 +11,7 @@ void Router::initializeRoutes(UserService *userService, InventoryService *invent
                               BatchAddService *batchAddService, BorrowService *borrowService) {
     // 创建Controller实例
     authController = make_unique<AuthController>(userService);
-    adminBookController = make_unique<AdminBookController>(inventoryService, searchService);
+    adminBookController = make_unique<AdminBookController>(inventoryService, searchService, borrowService, userService);
     adminUserController = make_unique<AdminUserController>(userService, blackListService, borrowService,
                                                            inventoryService);
     adminBlackListController = make_unique<AdminBlackListController>(blackListService);
@@ -95,6 +95,11 @@ void Router::registerAdminBookRoutes() const {
     server->Post("/api/admin/copies/delete", [this](const httplib::Request &req, httplib::Response &res) {
         adminBookController->handleDeleteBookCopy(req, res);
     });
+
+    //POST /api/admin/borrow/manual - 人工借书
+    server->Post("/api/admin/borrow/manual", [this](const httplib::Request &req, httplib::Response &res) {
+        adminBookController->handleManualBorrowBookCopy(req, res);
+    });
 }
 
 //注册管理员用户管理的路由
@@ -122,9 +127,11 @@ void Router::registerAdminUserRoutes() const {
 
 void Router::registerAdminBatchAddRoutes() const {
     //POST /api/admin/add/batch - 批量添加数据
-    server->Post("/api/admin/add/batch", [this](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
-        adminBatchAddController->handleBatchAdd(req, res, content_reader);
-    });
+    server->Post("/api/admin/add/batch",
+                 [this](const httplib::Request &req, httplib::Response &res,
+                        const httplib::ContentReader &content_reader) {
+                     adminBatchAddController->handleBatchAdd(req, res, content_reader);
+                 });
 }
 
 void Router::registerBookRoutes() const {

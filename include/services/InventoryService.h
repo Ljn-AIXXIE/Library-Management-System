@@ -8,9 +8,11 @@
 class InventoryService {
     BookDAO *db;
     BookCopyDAO *bookCopyDAO;
+
 public:
     InventoryService(BookDAO *bookDAO, BookCopyDAO *bookCopyDAO)
-        : db(bookDAO), bookCopyDAO(bookCopyDAO) {}
+        : db(bookDAO), bookCopyDAO(bookCopyDAO) {
+    }
 
     //核心操作
     [[nodiscard]] bool addBook(const Book &book) const; //添加图书
@@ -33,6 +35,7 @@ public:
 
     //业务校验
     [[nodiscard]] bool isBookIdExist(const std::string &bookId) const; //用于判断图书id是否已存在
+    [[nodiscard]] bool isCopyBookIdExist(const std::string &copyId) const;
 
     //辅助函数：用于生成副本id
     [[nodiscard]] std::string generateCopyId(const std::string &bookId) const;

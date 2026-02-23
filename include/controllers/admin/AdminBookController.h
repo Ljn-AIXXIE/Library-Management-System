@@ -4,14 +4,22 @@
 #include "utils/HttpUtils.h"
 #include "services/InventoryService.h"
 #include "services/SearchService.h"
+#include "services/BorrowService.h"
+#include "services/UserService.h"
 
 //图书管理（添加，编辑，删除图书及副本）
 class AdminBookController {
     InventoryService *inventoryService;
     SearchService *searchService;
+    BorrowService *borrowService;
+    UserService *userService;
+
 public:
-    AdminBookController(InventoryService *inventoryService, SearchService *searchService)
-        : inventoryService(inventoryService), searchService(searchService) {}
+    AdminBookController(InventoryService *inventoryService, SearchService *searchService, BorrowService *borrowService,
+                        UserService *userService)
+        : inventoryService(inventoryService), searchService(searchService), borrowService(borrowService),
+          userService(userService) {
+    }
 
     //GET /api/admin/books - 获取所有图书
     void handleGetAllBooks(httplib::Response &res) const;
@@ -33,6 +41,9 @@ public:
 
     //POST /api/admin/copies/delete - 删除图书副本
     void handleDeleteBookCopy(const httplib::Request &req, httplib::Response &res) const;
+
+    //POST /api/admin/borrow/manual - 人工借书
+    void handleManualBorrowBookCopy(const httplib::Request &req, httplib::Response &res) const;
 };
 
 #endif //AVL_BOOKSYSTEM_ADMINBOOKCONTROLLER_H
