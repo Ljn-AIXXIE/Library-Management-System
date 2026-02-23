@@ -60,6 +60,20 @@
             opacity: 1;
             transition: opacity 0.3s ease 0s;
         }
+        .message {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
@@ -72,10 +86,12 @@
                 <span>|</span>
                 <span id="userId"></span>
             </div>
+            <button class="btn-logout" onclick="backupDataBase()">备份数据库</button>
             <button class="btn-logout" onclick="logout()">退出登录</button>
         </div>
     </nav>
     <div class="container">
+        <div id="message" class="message"></div>
         <div class="welcome-card">
             <h2>欢迎，<span id="welcomeName"></span>！</h2>
             <p>管理员控制面板 - 管理图书、读者和借阅记录</p>
@@ -168,6 +184,29 @@
         function logout() {
             localStorage.removeItem('user');
             window.location.href = 'login.html';
+        }
+
+        function backupDataBase() {
+            fetch(`${API_BASE_URL}/api/admin/backupDataBase`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        return;
+                    }
+                })
+                .catch(() => {
+                    showMessage('网络错误', 'error');
+                });
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 3000);
         }
     </script>
 </body>
