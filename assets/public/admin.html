@@ -190,9 +190,11 @@
             fetch(`${API_BASE_URL}/api/admin/backupDataBase`)
                 .then(res => res.json())
                 .then(data => {
-                    if (data.success) {
+                    if (!data.success) {
+                        showMessage('备份失败', 'error');
                         return;
                     }
+                    showMessage('备份成功', 'success');
                 })
                 .catch(() => {
                     showMessage('网络错误', 'error');
