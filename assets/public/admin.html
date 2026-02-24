@@ -153,15 +153,17 @@
             </a>
         </div>
     </div>
-    <script>
+    <script type="module">
+        import {checkAndBackUser} from "./js/admin.js";
+        import {logout, showMessage} from "./js/common.js";
+        window.logout = logout;
+        window.backupDataBase = backupDataBase;
+
         const API_BASE_URL = 'http://localhost:8080';
         window.onload = function() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (!user.userId || user.role !== 'admin') {
-                alert('需要管理员权限');
-                window.location.href = 'login.html';
-                return;
-            }
+            const user = checkAndBackUser();
+            if (!user) return;
+
             document.getElementById('userName').textContent = user.name || '管理员';
             document.getElementById('userId').textContent = user.userId || '';
             document.getElementById('welcomeName').textContent = user.name || '管理员';
@@ -181,10 +183,6 @@
                 console.error('加载统计信息失败:', error);
             }
         }
-        function logout() {
-            localStorage.removeItem('user');
-            window.location.href = 'login.html';
-        }
 
         function backupDataBase() {
             fetch(`${API_BASE_URL}/api/admin/backupDataBase`)
@@ -199,16 +197,6 @@
                 .catch(() => {
                     showMessage('网络错误', 'error');
                 });
-        }
-
-        function showMessage(text, type) {
-            const msg = document.getElementById('message');
-            msg.textContent = text;
-            msg.className = `message ${type}`;
-            msg.style.display = 'block';
-            setTimeout(() => {
-                msg.style.display = 'none';
-            }, 3000);
         }
     </script>
 </body>

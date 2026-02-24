@@ -316,17 +316,18 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import {checkAndBackUser} from "./js/reader.js";
+        import {showMessage} from "./js/common.js";
+        window.closePasswordModal = closePasswordModal;
+        window.showChangePasswordModal = showChangePasswordModal;
+
         const API_BASE_URL = 'http://localhost:8080';
         let currentUser = null;
 
         window.onload = function() {
-            currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-
-            if (!currentUser.userId) {
-                window.location.href = 'login.html';
-                return;
-            }
+            currentUser = checkAndBackUser();
+            if (!currentUser) return;
 
             loadUserProfile();
         };
@@ -400,17 +401,6 @@
                 showMessage('网络错误，请稍后重试', 'error');
             }
         });
-
-        function showMessage(text, type) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = text;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
-
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 3000);
-        }
     </script>
 </body>
 </html>

@@ -89,14 +89,26 @@
             <div class="modal-buttons"><button class="btn-cancel" onclick="closeCopiesModal()">关闭</button></div>
         </div>
     </div>
-    <script>
+    <script type="module">
+        import {checkAndBackUser} from "./js/admin.js";
+        import {showMessage} from "./js/common.js";
+        window.editBook = editBook;
+        window.manageCopies = manageCopies;
+        window.deleteBook = deleteBook;
+        window.deleteCopy = deleteCopy;
+        window.closeBookModal = closeBookModal;
+        window.closeCopiesModal = closeCopiesModal;
+        window.searchBooks = searchBooks;
+        window.showAddBookModal = showAddBookModal;
+        window.addCopy = addCopy;
+
         const API_BASE_URL = 'http://localhost:8080';
-        let currentUser = null;
+        let user = null;
         let editingBook = null;
         let currentISBN = null;
         window.onload = function() {
-            currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-            if (!currentUser.userId || currentUser.role !== 'admin') { alert('需要管理员权限'); window.location.href = 'login.html'; return; }
+            user = checkAndBackUser();
+            if (!user) return;
             loadBooks();
         };
         async function loadBooks() {
@@ -213,7 +225,7 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/copies/add`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isbn: currentISBN }) });
                 const data = await response.json();
-                if (data.success) { showMessage('副本添加成功', 'success'); loadCopies(currentISBN); }
+                if (data.success) { showMessage('副本添加成功', 'success'); await loadCopies(currentISBN); }
                 else { showMessage(data.message || '添加失败', 'error'); }
             } catch (error) { showMessage('网络错误', 'error'); }
         }
@@ -222,18 +234,11 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/copies/delete`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ copyId }) });
                 const data = await response.json();
-                if (data.success) { showMessage('副本删除成功', 'success'); loadCopies(currentISBN); }
+                if (data.success) { showMessage('副本删除成功', 'success'); await loadCopies(currentISBN); }
                 else { showMessage(data.message || '删除失败', 'error'); }
             } catch (error) { showMessage('网络错误', 'error'); }
         }
         function closeCopiesModal() { document.getElementById('copiesModal').classList.remove('show'); }
-        function showMessage(text, type) {
-            const msg = document.getElementById('message');
-            msg.textContent = text;
-            msg.className = `message ${type}`;
-            msg.style.display = 'block';
-            setTimeout(() => { msg.style.display = 'none'; }, 3000);
-        }
     </script>
 </body>
 </html>

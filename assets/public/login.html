@@ -141,7 +141,9 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import {showMessage} from "./js/common.js";
+
         const API_BASE_URL = 'http://localhost:8080';
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -149,7 +151,6 @@
             
             const userId = document.getElementById('userId').value;
             const password = document.getElementById('password').value;
-            const messageDiv = document.getElementById('message');
             
             try {
                 const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
@@ -167,9 +168,7 @@
                 console.log('用户角色:', data.data?.role);
 
                 if (data.success) {
-                    messageDiv.textContent = '登录成功！';
-                    messageDiv.className = 'message success';
-                    messageDiv.style.display = 'block';
+                    showMessage('登陆成功！', 'success', false);
 
                     // 保存用户信息
                     localStorage.setItem('user', JSON.stringify(data.data));
@@ -193,15 +192,11 @@
                     }, 1000);
                 } else {
                     console.error('登录失败:', data.message);
-                    messageDiv.textContent = data.message || '登录失败';
-                    messageDiv.className = 'message error';
-                    messageDiv.style.display = 'block';
+                    showMessage(data.message || '登录失败', 'error', false);
                 }
             } catch (error) {
                 console.error('网络错误:', error);
-                messageDiv.textContent = '网络错误，请稍后重试: ' + error.message;
-                messageDiv.className = 'message error';
-                messageDiv.style.display = 'block';
+                showMessage('网络错误，请稍后重试: ' + error.message, 'error', false);
             }
         });
     </script>

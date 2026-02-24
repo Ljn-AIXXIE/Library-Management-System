@@ -84,15 +84,19 @@
             <div id="hybridBooks" class="book-grid"><div class="loading">加载中...</div></div>
         </div>
     </div>
-    <script>
+    <script type="module">
+        import {checkAndBackUser} from "./js/reader.js";
+        window.switchTab = switchTab;
+
         const API_BASE_URL = 'http://localhost:8080';
         let currentUser = null;
         let currentTab = 'personal';
         let loadedTabs = new Set();
 
         window.onload = function() {
-            currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-            if (!currentUser.userId) { window.location.href = 'login.html'; return; }
+            // currentUser = checkAndBackUser();
+            // if (!currentUser) return;
+
             document.getElementById('userName').textContent = currentUser.name;
             loadRecommendations('personal');
         };

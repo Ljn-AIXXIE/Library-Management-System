@@ -322,16 +322,21 @@
         <button class="btn-close" onclick="closeReaderModal()">关闭</button>
     </div>
 </div>
-<script>
+<script type="module">
+    import {checkAndBackUser} from "./js/reader.js";
+    import {showMessage} from "./js/common.js";
+    window.closeReaderModal = closeReaderModal;
+    window.searchReaders = searchReaders;
+    window.viewReader = viewReader;
+    window.freezeReader = freezeReader;
+    window.unfreezeReader = unfreezeReader;
+
     const API_BASE_URL = 'http://localhost:8080';
-    let currentUser = null;
+    let user = null;
     window.onload = function () {
-        currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!currentUser.userId || currentUser.role !== 'admin') {
-            alert('需要管理员权限');
-            window.location.href = 'login.html';
-            return;
-        }
+        user = checkAndBackUser();
+        if (!user) return;
+
         loadReaders();
         document.getElementById('searchInput').addEventListener('keydown', ev => {
             ev.preventDefault();
@@ -455,16 +460,6 @@
 
     function closeReaderModal() {
         document.getElementById('readerModal').classList.remove('show');
-    }
-
-    function showMessage(text, type) {
-        const msg = document.getElementById('message');
-        msg.textContent = text;
-        msg.className = `message ${type}`;
-        msg.style.display = 'block';
-        setTimeout(() => {
-            msg.style.display = 'none';
-        }, 3000);
     }
 </script>
 </body>
