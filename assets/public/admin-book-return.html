@@ -145,15 +145,14 @@
         </div>
     </div>
 </div>
-<script>
+<script type="module">
+    import {checkAndBackUser} from "./js/admin.js";
+    import {showMessage} from "./js/common.js";
+
     const API_BASE_URL = 'http://localhost:8080';
-    let currentUser = null;
+    let user = null;
     window.onload = function () {
-        currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!currentUser.userId || currentUser.role !== 'admin') {
-            alert('需要管理员权限');
-            window.location.href = 'login.html';
-        }
+        user = checkAndBackUser();
     };
     document.getElementById('returnForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -164,7 +163,7 @@
                 body: JSON.stringify({
                     userId: document.getElementById('returnUserId').value,
                     copyBookId: document.getElementById('copyBookId').value,
-                    adminId: currentUser.userId
+                    adminId: user.userId
                 })
             });
             const data = await response.json();
@@ -178,16 +177,6 @@
             showMessage('网络错误', 'error');
         }
     })
-
-    function showMessage(text, type) {
-        const msg = document.getElementById('message');
-        msg.textContent = text;
-        msg.className = `message ${type}`;
-        msg.style.display = 'block';
-        setTimeout(() => {
-            msg.style.display = 'none';
-        }, 3000);
-    }
 </script>
 </body>
 </html>

@@ -226,17 +226,17 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import {checkAndBackUser} from "./js/reader.js";
+        import {logout} from "./js/common.js";
+        window.logout = logout;
+
         const API_BASE_URL = 'http://localhost:8080';
 
         // 页面加载时获取用户信息
         window.onload = function() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-            if (!user.userId) {
-                window.location.href = 'login.html';
-                return;
-            }
+            const user = checkAndBackUser();
+            if (!user) return;
 
             // 显示用户信息
             document.getElementById('userName').textContent = user.name || '读者';
@@ -266,12 +266,6 @@
             } catch (error) {
                 console.error('加载统计信息失败:', error);
             }
-        }
-
-        // 退出登录
-        function logout() {
-            localStorage.removeItem('user');
-            window.location.href = 'login.html';
         }
     </script>
 </body>

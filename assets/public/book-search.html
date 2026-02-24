@@ -226,17 +226,19 @@
         </div>
     </div>
 </div>
+<script type="module">
+    import {checkAndBackUser} from "./js/reader.js";
+    window.viewBookDetail = viewBookDetail;
+    window.handleKeyPress = handleKeyPress;
+    window.searchBooks = searchBooks;
 
-<script>
     const API_BASE_URL = 'http://localhost:8080';
 
     window.onload = function () {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!user.userId) {
-            window.location.href = 'login.html';
-        }
+        checkAndBackUser();
     };
 
+    document.getElementById('searchType').addEventListener('change', () => searchBooks());
     function handleKeyPress(event) {
         if (event.key === 'Enter') {
             searchBooks();

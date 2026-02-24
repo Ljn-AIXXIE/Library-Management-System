@@ -198,7 +198,8 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import {showMessage} from "./js/common.js";
         const API_BASE_URL = 'http://localhost:8080';
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
@@ -208,7 +209,6 @@
             const name = document.getElementById('name').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            const messageDiv = document.getElementById('message');
 
             // 前端验证
             if (userId.length !== 12) {
@@ -244,7 +244,7 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    showMessage('注册成功！即将跳转到登录页面...', 'success');
+                    showMessage('注册成功！即将跳转到登录页面...', 'success', false);
 
                     // 2秒后跳转到登录页面
                     setTimeout(() => {
@@ -258,20 +258,6 @@
                 showMessage('网络错误，请检查服务器是否正常运行', 'error');
             }
         });
-
-        function showMessage(text, type) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = text;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
-
-            // 3秒后自动隐藏错误消息（成功消息不自动隐藏）
-            if (type === 'error') {
-                setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 3000);
-            }
-        }
     </script>
 </body>
 </html>

@@ -18,13 +18,12 @@
         }
 
         .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             color: white;
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .navbar-brand {
@@ -73,7 +72,7 @@
         .book-icon-large {
             font-size: 64px;
             margin-right: 25px;
-            color: #667eea;
+            color: #e74c3c;
         }
 
         .book-title-section h1 {
@@ -109,7 +108,7 @@
             background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #e74c3c;
         }
 
         .info-group h3 {
@@ -277,7 +276,7 @@
         }
 
         .borrow-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             color: white;
             border: none;
             padding: 6px 15px;
@@ -325,6 +324,17 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+
+        .btn-action {
+            width: fit-content;
+            padding: 12px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -337,82 +347,55 @@
     <div id="message" class="message"></div>
     <div class="book-detail-card">
         <div class="book-header">
-            <div class="book-icon-large">📖</div>
+            <div class="book-icon-large">⚠️</div>
             <div class="book-title-section">
-                <h1 id="title">加载中...</h1>
-                <div class="book-author" id="author">加载中...</div>
-                <div class="book-meta-badge" id="category">加载中...</div>
+                <h1 id="copyId">加载中...</h1>
+                <div class="book-author" id="adminId">加载中...</div>
+                <div class="book-meta-badge" id="errorType">加载中...</div>
+            </div>
+            <div style="display: flex; flex-grow: 1; flex-direction: row-reverse">
+                <button class="btn-action" id="clicker">点击处理该异常</button>
             </div>
         </div>
 
         <div class="book-info-grid">
             <div class="info-group">
-                <h3>基本信息</h3>
+                <h3>提交信息</h3>
                 <div class="info-item">
-                    <span class="info-label">ISBN：</span>
-                    <span class="info-value" id="isbn">加载中...</span>
+                    <span class="info-label">提交时间：</span>
+                    <span class="info-value" id="submitTime">加载中...</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">出版社：</span>
-                    <span class="info-value" id="publisher">加载中...</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">出版日期：</span>
-                    <span class="info-value" id="publishDate">加载中...</span>
+                    <span class="info-label">异常类型：</span>
+                    <span class="info-value" id="errorType2">加载中...</span>
                 </div>
             </div>
 
             <div class="info-group">
-                <h3>图书详情</h3>
+                <h3>处理详情</h3>
                 <div class="info-item">
-                    <span class="info-label">价格：</span>
-                    <span class="info-value" id="price">加载中...</span>
+                    <span class="info-label">处理时间：</span>
+                    <span class="info-value" id="handleTime">加载中...</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">页数：</span>
-                    <span class="info-value" id="pages">加载中...</span>
+                    <span class="info-label">状态：</span>
+                    <span class="info-value" id="status">加载中...</span>
                 </div>
             </div>
         </div>
 
         <div class="more-section">
-            <h3>内容简介</h3>
-            <div class="more-content" id="description">
+            <h3>异常描述</h3>
+            <div class="more-content" id="exceptionDescription">
                 加载中...
-            </div>
-        </div>
-
-        <div class="more-section">
-            <h3>图书副本</h3>
-            <div class="copies-container" id="copies-container">
-                <div class="stats-summary" id="copies-stats">
-                    <div class="stat-item">
-                        <span>总副本数:</span>
-                        <span class="stat-count" id="total-copies">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>可借:</span>
-                        <span class="stat-count" id="available-copies">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>已借出:</span>
-                        <span class="stat-count" id="borrowed-copies">0</span>
-                    </div>
-                </div>
-
-                <div id="copies-list">
-                    <div class="empty-state">
-                        <div>暂无副本信息</div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 </div>
 <script type="module">
-    import {checkAndBackUser} from "./js/reader.js";
+    import {checkAndBackUser} from "./js/admin.js";
     import {showMessage} from "./js/common.js";
-    window.borrowBook = borrowBook;
+    window.reduce = reduce;
 
     const API_BASE_URL = 'http://localhost:8080';
 
@@ -421,147 +404,62 @@
         if (!user) return;
 
         const urlParams = new URLSearchParams(window.location.search);
-        const isbn = urlParams.get('isbn');
+        const copyId = urlParams.get('copyId');
+        const adminId = urlParams.get('adminId');
+        const submitTime = urlParams.get('submitTime');
 
-        if (isbn) {
-            fetchBookDetails(isbn);
-            fetchBookCopies(user.userId, isbn);
+        if (copyId && adminId && submitTime) {
+            fetchReduceDetails(copyId, adminId, submitTime);
+            document.getElementById('clicker').addEventListener('click', (e) => {
+                e.preventDefault();
+                reduce(copyId, adminId, submitTime);
+            })
         } else {
             document.querySelector('.book-detail-card').innerHTML =
-                '<div class="error-message">缺少ISBN参数，无法获取图书信息</div>';
+                '<div class="error-message">缺少参数，无法获取异常信息</div>';
         }
     };
 
-    function fetchBookDetails(isbn) {
-        fetch(`${API_BASE_URL}/api/books/detail/book?isbn=${isbn}`)
+    function fetchReduceDetails(copyId, adminId, submitTime) {
+        fetch(`${API_BASE_URL}/api/exception/detail/view?copyId=${copyId}&adminId=${adminId}&submitTime=${submitTime}`)
             .then(response => response.json())
             .then(data => {
                 if (!data.success) {
-                    console.error('获取图书详情失败:', data.message);
+                    console.error('获取异常详情失败:', data.message);
                     return;
                 }
 
-                const bookData = data.data;
-                document.getElementById('isbn').textContent = bookData.isbn || '暂无信息';
-                document.getElementById('title').textContent = bookData.title || '暂无信息';
-                document.getElementById('author').textContent = bookData.author || '暂无信息';
-                document.getElementById('category').textContent = bookData.category || '暂无信息';
-                document.getElementById('publisher').textContent = bookData.publisher || '暂无信息';
-                document.getElementById('publishDate').textContent = bookData.publishDate || '暂无信息';
-                document.getElementById('price').textContent = bookData.price ? `¥${bookData.price}` : '暂无信息';
-                document.getElementById('pages').textContent = bookData.pages ? `${bookData.pages}页` : '暂无信息';
-                document.getElementById('description').textContent = bookData.description || '暂无简介';
-
-                document.getElementById('total-copies').textContent = `${bookData.totalCount}`;
-                document.getElementById('available-copies').textContent = `${bookData.availableCount}`;
-                document.getElementById('borrowed-copies').textContent = `${bookData.totalCount - bookData.availableCount}`;
+                const reduceData = data.data;
+                document.getElementById('copyId').textContent = reduceData.copyId || '暂无信息';
+                document.getElementById('adminId').textContent = reduceData.adminId || '暂无信息';
+                document.getElementById('errorType').textContent = reduceData.errorType || '暂无信息';
+                document.getElementById('errorType2').textContent = reduceData.errorType || '暂无信息';
+                document.getElementById('submitTime').textContent = reduceData.submitTime || '暂无信息';
+                document.getElementById('handleTime').textContent = reduceData.handleTime || '暂无信息';
+                document.getElementById('status').textContent = reduceData.status === 'Processed' ? '已处理' : '未处理';
+                document.getElementById('exceptionDescription').textContent = reduceData.exceptionDescription || '暂无信息';
             })
             .catch(error => {
                 console.error('获取图书详情失败:', error);
                 document.querySelector('.book-detail-card').innerHTML =
-                    '<div class="error-message">加载图书详情失败，请稍后重试</div>';
+                    '<div class="error-message">加载异常详情失败，请稍后重试</div>';
             });
     }
 
-    function fetchBookCopies(userId, isbn) {
-        fetch(`${API_BASE_URL}/api/books/detail/copies?isbn=${isbn}`)
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    showMessage('加载副本信息失败，请稍后重试', 'error');
-                    return;
-                }
-
-                const copiesData = data.data;
-                if (!copiesData || copiesData.length <= 0) {
-                    renderEmptyCopies();
-                    return;
-                }
-
-                renderCopiesList(userId, copiesData, isbn);
-            })
-            .catch(() => {
-                showMessage('加载副本信息失败，请稍后重试', 'error');
-            });
-    }
-
-    function borrowBook(userId, isbn, copyId) {
-        const borrowData = {userId, isbn, copyId};
-        fetch(`${API_BASE_URL}/api/borrow`, {
+    function reduce(copyId, adminId, submitTime) {
+        const reduceData = {copyId, adminId, submitTime};
+        fetch(`${API_BASE_URL}/api/exception/reduce`, {
             method: 'POST',
             headers: {'content-type': 'application/json'},
-            body: JSON.stringify(borrowData)
+            body: JSON.stringify(reduceData)
         })
             .then(response => response.json())
             .then(data => {
                 if (!data.success) showMessage('网络错误', 'error');
 
-                fetchBookDetails(isbn);
-                fetchBookCopies(userId, isbn);
+                fetchReduceDetails(copyId, adminId, submitTime);
             })
             .catch(() => showMessage('网络错误', 'error'));
-    }
-
-    function renderCopiesList(userId, copies, isbn) {
-        const copiesListContainer = document.getElementById('copies-list');
-
-        if (copies.length === 0) {
-            renderEmptyCopies();
-            return;
-        }
-
-        let html = `
-            <table class="copies-table">
-                <thead>
-                    <tr>
-                        <th>副本ID</th>
-                        <th>状态</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        copies.forEach(copy => {
-            const statusClass = copy.status === 'available' ? 'status-available' : 'status-borrowed';
-            const statusText = copy.status === 'available' ? '可借' : '已借出';
-            const canBorrow = copy.status === 'available';
-
-            html += `
-                <tr>
-                    <td class="copy-id">${copy.copyId || '未知'}</td>
-                    <td>
-                        <span class="status-badge ${statusClass}">${statusText}</span>
-                    </td>
-                    <td>
-                        ${canBorrow ?
-                `<button class="borrow-btn" onclick="borrowBook('${userId}', '${isbn}', '${copy.copyId}')">借阅</button>` :
-                '<button class="borrow-btn" disabled>不可借</button>'
-            }
-                    </td>
-                </tr>
-            `;
-        });
-
-        html += `
-                </tbody>
-            </table>
-        `;
-
-        copiesListContainer.innerHTML = html;
-    }
-
-    function renderEmptyCopies() {
-        const copiesListContainer = document.getElementById('copies-list');
-        copiesListContainer.innerHTML = `
-            <div class="empty-state">
-                <div>暂无副本信息</div>
-            </div>
-        `;
-
-        // 重置统计信息
-        document.getElementById('total-copies').textContent = '0';
-        document.getElementById('available-copies').textContent = '0';
-        document.getElementById('borrowed-copies').textContent = '0';
     }
 </script>
 </body>
