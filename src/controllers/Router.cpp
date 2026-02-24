@@ -100,6 +100,11 @@ void Router::registerAdminBookRoutes() const {
     server->Post("/api/admin/borrow/manual", [this](const httplib::Request &req, httplib::Response &res) {
         adminBookController->handleManualBorrowBookCopy(req, res);
     });
+
+    //POST /api/admin/return/manual - 人工还书
+    server->Post("/api/admin/return/manual", [this](const httplib::Request &req, httplib::Response &res) {
+        adminBookController->handleManualReturnBookCopy(req, res);
+    });
 }
 
 //注册管理员用户管理的路由

@@ -17,9 +17,6 @@ bool BorrowService::borrowBook(const std::string &userId, const std::string &cop
 
 //归还书本
 bool BorrowService::returnBook(const std::string &userId, const std::string &copyId) const {
-    if (!hasUserBorrowedCopy(userId, copyId)) {
-        return false;
-    }
     if (recordDAO->updateReturnTime(userId, copyId) && bookCopyDAO->updateBookCopyStatus(copyId, "available") && userDAO
         ->updateUserBorrowInfo(userId, false)) {
         return true;

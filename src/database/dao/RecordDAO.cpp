@@ -65,7 +65,7 @@ bool RecordDAO::addBorrowRecord(const std::string &userId, const std::string &co
 
 //更新归还时间
 bool RecordDAO::updateReturnTime(const std::string &userId, const std::string &copyId) const {
-    const std::string sql = "UPDATE record SET return_time = ? WHERE user_id = ? AND copy_id = ?;";
+    const std::string sql = "UPDATE record SET return_time = ? WHERE user_id = ? AND copy_id = ? AND return_time = 0;";
 
     sqlite3_stmt *stmt = nullptr;
     if (!recordDatabase->prepare(sql, &stmt)) {

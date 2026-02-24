@@ -44,6 +44,9 @@ public:
 
     //POST /api/admin/borrow/manual - 人工借书
     void handleManualBorrowBookCopy(const httplib::Request &req, httplib::Response &res) const;
+
+    //POST /api/admin/borrow/return - 人工还书
+    void handleManualReturnBookCopy(const httplib::Request &req, httplib::Response &res) const;
 };
 
 #endif //AVL_BOOKSYSTEM_ADMINBOOKCONTROLLER_H
