@@ -10,10 +10,11 @@ class UserDAO {
     DatabaseOperator *userDatabase;
 
 public:
-    explicit UserDAO(DatabaseOperator *userDatabase) : userDatabase(userDatabase) {}
+    explicit UserDAO(DatabaseOperator *userDatabase) : userDatabase(userDatabase) {
+    }
 
     //核心操作
-    [[nodiscard]] bool addUser(const User &user) const; //添加用户
+    [[nodiscard]] bool addUser(const User &user, std::string &errorMessage) const; //添加用户
     [[nodiscard]] bool deleteUser(const std::string &userId) const; //删除用户
 
     [[nodiscard]] bool updateUserPassword(const std::string &userId, const std::string &newPassword) const; //更新用户密码

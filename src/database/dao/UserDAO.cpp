@@ -14,13 +14,14 @@ borrow_count
 */
 
 //添加用户
-bool UserDAO::addUser(const User &user) const {
+bool UserDAO::addUser(const User &user, std::string &errorMessage) const {
     const std::string sql =
             "INSERT INTO user (user_id, name, role, password, borrow_count) "
             "VALUES (?, ?, ?, ?, ?);";
 
     sqlite3_stmt *stmt = nullptr;
     if (!userDatabase->prepare(sql, &stmt)) {
+        errorMessage = userDatabase->getLastError();
         Logger::getInstance().logError("UserDAO::addUser准备SQL失败:" + userDatabase->getLastError());
         return false;
     }
@@ -29,10 +30,11 @@ bool UserDAO::addUser(const User &user) const {
     sqlite3_bind_text(stmt, 2, user.getName().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 3, user.getType().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 4, user.getPassword().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_int(stmt, 5, 0);
+    sqlite3_bind_int(stmt, 5, user.getBorrowedBookCount());
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
-        userDatabase->setLastError(sqlite3_errmsg(userDatabase->getDB()));
+        errorMessage = sqlite3_errmsg(userDatabase->getDB());
+        userDatabase->setLastError(errorMessage);
         Logger::getInstance().logError("UserDAO::addUser执行SQL失败:" + userDatabase->getLastError());
         sqlite3_finalize(stmt);
         return false;

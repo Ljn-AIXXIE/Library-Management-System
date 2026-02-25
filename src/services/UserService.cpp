@@ -4,7 +4,8 @@
 
 bool UserService::registerUser(const User &user) const {
     Logger::getInstance().logBusiness("用户" + user.getId() + "注册");
-    if (db->addUser(user)) {
+    std::string errorMessage;
+    if (db->addUser(user, errorMessage)) {
         Logger::getInstance().logBusiness("用户" + user.getId() + "注册成功");
         return true;
     }

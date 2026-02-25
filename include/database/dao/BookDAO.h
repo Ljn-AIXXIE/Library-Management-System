@@ -24,11 +24,13 @@ CREATE TABLE book (
 
 class BookDAO {
     DatabaseOperator *bookDatabase;
+
 public:
-    explicit BookDAO(DatabaseOperator *bookDatabase) : bookDatabase(bookDatabase) {}
+    explicit BookDAO(DatabaseOperator *bookDatabase) : bookDatabase(bookDatabase) {
+    }
 
     //核心操作
-    [[nodiscard]] bool addBook(const Book &book) const; //添加图书
+    [[nodiscard]] bool addBook(const Book &book, std::string &errorMessage) const; //添加图书
     [[nodiscard]] bool deleteBook(const std::string &bookId) const; //删除图书
     [[nodiscard]] bool updateBook(const Book &book) const; //更新图书
 

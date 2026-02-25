@@ -23,7 +23,6 @@ add_executable(Library_Management_System
         include/database/dao/BookDAO.h
         include/database/dao/RecordDAO.h
         include/database/dao/UserDAO.h
-        include/entities/BatchResult.h
         include/entities/Book.h
         include/entities/BookCopy.h
         include/entities/Record.h

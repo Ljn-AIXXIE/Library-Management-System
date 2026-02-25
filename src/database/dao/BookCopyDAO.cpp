@@ -11,13 +11,14 @@ CREATE TABLE book_copy (
 */
 
 //添加图书副本
-bool BookCopyDAO::addBookCopy(const BookCopy &bookCopy) const {
+bool BookCopyDAO::addBookCopy(const BookCopy &bookCopy, std::string &errorMessage) const {
     const std::string sql =
             "INSERT INTO book_copy (copy_id, book_id, status) "
             "VALUES (?, ?, ?);";
 
     sqlite3_stmt *stmt = nullptr;
     if (!bookCopyDatabase->prepare(sql, &stmt)) {
+        errorMessage = bookCopyDatabase->getLastError();
         Logger::getInstance().logError("BookCopyDAO::addBookCopy准备SQL失败:" + bookCopyDatabase->getLastError());
         return false;
     }
@@ -27,7 +28,8 @@ bool BookCopyDAO::addBookCopy(const BookCopy &bookCopy) const {
     sqlite3_bind_text(stmt, 3, bookCopy.getStatus().c_str(), -1, SQLITE_TRANSIENT);
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
-        bookCopyDatabase->setLastError(sqlite3_errmsg(bookCopyDatabase->getDB()));
+        errorMessage = sqlite3_errmsg(bookCopyDatabase->getDB());
+        bookCopyDatabase->setLastError(errorMessage);
         Logger::getInstance().logError("BookCopyDAO::addBookCopy执行SQL失败:" + bookCopyDatabase->getLastError());
         sqlite3_finalize(stmt);
         return false;
@@ -265,7 +267,7 @@ bool BookCopyDAO::isCopyBorrowed(const std::string &copyId) const {
 
 //判断副本id是否存在
 bool BookCopyDAO::isCopyBookIdExist(const std::string &copyId) const {
-    const std::string sql = "SELECT EXISTS(SELECT 1 FROM book_copy WHERE copy_id = ?) AS exists;";
+    const std::string sql = "SELECT COUNT(*) FROM book_copy WHERE copy_id = ?;";
     sqlite3_stmt *stmt = nullptr;
 
     if (!bookCopyDatabase->prepare(sql, &stmt)) {

@@ -1,13 +1,11 @@
 #include "controllers/admin/AdminBatchAddController.h"
-
-#include "entities/BatchResult.h"
 #include <fstream>
-
 #include "utils/HttpUtils.h"
 
 void AdminBatchAddController::handleBatchAdd(const httplib::Request &req, httplib::Response &res,
                                              const httplib::ContentReader &content_reader) const {
     bool hasError = false;
+    bool addErrorReport = false;
     std::string errorMessage;
 
     std::string currentFilename;
@@ -22,7 +20,6 @@ void AdminBatchAddController::handleBatchAdd(const httplib::Request &req, httpli
                     return false;
                 }
                 currentFilename = file_info.filename;
-                std::cout << "开始接收文件: " << currentFilename << std::endl;
                 fileBuffer.clear();
             }
 
@@ -36,7 +33,7 @@ void AdminBatchAddController::handleBatchAdd(const httplib::Request &req, httpli
         });
 
     if (currentFilename.empty()) {
-        nlohmann::json responseData = {
+        const nlohmann::json responseData = {
             {"success", false},
             {"message", "未上传文件"}
         };
@@ -57,44 +54,48 @@ void AdminBatchAddController::handleBatchAdd(const httplib::Request &req, httpli
 
     //扩展名统一转小写
     std::string filename = currentFilename;
-    transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
+    std::ranges::transform(filename, filename.begin(), ::tolower);
 
-    BatchResult result;
+    std::vector<std::string> errorList; //用于生成错误报告
 
     if (!hasError) {
         try {
             std::string firstLine = fileBuffer.substr(0, fileBuffer.find_first_of("\r\n"));
             if (filename.ends_with(".txt")) {
                 // 校验 TXT
-                // id,title,author,category,publisher,publish_date,price,pages,description,copy_count
                 if (firstLine == "id,title,author,category,publisher,publish_date,price,pages,description,copy_count") {
-                    result = batchAddService->addBooksFromTxt(fileBuffer.data(), fileBuffer.size());
-                    if (result.getFailureCount() > 0) {
+                    batchAddService->addBooksFromTxt(fileBuffer.data(), fileBuffer.size(), errorList);
+                    if (!errorList.empty()) {
                         hasError = true;
+                        addErrorReport = true;
                         errorMessage = "部分图书添加失败";
                     }
                 } else if (firstLine == "user_id,name,role,password,borrow_count") {
-                    result = batchAddService->addUsersFromTxt(fileBuffer.data(), fileBuffer.size());
-                    if (result.getFailureCount() > 0) {
+                    batchAddService->addUsersFromTxt(fileBuffer.data(), fileBuffer.size(), errorList);
+                    if (!errorList.empty()) {
                         hasError = true;
+                        addErrorReport = true;
                         errorMessage = "部分用户添加失败";
                     }
                 } else if (firstLine == "copy_id,book_id,status") {
-                    result = batchAddService->addBookCopiesFromTxt(fileBuffer.data(), fileBuffer.size());
-                    if (result.getFailureCount() > 0) {
+                    batchAddService->addBookCopiesFromTxt(fileBuffer.data(), fileBuffer.size(), errorList);
+                    if (!errorList.empty()) {
                         hasError = true;
+                        addErrorReport = true;
                         errorMessage = "部分图书副本添加失败";
                     }
                 } else if (firstLine == "user_id,copy_id,borrow_time,return_time") {
-                    result = batchAddService->addRecordsFromTxt(fileBuffer.data(), fileBuffer.size());
-                    if (result.getFailureCount() > 0) {
+                    batchAddService->addRecordsFromTxt(fileBuffer.data(), fileBuffer.size(), errorList);
+                    if (!errorList.empty()) {
                         hasError = true;
+                        addErrorReport = true;
                         errorMessage = "部分借阅记录添加失败";
                     }
                 } else if (firstLine == "user_id") {
-                    result = batchAddService->addBlackListFromTxt(fileBuffer.data(), fileBuffer.size());
-                    if (result.getFailureCount() > 0) {
+                    batchAddService->addBlackListFromTxt(fileBuffer.data(), fileBuffer.size(), errorList);
+                    if (!errorList.empty()) {
                         hasError = true;
+                        addErrorReport = true;
                         errorMessage = "部分黑名单用户添加失败";
                     }
                 } else {
@@ -103,9 +104,10 @@ void AdminBatchAddController::handleBatchAdd(const httplib::Request &req, httpli
                 }
             } else if (filename.ends_with(".sql")) {
                 if (batchAddService->validateSql(fileBuffer.data(), fileBuffer.size())) {
-                    result = batchAddService->addFromSql(fileBuffer.data(), fileBuffer.size());
-                    if (result.getFailureCount() > 0) {
+                    batchAddService->addFromSql(fileBuffer.data(), fileBuffer.size(), errorList);
+                    if (!errorList.empty()) {
                         hasError = true;
+                        addErrorReport = true;
                         errorMessage = "执行SQL失败";
                     }
                 } else {
@@ -118,16 +120,26 @@ void AdminBatchAddController::handleBatchAdd(const httplib::Request &req, httpli
             }
         } catch (const std::exception &e) {
             hasError = true;
-            errorMessage = e.what();
-            std::cout << "文件处理失败: " << errorMessage << std::endl;
+            errorMessage = "文件处理失败:" + std::string(e.what());
         }
     }
 
     if (hasError) {
-        int failureCount = result.getFailureCount();
+        if (addErrorReport) {
+            std::string report;
+
+            report += "错误报告:\n";
+            report += "----------------------------------------\n";
+            for (const auto &error: errorList) {
+                report += error + "\n";
+            }
+            res.set_header("Content-Disposition", "attachment; filename=error_report.txt");
+            res.set_content(report, "text/plain");
+            return;
+        }
         nlohmann::json responseData = {
             {"success", false},
-            {"message", "出现数据失败: " + errorMessage + "，失败数量为" + std::to_string(failureCount)}
+            {"message", errorMessage}
         };
         res = HttpUtils::createErrorResponse(responseData, 400);
     } else {

@@ -3,15 +3,17 @@
 
 #include "database/dao/BookDAO.h"
 #include "database/dao/BookCopyDAO.h"
+#include "database/DatabaseOperator.h"
 
 //用于管理库存，包括图书的添加、删除、修改和获取图书信息等操作
 class InventoryService {
-    BookDAO *db;
+    BookDAO *bookDAO;
     BookCopyDAO *bookCopyDAO;
+    DatabaseOperator *databaseOperator;
 
 public:
-    InventoryService(BookDAO *bookDAO, BookCopyDAO *bookCopyDAO)
-        : db(bookDAO), bookCopyDAO(bookCopyDAO) {
+    InventoryService(BookDAO *bookDAO, BookCopyDAO *bookCopyDAO, DatabaseOperator *DatabaseOperator)
+        : bookDAO(bookDAO), bookCopyDAO(bookCopyDAO), databaseOperator(DatabaseOperator) {
     }
 
     //核心操作
@@ -41,6 +43,10 @@ public:
     [[nodiscard]] std::string generateCopyId(const std::string &bookId) const;
 
     [[nodiscard]] bool updateBookCopyCount(const std::string &bookId) const;
+
+    //事务
+    [[nodiscard]] bool addCopiesWithTransaction(const std::string &bookId, int copyCount,
+                                                std::string &errorMessage) const;
 };
 
 #endif //LIBRARY_MANAGEMENT_SYSTEM_INVENTORYSERVICE_H

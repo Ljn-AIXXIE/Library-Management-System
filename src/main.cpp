@@ -61,11 +61,12 @@ int main() {
     RecordDAO recordDAO(&databaseOperator);
 
     UserService userService(&userDAO);
-    InventoryService inventoryService(&bookDAO, &bookCopyDAO);
+    InventoryService inventoryService(&bookDAO, &bookCopyDAO, &databaseOperator);
     SearchService searchService(&bookDAO);
     BorrowService borrowService(&bookCopyDAO, &recordDAO, &userDAO);
     BlackListService blackListService(&blackListDAO);
-    BatchAddService batchAddService(&bookDAO, &userDAO, &bookCopyDAO, &recordDAO, &blackListDAO, &databaseOperator, &inventoryService);
+    BatchAddService batchAddService(&bookDAO, &userDAO, &bookCopyDAO, &recordDAO, &blackListDAO, &databaseOperator,
+                                    &inventoryService);
 
     cout << "✓ Service层初始化完成" << endl;
     cout << endl;
@@ -75,7 +76,8 @@ int main() {
 
     // 4. 初始化路由
     Router router(&server);
-    router.initializeRoutes(&userService, &inventoryService, &searchService, &blackListService, &batchAddService, &borrowService);
+    router.initializeRoutes(&userService, &inventoryService, &searchService, &blackListService, &batchAddService,
+                            &borrowService);
     router.setStaticFileDirectory((workingPath / "public").string());
     cout << endl;
 

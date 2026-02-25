@@ -14,7 +14,7 @@ public:
     }
 
     //核心操作
-    [[nodiscard]] bool addBookCopy(const BookCopy &bookCopy) const; //添加图书副本
+    [[nodiscard]] bool addBookCopy(const BookCopy &bookCopy, std::string &errorMessage) const; //添加图书副本
     [[nodiscard]] bool deleteBookCopy(const std::string &copyId) const; //删除图书副本
     [[nodiscard]] bool deleteAllBookCopy(const std::string &bookId) const; //删除指定图书的所有图书副本
     [[nodiscard]] bool updateBookCopyStatus(const std::string &copyId, const std::string &status) const; //更新图书副本状态

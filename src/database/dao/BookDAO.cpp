@@ -5,7 +5,7 @@
 #include "common/Logger.h"
 
 //添加图书
-bool BookDAO::addBook(const Book &book) const {
+bool BookDAO::addBook(const Book &book, std::string &errorMessage) const {
     const std::string sql =
             "INSERT INTO book (id, title, author, category, publisher, publish_date, price, pages, description, copy_count) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
@@ -14,6 +14,7 @@ bool BookDAO::addBook(const Book &book) const {
 
     sqlite3_stmt *stmt = nullptr;
     if (!bookDatabase->prepare(sql, &stmt)) {
+        errorMessage = bookDatabase->getLastError();
         Logger::getInstance().logError("BookDAO::addBook准备SQL失败:" + bookDatabase->getLastError());
         return false;
     }
@@ -30,7 +31,8 @@ bool BookDAO::addBook(const Book &book) const {
     sqlite3_bind_int(stmt, 10, copy_count);
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
-        bookDatabase->setLastError(sqlite3_errmsg(bookDatabase->getDB()));
+        errorMessage = sqlite3_errmsg(bookDatabase->getDB());
+        bookDatabase->setLastError(errorMessage);
         Logger::getInstance().logError("BookDAO::addBook执行SQL失败:" + bookDatabase->getLastError());
         sqlite3_finalize(stmt);
         return false;

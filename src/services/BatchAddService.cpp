@@ -6,34 +6,35 @@
 
 #include "utils/SqlToDatabaseWriter.h"
 
-BatchResult BatchAddService::addBooksFromTxt(const char *data, size_t length) const {
+void BatchAddService::addBooksFromTxt(const char *data, size_t length,
+                                      std::vector<std::string> &errorList) const {
     std::string chunk(data, length);
-    return TxtToDatabaseWriter::writeBooksToDatabase(chunk, bookDAO, inventoryService);
+    TxtToDatabaseWriter::writeBooksToDatabase(chunk, bookDAO, inventoryService, errorList);
 }
 
-BatchResult BatchAddService::addUsersFromTxt(const char *data, size_t length) const {
+void BatchAddService::addUsersFromTxt(const char *data, size_t length, std::vector<std::string> &errorList) const {
     std::string chunk(data, length);
-    return TxtToDatabaseWriter::writeUsersToDatabase(chunk, userDAO);
+    TxtToDatabaseWriter::writeUsersToDatabase(chunk, userDAO, errorList);
 }
 
-BatchResult BatchAddService::addBookCopiesFromTxt(const char *data, size_t length) const {
+void BatchAddService::addBookCopiesFromTxt(const char *data, size_t length, std::vector<std::string> &errorList) const {
     std::string chunk(data, length);
-    return TxtToDatabaseWriter::writeBookCopiesToDatabase(chunk, bookCopyDAO);
+    TxtToDatabaseWriter::writeBookCopiesToDatabase(chunk, bookDAO, inventoryService, errorList);
 }
 
-BatchResult BatchAddService::addRecordsFromTxt(const char *data, size_t length) const {
+void BatchAddService::addRecordsFromTxt(const char *data, size_t length, std::vector<std::string> &errorList) const {
     std::string chunk(data, length);
-    return TxtToDatabaseWriter::writeRecordsToDatabase(data, recordDAO);
+    TxtToDatabaseWriter::writeRecordsToDatabase(data, recordDAO, errorList);
 }
 
-BatchResult BatchAddService::addBlackListFromTxt(const char *data, size_t length) const {
+void BatchAddService::addBlackListFromTxt(const char *data, size_t length, std::vector<std::string> &errorList) const {
     std::string chunk(data, length);
-    return TxtToDatabaseWriter::wireBlackListToDatabase(chunk, blackListDAO);
+    TxtToDatabaseWriter::wireBlackListToDatabase(chunk, blackListDAO, errorList);
 }
 
-BatchResult BatchAddService::addFromSql(const char *data, size_t length) const {
+void BatchAddService::addFromSql(const char *data, size_t length, std::vector<std::string> &errorList) const {
     std::string chunk(data, length);
-    return SqlToDatabaseWriter::writeSqlToDatabase(chunk, databaseOperator);
+    SqlToDatabaseWriter::writeSqlToDatabase(chunk, databaseOperator);
 }
 
 bool BatchAddService::validateSql(const char *data, size_t length) const {
