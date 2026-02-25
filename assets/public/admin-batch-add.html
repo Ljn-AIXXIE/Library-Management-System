@@ -469,13 +469,27 @@
                 method,
                 body: formData
             });
-            const data = await response.json();
-            if (data.success) {
-                showMessage('上传成功', 'success');
-                fileActionElement.innerHTML = tagText[1];
-            } else {
-                showMessage(data.message || '操作失败', 'error');
+
+            const disposition = response.headers.get('Content-Disposition');
+            if (disposition && disposition.includes('attachment')) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'error_report.txt';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
                 fileActionElement.innerHTML = tagText[2];
+            } else {
+                const data = await response.json();
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    fileActionElement.innerHTML = tagText[1];
+                } else {
+                    showMessage(data.message || '上传失败', 'error');
+                    fileActionElement.innerHTML = tagText[2];
+                }
             }
         } catch (error) {
             showMessage('网络错误', 'error');
