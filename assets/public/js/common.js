@@ -5,12 +5,17 @@
  * @param {string} type 样式类型，指定显示的样式，包括 success和error
  * @param {boolean} fade 指定是否在显示一段时间后隐藏该消息
  * @param {number} fadeTime 指定从开始显示到隐藏时的时间
+ * @param {boolean} withConsole 指定是否包含调试日志
  */
-export function showMessage(text, type, fade = true, fadeTime = 3000) {
+export function showMessage(text, type, fade = true, fadeTime = 3000, withConsole = false) {
     const msg = document.getElementById('message');
     msg.textContent = text;
     msg.className = `message ${type}`;
     msg.style.display = 'block';
+    if (withConsole) {
+        if (type !== 'error') console.log(`${type}:${text}`);
+        else console.error(`${type}:${text}`);
+    }
     if (fade) setTimeout(() => {
         msg.style.display = 'none';
     }, fadeTime);

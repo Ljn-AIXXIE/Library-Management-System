@@ -3,50 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>读者管理 - 图书管理系统</title>
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/admin.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Microsoft YaHei', sans-serif;
-            background: #f5f7fa;
-            min-height: 100vh;
-        }
-
-        .navbar {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar-brand {
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .btn-back {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid white;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
         .toolbar {
             background: white;
             border-radius: 10px;
@@ -225,29 +184,12 @@
             cursor: pointer;
             margin-top: 20px;
         }
-
-        .message {
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-        }
     </style>
 </head>
 <body>
 <nav class="navbar">
     <div class="navbar-brand" onclick="location.href='admin.html'">🛡️ 图书管理系统</div>
-    <a href="admin.html" class="btn-back">返回主页</a>
+    <a href="admin.html" class="navbar-btn">返回主页</a>
 </nav>
 <div class="container">
     <div id="message" class="message"></div>
@@ -325,13 +267,19 @@
 <script type="module">
     import {checkAndBackUser} from "./js/reader.js";
     import {showMessage} from "./js/common.js";
+    import {
+        adminFreezeReader,
+        adminLoadReaders,
+        adminSearchReaders,
+        adminUnfreezeReader,
+        adminViewReader
+    } from "./js/web.js";
     window.closeReaderModal = closeReaderModal;
     window.searchReaders = searchReaders;
     window.viewReader = viewReader;
     window.freezeReader = freezeReader;
     window.unfreezeReader = unfreezeReader;
 
-    const API_BASE_URL = 'http://localhost:8080';
     let user = null;
     window.onload = function () {
         user = checkAndBackUser();
@@ -346,8 +294,7 @@
 
     async function loadReaders() {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/readers`);
-            const data = await response.json();
+            const data = await adminLoadReaders();
             if (data.success) displayReaders(data.data);
         } catch (error) {
             console.error('加载读者失败:', error);
@@ -361,8 +308,7 @@
             return;
         }
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/readers/search?userId=${encodeURIComponent(userId)}`);
-            const data = await response.json();
+            const data = await adminSearchReaders(keyword);
             if (data.success) displayReaders(data.data);
         } catch (error) {
             console.error('搜索失败:', error);
@@ -394,25 +340,26 @@
 
     async function viewReader(userId) {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/readers/detail?userId=${userId}`);
-            const data = await response.json();
-            if (data.success) {
-                const reader = data.data;
-                document.getElementById('detailUserId').textContent = reader.userId;
-                document.getElementById('detailName').textContent = reader.name;
-                document.getElementById('detailStatus').textContent = reader.status === 'normal' ? '正常' : '冻结';
-                document.getElementById('detailCurrent').textContent = `${reader.borrowedBookCount || 0} 本`;
-                document.getElementById('detailTotal').textContent = `${reader.totalBorrowCount || 0} 本`;
-                document.getElementById('detailDueSoon').textContent = `${reader.dueSoonCount || 0} 本`;
-                document.getElementById('detailOverdue').textContent = `${reader.overdueCount || 0} 本`;
-                const borrowList = document.getElementById('borrowList');
-                if (reader.borrows && reader.borrows.length > 0) {
-                    borrowList.innerHTML = reader.borrows.map(b => `<div class="borrow-item"><strong>${b.bookTitle}</strong><br><small>借阅：${b.borrowDate} | 应还：${b.dueDate}</small></div>`).join('');
-                } else {
-                    borrowList.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">暂无借阅</p>';
-                }
-                document.getElementById('readerModal').classList.add('show');
+            const data = await adminViewReader(userId);
+
+            if (!data.success) return;
+
+            const reader = data.data;
+            document.getElementById('detailUserId').textContent = reader.userId;
+            document.getElementById('detailName').textContent = reader.name;
+            document.getElementById('detailStatus').textContent = reader.status === 'normal' ? '正常' : '冻结';
+            document.getElementById('detailCurrent').textContent = `${reader.borrowedBookCount || 0} 本`;
+            document.getElementById('detailTotal').textContent = `${reader.totalBorrowCount || 0} 本`;
+            document.getElementById('detailDueSoon').textContent = `${reader.dueSoonCount || 0} 本`;
+            document.getElementById('detailOverdue').textContent = `${reader.overdueCount || 0} 本`;
+            const borrowList = document.getElementById('borrowList');
+            if (reader.borrows && reader.borrows.length > 0) {
+                borrowList.innerHTML = reader.borrows.map(b => `<div class="borrow-item"><strong>${b.bookTitle}</strong><br><small>借阅：${b.borrowDate} | 应还：${b.dueDate}</small></div>`).join('');
+            } else {
+                borrowList.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">暂无借阅</p>';
             }
+            document.getElementById('readerModal').classList.add('show');
+
         } catch (error) {
             console.error('加载读者详情失败:', error);
         }
@@ -421,18 +368,15 @@
     async function freezeReader(userId) {
         if (!confirm('确认冻结该读者账户吗？')) return;
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/readers/freeze`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({userId})
-            });
-            const data = await response.json();
-            if (data.success) {
-                showMessage('账户已冻结', 'success');
-                await loadReaders();
-            } else {
+            const data = await adminFreezeReader(userId);
+            if (!data.success) {
                 showMessage(data.message || '操作失败', 'error');
+                return;
             }
+
+            showMessage('账户已冻结', 'success');
+            await loadReaders();
+
         } catch (error) {
             showMessage('网络错误', 'error');
         }
@@ -441,18 +385,15 @@
     async function unfreezeReader(userId) {
         if (!confirm('确认解冻该读者账户吗？')) return;
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/readers/unfreeze`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({userId})
-            });
-            const data = await response.json();
-            if (data.success) {
-                showMessage('账户已解冻', 'success');
-                await loadReaders();
-            } else {
+            const data = await adminUnfreezeReader(userId);
+            if (!data.success) {
                 showMessage(data.message || '操作失败', 'error');
+                return;
             }
+
+            showMessage('账户已解冻', 'success');
+            await loadReaders();
+
         } catch (error) {
             showMessage('网络错误', 'error');
         }

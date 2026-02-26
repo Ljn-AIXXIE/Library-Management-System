@@ -200,7 +200,7 @@
 
     <script type="module">
         import {showMessage} from "./js/common.js";
-        const API_BASE_URL = 'http://localhost:8080';
+        import {register} from "./js/web.js";
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -232,27 +232,20 @@
             }
 
             try {
-                // 发送明文密码到后端，后端会自动加密
-                const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ userId, name, password })
-                });
+                const data = await register(userId, name, password);
 
-                const data = await response.json();
-
-                if (data.success) {
-                    showMessage('注册成功！即将跳转到登录页面...', 'success', false);
-
-                    // 2秒后跳转到登录页面
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
-                } else {
+                if (!data.success) {
                     showMessage(data.message || '注册失败，请稍后重试', 'error');
+                    return;
                 }
+
+                showMessage('注册成功！即将跳转到登录页面...', 'success', false);
+
+                // 1秒后跳转到登录页面
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1000);
+
             } catch (error) {
                 console.error('注册错误:', error);
                 showMessage('网络错误，请检查服务器是否正常运行', 'error');

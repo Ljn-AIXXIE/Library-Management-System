@@ -1,0 +1,27 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+    background: #f5f7fa;
+    min-height: 100vh;
+}
+
+.message {
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.message.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.message.error {
+    background: #f8d7da;
+    color: #721c24;
+}
