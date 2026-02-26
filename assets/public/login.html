@@ -143,8 +143,7 @@
 
     <script type="module">
         import {showMessage} from "./js/common.js";
-
-        const API_BASE_URL = 'http://localhost:8080';
+        import {login} from "./js/web.js";
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -153,50 +152,42 @@
             const password = document.getElementById('password').value;
             
             try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ userId, password })
-                });
-
-                const data = await response.json();
+                const data = await login(userId, password);
 
                 // 调试日志
                 console.log('登录响应:', data);
-                console.log('用户角色:', data.data?.role);
 
-                if (data.success) {
-                    showMessage('登陆成功！', 'success', false);
-
-                    // 保存用户信息
-                    localStorage.setItem('user', JSON.stringify(data.data));
-
-                    // 调试日志
-                    console.log('保存的用户信息:', data.data);
-                    console.log('准备跳转，角色为:', data.data.role);
-
-                    // 跳转到主页（根据角色）
-                    setTimeout(() => {
-                        if (data.data.role === 'admin') {
-                            console.log('跳转到管理员页面');
-                            window.location.href = 'admin.html';
-                        } else if (data.data.role === 'student') {
-                            console.log('跳转到学生页面');
-                            window.location.href = 'reader.html';
-                        } else {
-                            console.log('默认跳转到读者页面，角色:', data.data.role);
-                            window.location.href = 'reader.html';
-                        }
-                    }, 1000);
-                } else {
-                    console.error('登录失败:', data.message);
-                    showMessage(data.message || '登录失败', 'error', false);
+                if (!data.success) {
+                    showMessage(data.message || '登录失败', 'error', false, 3000, true);
+                    return;
                 }
+
+                showMessage('登陆成功！', 'success', false);
+
+                // 保存用户信息
+                const user = data.data;
+                localStorage.setItem('user', JSON.stringify(user));
+
+                // 调试日志
+                console.log('保存的用户信息:', user);
+                console.log('准备跳转，角色为:', user.role);
+
+                // 跳转到主页（根据角色）
+                setTimeout(() => {
+                    if (user.role === 'admin') {
+                        console.log('跳转到管理员页面');
+                        window.location.href = 'admin.html';
+                    } else if (user.role === 'student') {
+                        console.log('跳转到学生页面');
+                        window.location.href = 'reader.html';
+                    } else {
+                        console.log('默认跳转到读者页面，角色:', data.data.role);
+                        window.location.href = 'reader.html';
+                    }
+                }, 1000);
+
             } catch (error) {
-                console.error('网络错误:', error);
-                showMessage('网络错误，请稍后重试: ' + error.message, 'error', false);
+                showMessage('网络错误，请稍后重试: ' + error.message, 'error', false, 3000, true);
             }
         });
     </script>
