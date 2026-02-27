@@ -10,6 +10,7 @@ add_executable(Library_Management_System
         include/controllers/admin/AdminBatchAddController.h
         include/controllers/admin/AdminBlackListController.h
         include/controllers/admin/AdminBookController.h
+        include/controllers/admin/AdminBookExceptionController.h
         include/controllers/admin/AdminController.h
         include/controllers/admin/AdminUserController.h
         include/controllers/user/AuthController.h
@@ -21,14 +22,17 @@ add_executable(Library_Management_System
         include/database/dao/BlackListDAO.h
         include/database/dao/BookCopyDAO.h
         include/database/dao/BookDAO.h
+        include/database/dao/BookExceptionReportDAO.h
         include/database/dao/RecordDAO.h
         include/database/dao/UserDAO.h
         include/entities/Book.h
         include/entities/BookCopy.h
+        include/entities/BookExceptionReport.h
         include/entities/Record.h
         include/entities/User.h
         include/services/BatchAddService.h
         include/services/BlackListService.h
+        include/services/BookExceptionReportService.h
         include/services/BorrowService.h
         include/services/InventoryService.h
         include/services/SearchService.h
@@ -44,6 +48,7 @@ add_executable(Library_Management_System
         src/controllers/admin/AdminBatchAddController.cpp
         src/controllers/admin/AdminBlackListController.cpp
         src/controllers/admin/AdminBookController.cpp
+        src/controllers/admin/AdminBookExceptionController.cpp
         src/controllers/admin/AdminController.cpp
         src/controllers/admin/AdminUserController.cpp
         src/controllers/user/AuthController.cpp
@@ -55,10 +60,12 @@ add_executable(Library_Management_System
         src/database/dao/BlackListDAO.cpp
         src/database/dao/BookCopyDAO.cpp
         src/database/dao/BookDAO.cpp
+        src/database/dao/BookExceptionReportDAO.cpp
         src/database/dao/RecordDAO.cpp
         src/database/dao/UserDAO.cpp
         src/services/BatchAddService.cpp
         src/services/BlackListService.cpp
+        src/services/BookExceptionReportService.cpp
         src/services/BorrowService.cpp
         src/services/InventoryService.cpp
         src/services/SearchService.cpp

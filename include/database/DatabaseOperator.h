@@ -37,7 +37,7 @@ public:
 
     void setLastError(const std::string &error) { lastError = error; }
 
-    sqlite3 *getDB() const { return database; }
+    [[nodiscard]] sqlite3 *getDB() const { return database; }
 };
 
 #endif //LIBRARY_MANAGEMENT_SYSTEM_DATABASEOPERATOR_H

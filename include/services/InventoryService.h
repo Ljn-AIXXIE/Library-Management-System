@@ -43,6 +43,7 @@ public:
     [[nodiscard]] std::string generateCopyId(const std::string &bookId) const;
 
     [[nodiscard]] bool updateBookCopyCount(const std::string &bookId) const;
+ [[nodiscard]] bool updateBookCopyStatus(const std::string &copyId, const std::string &status) const;
 
     //事务
     [[nodiscard]] bool addCopiesWithTransaction(const std::string &bookId, int copyCount,

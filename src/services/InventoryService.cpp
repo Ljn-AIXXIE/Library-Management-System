@@ -110,6 +110,10 @@ bool InventoryService::updateBookCopyCount(const std::string &bookId) const {
     return bookDAO->updateBookCopyCount(bookId);
 }
 
+bool InventoryService::updateBookCopyStatus(const std::string &copyId, const std::string &status) const {
+    return bookCopyDAO->updateBookCopyStatus(copyId, status);
+}
+
 bool InventoryService::addCopiesWithTransaction(const std::string &bookId, const int copyCount,
                                                 std::string &errorMessage) const {
     try {

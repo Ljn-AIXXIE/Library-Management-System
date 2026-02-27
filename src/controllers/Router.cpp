@@ -8,7 +8,8 @@ using std::make_unique;
 // 初始化所有路由
 void Router::initializeRoutes(UserService *userService, InventoryService *inventoryService,
                               SearchService *searchService, BlackListService *blackListService,
-                              BatchAddService *batchAddService, BorrowService *borrowService) {
+                              BatchAddService *batchAddService, BorrowService *borrowService,
+                              BookExceptionReportService *bookExceptionReportService) {
     // 创建Controller实例
     authController = make_unique<AuthController>(userService);
     adminBookController = make_unique<AdminBookController>(inventoryService, searchService, borrowService, userService);
@@ -20,6 +21,8 @@ void Router::initializeRoutes(UserService *userService, InventoryService *invent
         BookController>(searchService, inventoryService, borrowService, blackListService);
     userController = make_unique<UserController>(borrowService);
     adminController = make_unique<AdminController>(userService, inventoryService, borrowService);
+    adminBookExceptionController = make_unique<AdminBookExceptionController>(
+        bookExceptionReportService, inventoryService);
 
     // 设置CORS
     setupCORS();
@@ -32,6 +35,7 @@ void Router::initializeRoutes(UserService *userService, InventoryService *invent
     registerAdminBookRoutes();
     registerAdminUserRoutes();
     registerAdminBatchAddRoutes();
+    registerAdminBookExceptionReportRoutes();
     registerBookRoutes();
     registerProfileRoutes();
 }
@@ -137,6 +141,13 @@ void Router::registerAdminBatchAddRoutes() const {
                         const httplib::ContentReader &content_reader) {
                      adminBatchAddController->handleBatchAdd(req, res, content_reader);
                  });
+}
+
+void Router::registerAdminBookExceptionReportRoutes() const {
+    //POST /api/exception/handle - 提交异常
+    server->Post("/api/exception/submit", [this](const httplib::Request &req, httplib::Response &res) {
+        adminBookExceptionController->handleAddException(req, res);
+    });
 }
 
 void Router::registerBookRoutes() const {

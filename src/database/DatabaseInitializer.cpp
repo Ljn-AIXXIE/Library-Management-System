@@ -35,6 +35,9 @@ bool DatabaseInitializer::initializeDatabase(DatabaseOperator *db) {
         Logger::getInstance().logError("DatabaseInitializer::initializeDatabase创建black_list表失败");
         return false;
     }
+    if (!createBookExceptionReportTable(db)) {
+        Logger::getInstance().logError("DatabaseInitializer::initializeDatabase创建book_exception_report表失败");
+    }
 
     return true;
 }
@@ -127,6 +130,30 @@ bool DatabaseInitializer::createBlackListTable(DatabaseOperator *db) {
 
     if (!db->execute(sql)) {
         Logger::getInstance().logError("DatabaseInitializer::createBlackListTable执行SQL失败:" + db->getLastError());
+        return false;
+    }
+    return true;
+}
+
+bool DatabaseInitializer::createBookExceptionReportTable(DatabaseOperator *db) {
+    const std::string sql = R"(
+        CREATE TABLE IF NOT EXISTS book_exception_report (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            book_copy_id TEXT NOT NULL,
+            error_type TEXT NOT NULL,
+            exception_description TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending'
+            CHECK(status IN ('pending','processed')),
+            submit_time INTEGER NOT NULL,
+            reporter_id TEXT NOT NULL,
+            handled_time INTEGER,
+            handler_id TEXT,
+            FOREIGN KEY (book_copy_id) REFERENCES book_copy(book_copy_id)
+        );
+    )";
+
+    if (!db->execute(sql)) {
+        Logger::getInstance().logError("DatabaseInitializer::createErrorBookTable" + db->getLastError());
         return false;
     }
     return true;
