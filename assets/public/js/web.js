@@ -268,7 +268,7 @@ export async function adminLoadExceptionDetail(copyId, adminId, submitTime) {
  * @return {Promise<any>}
  */
 export async function adminHandleExceptionDetail(copyId, adminId, submitTime) {
-    const response = await fetch(`${API_BASE_URL}/api/exception/reduce`, {
+    const response = await fetch(`${API_BASE_URL}/api/exception/handle`, {
         method: 'POST',
         headers: {'content-type': 'application/json'},
         body: JSON.stringify({copyId, adminId, submitTime})
@@ -277,7 +277,7 @@ export async function adminHandleExceptionDetail(copyId, adminId, submitTime) {
 }
 
 /**
- * 异常处理请求
+ * 异常提交请求
  * @function adminLoadException
  * @param {string} copyId 图书副本ID
  * @param {string} exceptionType 异常类型
@@ -286,7 +286,7 @@ export async function adminHandleExceptionDetail(copyId, adminId, submitTime) {
  * @return {Promise<any>}
  */
 export async function adminHandleException(copyId, exceptionType, note, adminId) {
-    const response = await fetch(`${API_BASE_URL}/api/exception/handle`, {
+    const response = await fetch(`${API_BASE_URL}/api/exception/submit`, {
         method: 'POST',
         headers: {'content-type': 'application/json'},
         body: JSON.stringify({
@@ -305,7 +305,7 @@ export async function adminHandleException(copyId, exceptionType, note, adminId)
  * @return {Promise<any>}
  */
 export async function adminLoadExceptionDetails() {
-    const response = await fetch(`${API_BASE_URL}/api/exception/reduce`);
+    const response = await fetch(`${API_BASE_URL}/api/exception/handle`);
     return await response.json();
 }
 
@@ -313,14 +313,14 @@ export async function adminLoadExceptionDetails() {
  * 搜索异常请求
  * @function adminSearchExceptionDetails
  * @param {string} searchType 搜索类型
- * @param {string} searchUnReduced 搜索未完成的
+ * @param {string} searchUnHandled 搜索未完成的
  * @param {string} searchInput 搜索内容
  * @return {Promise<any>}
  */
-export async function adminSearchExceptionDetails(searchType, searchUnReduced, searchInput) {
+export async function adminSearchExceptionDetails(searchType, searchUnHandled, searchInput) {
     const searchUrl = searchInput ?
-        `${API_BASE_URL}/api/exception/search?type=${searchType}&unreduced=${searchUnReduced}&keyword=${encodeURIComponent(searchInput)}` :
-        `${API_BASE_URL}/api/exception/search?type=${searchType}&unreduced=${searchUnReduced}`;
+        `${API_BASE_URL}/api/exception/search?type=${searchType}&unreduced=${searchUnHandled}&keyword=${encodeURIComponent(searchInput)}` :
+        `${API_BASE_URL}/api/exception/search?type=${searchType}&unreduced=${searchUnHandled}`;
     const response = await fetch(searchUrl);
     return await response.json();
 }

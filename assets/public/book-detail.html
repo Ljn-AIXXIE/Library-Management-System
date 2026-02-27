@@ -213,6 +213,17 @@
             color: #721c24;
         }
 
+        .status-damaged {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-lost {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
         .empty-state {
             text-align: center;
             padding: 30px;
@@ -412,6 +423,7 @@
 <script type="module">
     import {checkAndBackUser} from "./js/reader.js";
     import {showMessage} from "./js/common.js";
+
     window.borrowBook = borrowBook;
 
     const API_BASE_URL = 'http://localhost:8080';
@@ -516,30 +528,64 @@
                     <tr>
                         <th>副本ID</th>
                         <th>状态</th>
+                        <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
         `;
 
         copies.forEach(copy => {
-            const statusClass = copy.status === 'available' ? 'status-available' : 'status-borrowed';
-            const statusText = copy.status === 'available' ? '可借' : '已借出';
-            const canBorrow = copy.status === 'available';
+            let statusClass = '';
+            let statusText = '';
+            let canBorrow = false;
+            let disabledTitle = '';
+
+            switch (copy.status) {
+                case 'available':
+                    statusClass = 'status-available';
+                    statusText = '可借';
+                    canBorrow = true;
+                    disabledTitle = '';
+                    break;
+                case 'borrowed':
+                    statusClass = 'status-borrowed';
+                    statusText = '已借出';
+                    canBorrow = false;
+                    disabledTitle = '该副本已借出';
+                    break;
+                case 'damaged':
+                    statusClass = 'status-damaged';
+                    statusText = '损坏';
+                    canBorrow = false;
+                    disabledTitle = '该副本已损坏，无法借阅';
+                    break;
+                case 'lost':  // 添加 lost 状态
+                    statusClass = 'status-lost';
+                    statusText = '丢失';
+                    canBorrow = false;
+                    disabledTitle = '该副本已丢失';
+                    break;
+                default:
+                    statusClass = 'status-borrowed';
+                    statusText = copy.status || '未知';
+                    canBorrow = false;
+                    disabledTitle = '该副本状态异常';
+            }
 
             html += `
-                <tr>
-                    <td class="copy-id">${copy.copyId || '未知'}</td>
-                    <td>
-                        <span class="status-badge ${statusClass}">${statusText}</span>
-                    </td>
-                    <td>
-                        ${canBorrow ?
+            <tr>
+                <td class="copy-id">${copy.copyId || '未知'}</td>
+                <td>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </td>
+                <td>
+                    ${canBorrow ?
                 `<button class="borrow-btn" onclick="borrowBook('${userId}', '${isbn}', '${copy.copyId}')">借阅</button>` :
-                '<button class="borrow-btn" disabled>不可借</button>'
+                `<button class="borrow-btn" disabled title="${disabledTitle}">不可借</button>`
             }
-                    </td>
-                </tr>
-            `;
+                </td>
+            </tr>
+        `;
         });
 
         html += `
