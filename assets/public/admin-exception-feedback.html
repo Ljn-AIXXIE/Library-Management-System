@@ -112,39 +112,6 @@
             border-radius: 6px;
         }
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
         .reduce-item {
             border-collapse: collapse;
             transition: all 0.2s ease;
@@ -197,12 +164,12 @@
             font-weight: 500;
         }
 
-        .status-unReduced {
+        .status-unhandled {
             background: #fff3cd;
             color: #856404;
         }
 
-        .status-reduced {
+        .status-handled {
             background: #d1ecf1;
             color: #0c5460;
         }
@@ -217,7 +184,7 @@
     <div id="message" class="message"></div>
     <div class="tabs">
         <div class="tab active" onclick="switchTab('eSubmit')">⚠️ 异常提交</div>
-        <div class="tab" onclick="switchTab('eReduce')">⚠️ 异常处理</div>
+        <div class="tab" onclick="switchTab('eDetails')">⚠️ 异常处理</div>
     </div>
     <div class="action-cards">
         <div id="eSubmit" class="action-card">
@@ -240,7 +207,7 @@
                 <button type="submit" class="btn-action">提交异常</button>
             </form>
         </div>
-        <div id="eReduce" class="action-card none">
+        <div id="eDetails" class="action-card none">
             <div class="search-form">
                 <select id="searchType" class="search-select">
                     <option value="">全部</option>
@@ -251,7 +218,7 @@
                        placeholder="请输入搜索关键词..." onkeypress="handleKeyPress(event)">
             </div>
             <div class="checkbox-form">
-                <input type="checkbox" id="unReduce"><label for="unReduce">未处理</label>
+                <input type="checkbox" id="chooseUnhandledDetails"><label for="chooseUnhandledDetails">未处理</label>
             </div>
             <div id="resultsInfo" class="results-info"></div>
             <div class="form-group">
@@ -260,6 +227,7 @@
                     <tr>
                         <th>副本ID</th>
                         <th>提交者</th>
+                        <th>处理者</th>
                         <th>异常类型</th>
                         <th>提交时间</th>
                         <th>处理时间</th>
@@ -267,9 +235,9 @@
                         <th>操作</th>
                     </tr>
                     </thead>
-                    <tbody id="reduceList">
-                    <tr id="reduce-0">
-                        <td colspan="7" style="text-align:center;padding:40px;color:#999;">没有待处理的异常提交</td>
+                    <tbody id="detailList">
+                    <tr id="details-0">
+                        <td colspan="8" style="text-align:center;padding:40px;color:#999;">没有待处理的异常提交</td>
                     </tr>
                     </tbody>
                 </table>
@@ -292,15 +260,13 @@
     let loadedTabs = new Set();
     let reduceListData = [];
 
+    let user = null;
     window.onload = function () {
-        checkAndBackUser();
+        user = checkAndBackUser();
     };
     document.getElementById('exceptionForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
-            //获取当前用户信息
-            const user = checkAndBackUser();
-            if (!user) return;
             const copyId = document.getElementById('exceptionCopyId').value;
             const exceptionType = document.getElementById('exceptionType').value;
             const note = document.getElementById('exceptionNote').value;
@@ -320,14 +286,14 @@
         }
     });
 
-    document.getElementById('searchType').addEventListener('change', () => searchReduce());
+    document.getElementById('searchType').addEventListener('change', () => searchDetails());
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', () => {
         console.log(searchInput.value);
         if (searchInput.value === '') return;
-        searchReduce();
+        searchDetails();
     })
-    document.getElementById('unReduce').addEventListener('change', () => searchReduce());
+    document.getElementById('chooseUnhandledDetails').addEventListener('change', () => searchDetails());
 
     function switchTab(tabName) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -336,17 +302,17 @@
         document.getElementById(tabName).classList.remove('none');
         currentTab = tabName;
         if (!loadedTabs.has(tabName)) {
-            loadReduce(tabName);
+            loadDetails(tabName);
         }
     }
 
     function handleKeyPress(event) {
         if (event.key === 'Enter') {
-            searchReduce();
+            searchDetails();
         }
     }
 
-    async function loadReduce(type) {
+    async function loadDetails(type) {
         if (type === 'eSubmit') return;
         const loader = {
             eReduce: adminLoadExceptionDetails()
@@ -359,7 +325,7 @@
                 return;
             }
 
-            displayReduce(data.data);
+            displayDetails(data.data);
             loadedTabs.add(type);
 
         } catch (error) {
@@ -367,20 +333,20 @@
         }
     }
 
-    async function searchReduce() {
+    async function searchDetails() {
         try {
             const searchType = document.getElementById('searchType').value;
             const searchInput = document.getElementById('searchInput').value.trim();
-            const searchUnReduced = document.getElementById('unReduce').checked ? 'true' : 'false';
+            const searchUnhandledDetails = document.getElementById('chooseUnhandledDetails').checked ? 'true' : 'false';
 
-            const data = await adminSearchExceptionDetails(searchType, searchInput, searchUnReduced);
+            const data = await adminSearchExceptionDetails(searchType, searchInput, searchUnhandledDetails);
             if (!data.success || data.data?.length === 0) {
                 showMessage('没有待处理的异常', 'success');
                 document.getElementById('resultsInfo').textContent = '';
                 return;
             }
 
-            displayReduce(data.data);
+            displayDetails(data.data);
             document.getElementById('resultsInfo').textContent = `找到 ${data.data.length} 个处理的异常`;
 
         } catch (error) {
@@ -389,38 +355,39 @@
         }
     }
 
-    function displayReduce(reduce) {
-        const reduceList = document.getElementById('reduceList');
+    function displayDetails(details) {
+        const detailList = document.getElementById('detailList');
         reduceListData.forEach((item) => {
-            const element = document.getElementById(`reduce-${item.copyId}`);
-            reduceList.removeChild(element);
+            const element = document.getElementById(`details-${item.copyId}`);
+            detailList.removeChild(element);
         })
         reduceListData = [];
 
-        if (reduce.length === 0) {
-            document.getElementById('reduce-0').style.display = '';
+        if (details.length === 0) {
+            document.getElementById('details-0').style.display = '';
             return;
         }
-        document.getElementById('reduce-0').style.display = 'none';
+        document.getElementById('details-0').style.display = 'none';
 
-        reduce.forEach((item) => {
+        details.forEach((item) => {
             const newEl = document.createElement("tr");
-            newEl.id = `reduce-${item.copyId}`;
-            newEl.className = 'reduce-item';
+            newEl.id = `details-${item.copyId}`;
+            newEl.className = 'details-item';
             newEl.innerHTML = `
             <td>${item.copyId}</td>
-            <td>${item.adminId}</td>
+            <td>${item.reporterId}</td>
+            <td>${item.handlerId ? item.handlerId : '--'}</td>
             <td>${item.errorType}</td>
             <td>${item.submitTime}</td>
             <td>${item.handleTime}</td>
-            <td><span class="status-badge ${item.status === 'Processed' ? 'status-reduced' : 'status-unReduced'}">${item.status === 'Processed' ? '已处理' : '未处理'}</span></td>
+            <td><span class="status-badge ${item.status === 'Processed' ? 'status-handled' : 'status-unhandled'}">${item.status === 'Processed' ? '已处理' : '未处理'}</span></td>
             <td>
                 <button class="btn" onclick="viewDetail('${item.copyId}')">详细</button>
             </td>
             `;
 
             reduceListData.push(item);
-            reduceList.appendChild(newEl);
+            detailList.appendChild(newEl);
         });
     }
 
