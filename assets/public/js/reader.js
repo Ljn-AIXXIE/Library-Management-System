@@ -1,7 +1,7 @@
 /**
  * 检查存储的用户状态，如果没有登录，那么返回登录界面
  * @function checkAndBackUser
- * @return {user|null}
+ * @return {any|null}
  */
 export function checkAndBackUser() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');

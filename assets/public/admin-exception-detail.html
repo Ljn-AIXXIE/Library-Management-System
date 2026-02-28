@@ -207,7 +207,7 @@
     import {checkAndBackUser} from "./js/admin.js";
     import {showMessage} from "./js/common.js";
     import {adminLoadExceptionDetail, adminHandleExceptionDetail} from "./js/web.js";
-    window.reduce = reduce;
+    window.handleDetail = handleDetail;
 
     const API_BASE_URL = 'http://localhost:8080';
 
@@ -221,10 +221,10 @@
         const submitTime = urlParams.get('submitTime');
 
         if (copyId && adminId && submitTime) {
-            fetchReduceDetails(copyId, adminId, submitTime);
+            fetchDetail(copyId, adminId, submitTime);
             document.getElementById('clicker').addEventListener('click', (e) => {
                 e.preventDefault();
-                reduce(copyId, adminId, submitTime);
+                handleDetail(copyId, adminId, submitTime);
             })
         } else {
             document.querySelector('.book-detail-card').innerHTML =
@@ -232,7 +232,7 @@
         }
     };
 
-    async function fetchReduceDetails(copyId, adminId, submitTime) {
+    async function fetchDetail(copyId, adminId, submitTime) {
         try {
             const data = await adminLoadExceptionDetail(copyId, adminId, submitTime);
 
@@ -258,12 +258,12 @@
         }
     }
 
-    async function reduce(copyId, adminId, submitTime) {
+    async function handleDetail(copyId, adminId, submitTime) {
         try {
             const data = await adminHandleExceptionDetail(copyId, adminId, submitTime);
 
             if (!data.success) showMessage('网络错误', 'error');
-            await fetchReduceDetails(copyId, adminId, submitTime);
+            await fetchDetail(copyId, adminId, submitTime);
 
         } catch (error) {
             showMessage('网络错误', 'error')

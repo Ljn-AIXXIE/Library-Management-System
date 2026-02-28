@@ -278,7 +278,7 @@ export async function adminHandleExceptionDetail(copyId, adminId, submitTime) {
 
 /**
  * 异常提交请求
- * @function adminLoadException
+ * @function adminHandleException
  * @param {string} copyId 图书副本ID
  * @param {string} exceptionType 异常类型
  * @param {string} note 备注
