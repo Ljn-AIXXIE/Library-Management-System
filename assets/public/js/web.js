@@ -319,8 +319,8 @@ export async function adminLoadExceptionDetails() {
  */
 export async function adminSearchExceptionDetails(searchType, searchUnHandled, searchInput) {
     const searchUrl = searchInput ?
-        `${API_BASE_URL}/api/exception/search?type=${searchType}&unreduced=${searchUnHandled}&keyword=${encodeURIComponent(searchInput)}` :
-        `${API_BASE_URL}/api/exception/search?type=${searchType}&unreduced=${searchUnHandled}`;
+        `${API_BASE_URL}/api/exception/search?type=${searchType}&keyword=${encodeURIComponent(searchInput)}&unhandled=${searchUnHandled}` :
+        `${API_BASE_URL}/api/exception/search?unhandled=${searchUnHandled}`;
     const response = await fetch(searchUrl);
     return await response.json();
 }

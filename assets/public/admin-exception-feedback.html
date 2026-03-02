@@ -86,6 +86,16 @@
             min-width: 150px;
         }
 
+        .search-btn {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-width: 100px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            cursor: pointer;
+        }
+
         .checkbox-form {
             display: flex;
             gap: 15px;
@@ -212,10 +222,12 @@
                 <select id="searchType" class="search-select">
                     <option value="">全部</option>
                     <option value="copyId">副本ID</option>
-                    <option value="adminId">管理员ID</option>
+                    <option value="reporterId">提交者ID</option>
+                    <option value="handlerId">处理者ID</option>
                 </select>
                 <input type="text" id="searchInput" class="search-input"
                        placeholder="请输入搜索关键词..." onkeypress="handleKeyPress(event)">
+                <button type="submit" class="search-btn" id="searchSubmit">搜索</button>
             </div>
             <div class="checkbox-form">
                 <input type="checkbox" id="chooseUnhandledDetails"><label for="chooseUnhandledDetails">未处理</label>
@@ -248,7 +260,7 @@
 <script type="module">
     import {checkAndBackUser} from "./js/reader.js";
     import {showMessage} from "./js/common.js";
-    import {adminHandleException, adminLoadExceptionDetails, adminSearchExceptionDetails} from "./js/web.js";
+    import {adminHandleException, adminSearchExceptionDetails} from "./js/web.js";
 
     window.switchTab = switchTab;
     window.handleKeyPress = handleKeyPress;
@@ -257,7 +269,6 @@
     const API_BASE_URL = 'http://localhost:8080';
 
     let currentTab = 'eSubmit';
-    let loadedTabs = new Set();
     let reduceListData = [];
 
     let user = null;
@@ -286,60 +297,20 @@
         }
     });
 
-    document.getElementById('searchType').addEventListener('change', () => searchDetails());
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', () => {
-        console.log(searchInput.value);
-        if (searchInput.value === '') return;
-        searchDetails();
-    })
-    document.getElementById('chooseUnhandledDetails').addEventListener('change', () => searchDetails());
-
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.action-card').forEach(s => s.classList.add('none'));
-        event.target.classList.add('active');
-        document.getElementById(tabName).classList.remove('none');
-        currentTab = tabName;
-        if (!loadedTabs.has(tabName)) {
-            loadDetails(tabName);
-        }
-    }
-
-    function handleKeyPress(event) {
-        if (event.key === 'Enter') {
-            searchDetails();
-        }
-    }
-
-    async function loadDetails(type) {
-        if (type === 'eSubmit') return;
-        const loader = {
-            eReduce: adminLoadExceptionDetails()
-        }
+    document.getElementById('searchSubmit').addEventListener('click', async (e) => {
+        e.preventDefault();
         try {
-            const data = await loader[type];
+            const searchType = document.getElementById('searchType').value;
+            const searchInput = !searchType ? "" : document.getElementById('searchInput').value.trim();
 
-            if (!data.success) {
-                showMessage(data.message || '加载失败', 'error');
+            if (searchType && !searchInput) {
+                alert('请输入搜索关键词');
                 return;
             }
 
-            displayDetails(data.data);
-            loadedTabs.add(type);
-
-        } catch (error) {
-            showMessage('网络错误', 'error');
-        }
-    }
-
-    async function searchDetails() {
-        try {
-            const searchType = document.getElementById('searchType').value;
-            const searchInput = document.getElementById('searchInput').value.trim();
             const searchUnhandledDetails = document.getElementById('chooseUnhandledDetails').checked ? 'true' : 'false';
 
-            const data = await adminSearchExceptionDetails(searchType, searchInput, searchUnhandledDetails);
+            const data = await adminSearchExceptionDetails(searchType, searchUnhandledDetails, searchInput);
             if (!data.success || data.data?.length === 0) {
                 showMessage('没有待处理的异常', 'success');
                 document.getElementById('resultsInfo').textContent = '';
@@ -352,6 +323,20 @@
         } catch (error) {
             console.error('搜索失败:', error);
             showMessage('搜索失败，请稍后重试', 'error');
+        }
+    });
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.action-card').forEach(s => s.classList.add('none'));
+        event.target.classList.add('active');
+        document.getElementById(tabName).classList.remove('none');
+        currentTab = tabName;
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            document.getElementById('searchSubmit').click();
         }
     }
 
@@ -376,7 +361,7 @@
             newEl.innerHTML = `
             <td>${item.copyId}</td>
             <td>${item.reporterId}</td>
-            <td>${item.handlerId ? item.handlerId : '--'}</td>
+            <td>${item.handlerId ? `${item.handlerId}` : '--'}</td>
             <td>${item.errorType}</td>
             <td>${item.submitTime}</td>
             <td>${item.handleTime}</td>
