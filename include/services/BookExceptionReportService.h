@@ -10,7 +10,27 @@ public:
         bookExceptionReportDAO) {
     }
 
-    bool addBookExceptionReport(const BookExceptionReport &bookExceptionReport) const;
+    //用于添加书本异常报告
+    [[nodiscard]] bool addBookExceptionReport(const BookExceptionReport &bookExceptionReport) const;
+
+    //用于检查该书本异常报告是否已经有了
+    [[nodiscard]] bool isBookExceptionReportExist(const std::string &copyId) const;
+
+    //获取所有的图书异常报告
+    [[nodiscard]] std::vector<BookExceptionReport> getAllBookExceptionReport(
+        std::string &errorMassage, bool Unhandled) const;
+
+    //获取指定副本的图书异常报告
+    [[nodiscard]] std::vector<BookExceptionReport> getBookExceptionReportByCopyId(
+        const std::string &copyId, std::string &errorMassage, bool Unhandled) const;
+
+    //获取指定管理员提交的图书异常报告
+    [[nodiscard]] std::vector<BookExceptionReport> getBookExceptionReportByReporterId(
+        const std::string &reportId, std::string &errorMassage, bool Unhandled) const;
+
+    //获取指定管理员处理的图书异常报告
+    [[nodiscard]] std::vector<BookExceptionReport> getBookExceptionReportByHandlerId(
+        const std::string &handlerId, std::string &errorMassage) const;
 };
 
 

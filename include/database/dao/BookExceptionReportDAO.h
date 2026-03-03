@@ -28,6 +28,34 @@ public:
 
     //核心操作
     [[nodiscard]] bool addBookExceptionReport(const BookExceptionReport &bookExceptionReport) const;
+
+    //校验该异常记录是不是已经存在
+    [[nodiscard]] bool isBookExceptionReportExist(const std::string &copyId) const;
+
+    //获取所有的图书异常报告
+    [[nodiscard]] std::vector<BookExceptionReport> getAllBookExceptionReport(std::string &errorMassage) const;
+
+    //获取所有未处理的图书异常报告
+    [[nodiscard]] std::vector<BookExceptionReport> getAllUnhandledBookExceptionReport(std::string &errorMassage) const;
+
+    //获取指定副本的所有图书异常报告
+    [[nodiscard]] std::vector<BookExceptionReport> getBookExceptionReportByCopyId(
+        const std::string &copyId, std::string &errorMassage) const;
+
+    //获取指定副本未处理的图书异常报告
+    [[nodiscard]] std::vector<BookExceptionReport> getUnhandledBookExceptionReportByCopyId(
+        const std::string &copyId, std::string &errorMassage) const;
+
+    //获取指定提交者的所有图书异常报告
+    [[nodiscard]] std::vector<BookExceptionReport> getBookExceptionReportByReportId(
+        const std::string &reportId, std::string &errorMassage) const;
+
+    //获取指定提交者未处理的图书异常报告
+    [[nodiscard]] std::vector<BookExceptionReport> getUnhandledBookExceptionReportByReportId(
+        const std::string &reportId, std::string &errorMassage) const;
+
+    [[nodiscard]] std::vector<BookExceptionReport> getBookExceptionReportByHandlerId(
+        const std::string &handlerId, std::string &errorMassage) const;
 };
 
 

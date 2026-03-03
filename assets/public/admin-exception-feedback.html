@@ -238,10 +238,10 @@
                     <thead>
                     <tr>
                         <th>副本ID</th>
-                        <th>提交者</th>
-                        <th>处理者</th>
                         <th>异常类型</th>
+                        <th>提交者</th>
                         <th>提交时间</th>
+                        <th>处理者</th>
                         <th>处理时间</th>
                         <th>状态</th>
                         <th>操作</th>
@@ -311,7 +311,7 @@
             const searchUnhandledDetails = document.getElementById('chooseUnhandledDetails').checked ? 'true' : 'false';
 
             const data = await adminSearchExceptionDetails(searchType, searchUnhandledDetails, searchInput);
-            if (!data.success || data.data?.length === 0) {
+            if (!data.success) {
                 showMessage('没有待处理的异常', 'success');
                 document.getElementById('resultsInfo').textContent = '';
                 return;
@@ -360,11 +360,11 @@
             newEl.className = 'details-item';
             newEl.innerHTML = `
             <td>${item.copyId}</td>
-            <td>${item.reporterId}</td>
-            <td>${item.handlerId ? `${item.handlerId}` : '--'}</td>
             <td>${item.errorType}</td>
+            <td>${item.reporterId}</td>
             <td>${item.submitTime}</td>
-            <td>${item.handleTime}</td>
+            <td>${item.handlerId ? `${item.handlerId}` : '--'}</td>
+            <td>${item.handleTime ? `${item.handlerTime}` : '--'}</td>
             <td><span class="status-badge ${item.status === 'Processed' ? 'status-handled' : 'status-unhandled'}">${item.status === 'Processed' ? '已处理' : '未处理'}</span></td>
             <td>
                 <button class="btn" onclick="viewDetail('${item.copyId}')">详细</button>

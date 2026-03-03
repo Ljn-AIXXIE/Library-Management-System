@@ -18,5 +18,8 @@ public:
 
     //POST /api/exception/submit - 提交异常
     void handleAddException(const httplib::Request &req, httplib::Response &res) const;
+
+    //GET /api/exception/search - 加载异常请求
+    void handleGetAllBookExceptionReport(const httplib::Request &req, httplib::Response &res) const;
 };
 #endif //LIBRARY_MANAGEMENT_SYSTEM_ADMINBOOKEXCEPTIONCONTROLLER_H

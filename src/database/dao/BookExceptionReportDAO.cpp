@@ -3,12 +3,12 @@
 
 #include "httplib.h"
 
-[[nodiscard]] bool
-BookExceptionReportDAO::addBookExceptionReport(const BookExceptionReport &bookExceptionReport) const {
+bool BookExceptionReportDAO::addBookExceptionReport(const BookExceptionReport &bookExceptionReport) const {
     const std::string sql =
-            "INSERT INTO book_exception_report (book_copy_id,error_type,exception_description,status,submit_time, reporter_id,handled_time,handler_id)"
+            "INSERT INTO book_exception_report (book_copy_id,error_type,exception_description,status,submit_time, reporter_id,handled_time,handler_id) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
     sqlite3_stmt *stmt = nullptr;
+
     if (!bookExceptionReportDatabase->prepare(sql, &stmt)) {
         Logger::getInstance().logError("BookExceptionReportDAO::addBookExceptionReport()准备SQL失败");
         return false;
@@ -28,10 +28,217 @@ BookExceptionReportDAO::addBookExceptionReport(const BookExceptionReport &bookEx
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         Logger::getInstance().logError(
-            "RecordDAO::addBorrowRecord执行SQL失败:" + bookExceptionReportDatabase->getLastError());
+            "BookExceptionReportDAO::addBookExceptionReport执行SQL失败:" + bookExceptionReportDatabase->getLastError());
         sqlite3_finalize(stmt);
         return false;
     }
     sqlite3_finalize(stmt);
     return true;
+}
+
+bool BookExceptionReportDAO::isBookExceptionReportExist(const std::string &copyId) const {
+    const std::string sql =
+            "SELECT EXISTS(SELECT 1 FROM book_exception_report WHERE copy_id = ? "
+            "AND submit_time IS NOT NULL AND handled_time IS NULL)";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!bookExceptionReportDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("BookExceptionReportDAO::isBookExceptionReportExist()准备SQL失败");
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, copyId.c_str(), -1, nullptr);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        Logger::getInstance().logError("BookExceptionReportDAO::isBookExceptionReportExist执行SQL失败");
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    sqlite3_finalize(stmt);
+    return true;
+}
+
+//辅助函数用于获取列文本
+static std::string columnText(sqlite3_stmt *stmt, int col) {
+    const unsigned char *text = sqlite3_column_text(stmt, col);
+    return text ? reinterpret_cast<const char *>(text) : "";
+}
+
+//辅助函数用于从查询结果中提取报告信息
+static BookExceptionReport extractBookExceptionReport(sqlite3_stmt *stmt) {
+    BookExceptionReport report;
+    report.setCopyId(columnText(stmt, 0));
+    report.setErrorType(columnText(stmt, 1));
+    report.setExceptionDescription(columnText(stmt, 2));
+    report.setStatus(columnText(stmt, 3));
+    report.setSubmitTime(stoi(columnText(stmt, 4)));
+    report.setReporterId(columnText(stmt, 5));
+    report.setHandledTime(stoi(columnText(stmt, 6)));
+    report.setHandlerId(columnText(stmt, 7));
+    return report;
+}
+
+std::vector<BookExceptionReport> BookExceptionReportDAO::getAllBookExceptionReport(std::string &errorMassage) const {
+    std::vector<BookExceptionReport> result;
+    std::string sql =
+            "SELECT book_copy_id,error_type,exception_description,status,submit_time,reporter_id,handled_time,handler_id "
+            "FROM book_exception_report";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!bookExceptionReportDatabase->prepare(sql, &stmt)) {
+        errorMassage = bookExceptionReportDatabase->getLastError();
+        Logger::getInstance().logError("BookExceptionReportDAO::getAllBookExceptionReport()准备SQL失败");
+        return result;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        result.push_back(extractBookExceptionReport(stmt));
+    }
+
+    sqlite3_finalize(stmt);
+    return result;
+}
+
+std::vector<BookExceptionReport> BookExceptionReportDAO::getAllUnhandledBookExceptionReport(
+    std::string &errorMassage) const {
+    std::vector<BookExceptionReport> result;
+    std::string sql =
+            "SELECT book_copy_id,error_type,exception_description,status,submit_time,reporter_id,handled_time,handler_id "
+            "FROM book_exception_report "
+            "WHERE handled_time = 0";
+    sqlite3_stmt *stmt = nullptr;
+    if (!bookExceptionReportDatabase->prepare(sql, &stmt)) {
+        errorMassage = bookExceptionReportDatabase->getLastError();
+        Logger::getInstance().logError("BookExceptionReportDAO::getAllUnhandledBookExceptionReport()准备SQL失败");
+        return result;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        result.push_back(extractBookExceptionReport(stmt));
+    }
+
+    sqlite3_finalize(stmt);
+    return result;
+}
+
+
+std::vector<BookExceptionReport> BookExceptionReportDAO::getBookExceptionReportByCopyId(
+    const std::string &copyId, std::string &errorMassage) const {
+    std::vector<BookExceptionReport> result;
+    std::string sql =
+            "SELECT book_copy_id,error_type,exception_description,status,submit_time,reporter_id,handled_time,handler_id "
+            "FROM book_exception_report "
+            "WHERE book_copy_id = ?";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!bookExceptionReportDatabase->prepare(sql, &stmt)) {
+        errorMassage = bookExceptionReportDatabase->getLastError();
+        Logger::getInstance().logError("BookExceptionReportDAO::getBookExceptionReportByCopyId()准备SQL失败");
+        return result;
+    }
+
+    sqlite3_bind_text(stmt, 1, copyId.c_str(), -1, SQLITE_TRANSIENT);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        result.push_back(extractBookExceptionReport(stmt));
+    }
+
+    sqlite3_finalize(stmt);
+    return result;
+}
+
+std::vector<BookExceptionReport> BookExceptionReportDAO::getUnhandledBookExceptionReportByCopyId(
+    const std::string &copyId, std::string &errorMassage) const {
+    std::vector<BookExceptionReport> result;
+    std::string sql =
+            "SELECT book_copy_id,error_type,exception_description,status,submit_time,reporter_id,handled_time,handler_id "
+            "FROM book_exception_report "
+            "WHERE book_copy_id = ? AND handled_time = 0";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!bookExceptionReportDatabase->prepare(sql, &stmt)) {
+        errorMassage = bookExceptionReportDatabase->getLastError();
+        Logger::getInstance().logError("BookExceptionReportDAO::getUnhandledBookExceptionReportByCopyId()准备SQL失败");
+        return result;
+    }
+    sqlite3_bind_text(stmt, 1, copyId.c_str(), -1, SQLITE_TRANSIENT);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        result.push_back(extractBookExceptionReport(stmt));
+    }
+
+    sqlite3_finalize(stmt);
+    return result;
+}
+
+
+std::vector<BookExceptionReport> BookExceptionReportDAO::getBookExceptionReportByReportId(
+    const std::string &reportId, std::string &errorMassage) const {
+    std::vector<BookExceptionReport> result;
+    std::string sql =
+            "SELECT book_copy_id,error_type,exception_description,status,submit_time,reporter_id,handled_time,handler_id "
+            "FROM book_exception_report "
+            "WHERE reporter_id = ?";
+    sqlite3_stmt *stmt = nullptr;
+
+    if (!bookExceptionReportDatabase->prepare(sql, &stmt)) {
+        errorMassage = bookExceptionReportDatabase->getLastError();
+        Logger::getInstance().logError("BookExceptionReportDAO::getBookExceptionReportByReportId()准备SQL失败");
+        return result;
+    }
+    sqlite3_bind_text(stmt, 1, reportId.c_str(), -1, SQLITE_TRANSIENT);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        result.push_back(extractBookExceptionReport(stmt));
+    }
+
+    sqlite3_finalize(stmt);
+    return result;
+}
+
+std::vector<BookExceptionReport> BookExceptionReportDAO::getUnhandledBookExceptionReportByReportId(
+    const std::string &reportId, std::string &errorMassage) const {
+    std::vector<BookExceptionReport> result;
+    std::string sql =
+            "SELECT book_copy_id,error_type,exception_description,status,submit_time,reporter_id,handled_time,handler_id "
+            "FROM book_exception_report "
+            "WHERE reporter_id = ? AND handled_time = 0";
+
+    sqlite3_stmt *stmt = nullptr;
+    if (!bookExceptionReportDatabase->prepare(sql, &stmt)) {
+        errorMassage = bookExceptionReportDatabase->getLastError();
+        Logger::getInstance().logError("BookExceptionReportDAO::getUnhandledBookExceptionReportByReportId()准备SQL失败");
+        return result;
+    }
+    sqlite3_bind_text(stmt, 1, reportId.c_str(), -1, SQLITE_TRANSIENT);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        result.push_back(extractBookExceptionReport(stmt));
+    }
+
+    sqlite3_finalize(stmt);
+    return result;
+}
+
+std::vector<BookExceptionReport> BookExceptionReportDAO::getBookExceptionReportByHandlerId(
+    const std::string &handlerId, std::string &errorMassage) const {
+    std::vector<BookExceptionReport> result;
+    std::string sql =
+            "SELECT book_copy_id,error_type,exception_description,status,submit_time,reporter_id,handled_time,handler_id "
+            "FROM book_exception_report "
+            "WHERE handler_id = ?";
+    sqlite3_stmt *stmt = nullptr;
+    if (!bookExceptionReportDatabase->prepare(sql, &stmt)) {
+        errorMassage = bookExceptionReportDatabase->getLastError();
+        Logger::getInstance().logError("BookExceptionReportDAO::getBookExceptionReportByHandlerId()准备SQL失败");
+        return result;
+    }
+
+    sqlite3_bind_text(stmt, 1, handlerId.c_str(), -1, SQLITE_TRANSIENT);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        result.push_back(extractBookExceptionReport(stmt));
+    }
+    sqlite3_finalize(stmt);
+    return result;
 }
