@@ -13,7 +13,7 @@ export async function login(userId, password) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId, password })
+        body: JSON.stringify({userId, password})
     });
     return await response.json();
 }
@@ -33,7 +33,7 @@ export async function register(userId, name, password) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId, name, password })
+        body: JSON.stringify({userId, name, password})
     });
     return await response.json();
 }
@@ -138,7 +138,7 @@ export async function adminUpdateBook(isbn, title, author, category, publisher,
                                       publishDate, price, pages, description) {
     const response = await fetch(`${API_BASE_URL}/api/admin/books/update`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
             isbn: isbn,
             title: title,
@@ -172,7 +172,7 @@ export async function adminAddBook(isbn, title, author, category, publisher,
                                    publishDate, price, pages, description) {
     const response = await fetch(`${API_BASE_URL}/api/admin/books/add`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
             isbn: isbn,
             title: title,
@@ -197,8 +197,8 @@ export async function adminAddBook(isbn, title, author, category, publisher,
 export async function adminDeleteBook(isbn) {
     const response = await fetch(`${API_BASE_URL}/api/admin/books/delete`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isbn })
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({isbn})
     });
     return await response.json();
 }
@@ -223,8 +223,8 @@ export async function adminLoadCopies(isbn) {
 export async function adminAddCopy(isbn) {
     const response = await fetch(`${API_BASE_URL}/api/admin/copies/add`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isbn: isbn })
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({isbn: isbn})
     });
     return await response.json();
 }
@@ -238,8 +238,8 @@ export async function adminAddCopy(isbn) {
 export async function adminDeleteCopy(copyId) {
     const response = await fetch(`${API_BASE_URL}/api/admin/copies/delete`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ copyId })
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({copyId})
     });
     return await response.json();
 }
@@ -248,13 +248,13 @@ export async function adminDeleteCopy(copyId) {
  * 异常详细请求
  * @function adminLoadExceptionDetail
  * @param {string} copyId 图书副本ID
- * @param {string} adminId 管理员ID
+ * @param {string} submitId 提交者ID
  * @param {string} submitTime 提交时间
  * @return {Promise<any>}
  */
-export async function adminLoadExceptionDetail(copyId, adminId, submitTime) {
+export async function adminLoadExceptionDetail(copyId, submitId, submitTime) {
     const response = await fetch(
-        `${API_BASE_URL}/api/exception/detail/view?copyId=${copyId}&adminId=${adminId}&submitTime=${submitTime}`
+        `${API_BASE_URL}/api/exception/detail/view?copyId=${copyId}&submitId=${submitId}&submitTime=${submitTime}`
     );
     return await response.json();
 }
@@ -263,15 +263,15 @@ export async function adminLoadExceptionDetail(copyId, adminId, submitTime) {
  * 异常处理请求
  * @function adminLoadExceptionDetail
  * @param {string} copyId 图书副本ID
- * @param {string} adminId 管理员ID
+ * @param {string} submitId 处理者ID
  * @param {string} submitTime 提交时间
  * @return {Promise<any>}
  */
-export async function adminHandleExceptionDetail(copyId, adminId, submitTime) {
+export async function adminHandleExceptionDetail(copyId, submitId, submitTime) {
     const response = await fetch(`${API_BASE_URL}/api/exception/handle`, {
         method: 'POST',
         headers: {'content-type': 'application/json'},
-        body: JSON.stringify({copyId, adminId, submitTime})
+        body: JSON.stringify({copyId, submitId, submitTime})
     });
     return await response.json();
 }

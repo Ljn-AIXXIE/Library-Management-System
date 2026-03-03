@@ -173,6 +173,10 @@
             <div class="info-group">
                 <h3>提交信息</h3>
                 <div class="info-item">
+                    <span class="info-label">提交者ID：</span>
+                    <span class="info-value" id="submitId">加载中...</span>
+                </div>
+                <div class="info-item">
                     <span class="info-label">提交时间：</span>
                     <span class="info-value" id="submitTime">加载中...</span>
                 </div>
@@ -184,6 +188,10 @@
 
             <div class="info-group">
                 <h3>处理详情</h3>
+                <div class="info-item">
+                    <span class="info-label">处理者ID：</span>
+                    <span class="info-value" id="handlerId">加载中...</span>
+                </div>
                 <div class="info-item">
                     <span class="info-label">处理时间：</span>
                     <span class="info-value" id="handleTime">加载中...</span>
@@ -207,6 +215,7 @@
     import {checkAndBackUser} from "./js/admin.js";
     import {showMessage} from "./js/common.js";
     import {adminLoadExceptionDetail, adminHandleExceptionDetail} from "./js/web.js";
+
     window.handleDetail = handleDetail;
 
     const API_BASE_URL = 'http://localhost:8080';
@@ -217,14 +226,14 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const copyId = urlParams.get('copyId');
-        const adminId = urlParams.get('adminId');
+        const submitId = urlParams.get('submitId');
         const submitTime = urlParams.get('submitTime');
 
-        if (copyId && adminId && submitTime) {
-            fetchDetail(copyId, adminId, submitTime);
+        if (copyId && submitId && submitTime) {
+            fetchDetail(copyId, submitId, submitTime);
             document.getElementById('clicker').addEventListener('click', (e) => {
                 e.preventDefault();
-                handleDetail(copyId, adminId, submitTime);
+                handleDetail(copyId, submitId, submitTime);
             })
         } else {
             document.querySelector('.book-detail-card').innerHTML =
@@ -232,9 +241,9 @@
         }
     };
 
-    async function fetchDetail(copyId, adminId, submitTime) {
+    async function fetchDetail(copyId, submitId, submitTime) {
         try {
-            const data = await adminLoadExceptionDetail(copyId, adminId, submitTime);
+            const data = await adminLoadExceptionDetail(copyId, submitId, submitTime);
 
             if (!data.success) {
                 console.error('获取异常详情失败:', data.message);
@@ -243,11 +252,12 @@
 
             const reduceData = data.data;
             document.getElementById('copyId').textContent = reduceData.copyId || '暂无信息';
-            document.getElementById('adminId').textContent = reduceData.adminId || '暂无信息';
             document.getElementById('errorType').textContent = reduceData.errorType || '暂无信息';
             document.getElementById('errorType2').textContent = reduceData.errorType || '暂无信息';
             document.getElementById('submitTime').textContent = reduceData.submitTime || '暂无信息';
+            document.getElementById('submitId').textContent = reduceData.submitId || '暂无信息';
             document.getElementById('handleTime').textContent = reduceData.handleTime || '暂无信息';
+            document.getElementById('handlerId').textContent = reduceData.handlerId || '暂无信息';
             document.getElementById('status').textContent = reduceData.status === 'Processed' ? '已处理' : '未处理';
             document.getElementById('exceptionDescription').textContent = reduceData.exceptionDescription || '暂无信息';
 
@@ -258,12 +268,12 @@
         }
     }
 
-    async function handleDetail(copyId, adminId, submitTime) {
+    async function handleDetail(copyId, submitId, submitTime) {
         try {
-            const data = await adminHandleExceptionDetail(copyId, adminId, submitTime);
+            const data = await adminHandleExceptionDetail(copyId, submitId, submitTime);
 
             if (!data.success) showMessage('网络错误', 'error');
-            await fetchDetail(copyId, adminId, submitTime);
+            await fetchDetail(copyId, submitId, submitTime);
 
         } catch (error) {
             showMessage('网络错误', 'error')
