@@ -233,7 +233,7 @@
             fetchDetail(copyId, reporterId, submitTime);
             document.getElementById('clicker').addEventListener('click', (e) => {
                 e.preventDefault();
-                handleDetail(copyId, reporterId, submitTime);
+                handleDetail(copyId, reporterId, submitTime, user.userId);
             })
         } else {
             document.querySelector('.book-detail-card').innerHTML =
@@ -268,9 +268,9 @@
         }
     }
 
-    async function handleDetail(copyId, reporterId, submitTime) {
+    async function handleDetail(copyId, reporterId, submitTime, handlerId) {
         try {
-            const data = await adminHandleExceptionDetail(copyId, reporterId, submitTime);
+            const data = await adminHandleExceptionDetail(copyId, reporterId, submitTime, handlerId);
 
             if (!data.success) showMessage('网络错误', 'error');
             await fetchDetail(copyId, reporterId, submitTime);

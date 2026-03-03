@@ -263,15 +263,16 @@ export async function adminLoadExceptionDetail(copyId, reporterId, submitTime) {
  * 异常处理请求
  * @function adminLoadExceptionDetail
  * @param {string} copyId 图书副本ID
- * @param {string} reporterId 处理者ID
+ * @param {string} reporterId 提交者ID
  * @param {string} submitTime 提交时间
+ * @param {string} handlerId 处理者ID
  * @return {Promise<any>}
  */
-export async function adminHandleExceptionDetail(copyId, reporterId, submitTime) {
+export async function adminHandleExceptionDetail(copyId, reporterId, submitTime, handlerId) {
     const response = await fetch(`${API_BASE_URL}/api/exception/handle`, {
         method: 'POST',
         headers: {'content-type': 'application/json'},
-        body: JSON.stringify({copyId, reporterId, submitTime})
+        body: JSON.stringify({copyId, reporterId, submitTime, handlerId})
     });
     return await response.json();
 }
