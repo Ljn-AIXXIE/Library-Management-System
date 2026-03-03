@@ -148,6 +148,11 @@ void Router::registerAdminBookExceptionReportRoutes() const {
     server->Post("/api/exception/submit", [this](const httplib::Request &req, httplib::Response &res) {
         adminBookExceptionController->handleAddException(req, res);
     });
+
+    //GET /api/exception/search - 加载异常请求
+    server->Get("/api/exception/search", [this](const httplib::Request &req, httplib::Response &res) {
+        adminBookExceptionController->handleGetAllBookExceptionReport(req, res);
+    });
 }
 
 void Router::registerBookRoutes() const {

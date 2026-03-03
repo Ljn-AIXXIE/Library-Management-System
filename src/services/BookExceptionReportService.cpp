@@ -6,3 +6,39 @@ bool BookExceptionReportService::addBookExceptionReport(const BookExceptionRepor
     }
     return false;
 }
+
+bool BookExceptionReportService::isBookExceptionReportExist(const std::string &copyId) const {
+    if (db->isBookExceptionReportExist(copyId)) {
+        return false;
+    }
+    return true;
+}
+
+std::vector<BookExceptionReport>
+BookExceptionReportService::getAllBookExceptionReport(std::string &errorMassage, const bool Unhandled) const {
+    if (Unhandled) {
+        return db->getAllUnhandledBookExceptionReport(errorMassage);
+    }
+    return db->getAllBookExceptionReport(errorMassage);
+}
+
+std::vector<BookExceptionReport> BookExceptionReportService::getBookExceptionReportByCopyId(
+    const std::string &copyId, std::string &errorMassage, const bool Unhandled) const {
+    if (Unhandled) {
+        return db->getUnhandledBookExceptionReportByCopyId(copyId, errorMassage);
+    }
+    return db->getBookExceptionReportByCopyId(copyId, errorMassage);
+}
+
+std::vector<BookExceptionReport> BookExceptionReportService::getBookExceptionReportByReporterId(
+    const std::string &reportId, std::string &errorMassage, const bool Unhandled) const {
+    if (Unhandled) {
+        return db->getUnhandledBookExceptionReportByReportId(reportId, errorMassage);
+    }
+    return db->getBookExceptionReportByReportId(reportId, errorMassage);
+}
+
+std::vector<BookExceptionReport> BookExceptionReportService::getBookExceptionReportByHandlerId(
+    const std::string &handlerId, std::string &errorMassage) const {
+    return db->getBookExceptionReportByHandlerId(handlerId, errorMassage);
+}
