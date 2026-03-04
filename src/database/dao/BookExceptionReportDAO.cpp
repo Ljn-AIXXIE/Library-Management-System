@@ -1,4 +1,5 @@
 #include "database/dao/BookExceptionReportDAO.h"
+#include "utils/TimeUtils.h"
 #include "common/Logger.h"
 
 #include "httplib.h"
@@ -16,6 +17,8 @@ bool BookExceptionReportDAO::addBookExceptionReport(const BookExceptionReport &b
 
     auto now = std::chrono::system_clock::now();
     time_t currentTime = std::chrono::system_clock::to_time_t(now);
+    std::string currentTimeStr = TimeUtils::formatTime(currentTime);
+    currentTime = TimeUtils::stringToTimeT(currentTimeStr);
 
     sqlite3_bind_text(stmt, 1, bookExceptionReport.getCopyId().c_str(), -1, nullptr);
     sqlite3_bind_text(stmt, 2, bookExceptionReport.getErrorType().c_str(), -1, nullptr);
@@ -239,6 +242,40 @@ std::vector<BookExceptionReport> BookExceptionReportDAO::getBookExceptionReportB
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         result.push_back(extractBookExceptionReport(stmt));
     }
+    sqlite3_finalize(stmt);
+    return result;
+}
+
+BookExceptionReport BookExceptionReportDAO::getBookExceptionReport(std::string copyId, std::string reporter,
+                                                                   std::string submitTime,
+                                                                   std::string &errorMessage) const {
+    std::string sql =
+            "SELECT book_copy_id,error_type,exception_description,status,submit_time,reporter_id,handled_time,handler_id "
+            "FROM book_exception_report "
+            "WHERE book_copy_id = ? AND reporter_id = ? AND submit_time = ?";
+    sqlite3_stmt *stmt = nullptr;
+    BookExceptionReport result;
+    if (!bookExceptionReportDatabase->prepare(sql, &stmt)) {
+        errorMessage = bookExceptionReportDatabase->getLastError();
+        Logger::getInstance().logError("BookExceptionReportDAO::getBookExceptionReport()");
+        return result;
+    }
+
+    int submitTimeInt = TimeUtils::stringToTimeT(submitTime);
+
+    sqlite3_bind_text(stmt, 1, copyId.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, reporter.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(stmt, 3, submitTimeInt);
+
+    if (sqlite3_step(stmt) != SQLITE_ROW) {
+        Logger::getInstance().logError("BookExceptionReportDAO::getBookExceptionReport()执行SQL失败");
+        bookExceptionReportDatabase->setLastError(sqlite3_errmsg(bookExceptionReportDatabase->getDB()));
+        errorMessage = bookExceptionReportDatabase->getLastError();
+        sqlite3_finalize(stmt);
+        return result;
+    }
+
+    result = extractBookExceptionReport(stmt);
     sqlite3_finalize(stmt);
     return result;
 }

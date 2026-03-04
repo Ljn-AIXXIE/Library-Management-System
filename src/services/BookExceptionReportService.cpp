@@ -9,9 +9,9 @@ bool BookExceptionReportService::addBookExceptionReport(const BookExceptionRepor
 
 bool BookExceptionReportService::isBookExceptionReportExist(const std::string &copyId) const {
     if (db->isBookExceptionReportExist(copyId)) {
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 std::vector<BookExceptionReport>
@@ -41,4 +41,10 @@ std::vector<BookExceptionReport> BookExceptionReportService::getBookExceptionRep
 std::vector<BookExceptionReport> BookExceptionReportService::getBookExceptionReportByHandlerId(
     const std::string &handlerId, std::string &errorMassage) const {
     return db->getBookExceptionReportByHandlerId(handlerId, errorMassage);
+}
+
+BookExceptionReport BookExceptionReportService::getDetailBookExceptionReport(
+    const std::string &copyId, const std::string &reporter, const std::string &submitTime,
+    std::string &errorMessage) const {
+    return db->getBookExceptionReport(copyId, reporter, submitTime, errorMessage);
 }

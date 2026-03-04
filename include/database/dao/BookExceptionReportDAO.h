@@ -54,8 +54,13 @@ public:
     [[nodiscard]] std::vector<BookExceptionReport> getUnhandledBookExceptionReportByReportId(
         const std::string &reportId, std::string &errorMassage) const;
 
+    //获取指定处理者的图书异常报告
     [[nodiscard]] std::vector<BookExceptionReport> getBookExceptionReportByHandlerId(
         const std::string &handlerId, std::string &errorMassage) const;
+
+    //获取图书异常报告的详细信息，用于获取图书异常报告详细页面
+    [[nodiscard]] BookExceptionReport getBookExceptionReport(std::string copyId, std::string reporter,
+                                                             std::string submitTime, std::string &errorMessage) const;
 };
 
 

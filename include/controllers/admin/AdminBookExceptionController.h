@@ -21,5 +21,8 @@ public:
 
     //GET /api/exception/search - 加载异常请求
     void handleGetAllBookExceptionReport(const httplib::Request &req, httplib::Response &res) const;
+
+    //GET /api/exception/detail/view - 查看详细的异常请求
+    void handleGetDetailBookExceptionReport(const httplib::Request &req, httplib::Response &res) const;
 };
 #endif //LIBRARY_MANAGEMENT_SYSTEM_ADMINBOOKEXCEPTIONCONTROLLER_H
