@@ -248,13 +248,13 @@ export async function adminDeleteCopy(copyId) {
  * 异常详细请求
  * @function adminLoadExceptionDetail
  * @param {string} copyId 图书副本ID
- * @param {string} submitId 提交者ID
+ * @param {string} reporterId 提交者ID
  * @param {string} submitTime 提交时间
  * @return {Promise<any>}
  */
-export async function adminLoadExceptionDetail(copyId, submitId, submitTime) {
+export async function adminLoadExceptionDetail(copyId, reporterId, submitTime) {
     const response = await fetch(
-        `${API_BASE_URL}/api/exception/detail/view?copyId=${copyId}&submitId=${submitId}&submitTime=${submitTime}`
+        `${API_BASE_URL}/api/exception/detail/view?copyId=${copyId}&reporterId=${reporterId}&submitTime=${submitTime}`
     );
     return await response.json();
 }
@@ -263,15 +263,16 @@ export async function adminLoadExceptionDetail(copyId, submitId, submitTime) {
  * 异常处理请求
  * @function adminLoadExceptionDetail
  * @param {string} copyId 图书副本ID
- * @param {string} submitId 处理者ID
+ * @param {string} reporterId 提交者ID
  * @param {string} submitTime 提交时间
+ * @param {string} handlerId 处理者ID
  * @return {Promise<any>}
  */
-export async function adminHandleExceptionDetail(copyId, submitId, submitTime) {
+export async function adminHandleExceptionDetail(copyId, reporterId, submitTime, handlerId) {
     const response = await fetch(`${API_BASE_URL}/api/exception/handle`, {
         method: 'POST',
         headers: {'content-type': 'application/json'},
-        body: JSON.stringify({copyId, submitId, submitTime})
+        body: JSON.stringify({copyId, reporterId, submitTime, handlerId})
     });
     return await response.json();
 }
