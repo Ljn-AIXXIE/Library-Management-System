@@ -153,6 +153,11 @@ void Router::registerAdminBookExceptionReportRoutes() const {
     server->Get("/api/exception/search", [this](const httplib::Request &req, httplib::Response &res) {
         adminBookExceptionController->handleGetAllBookExceptionReport(req, res);
     });
+
+    //GET /api/exception/detail/view - 查看详细的异常请求
+    server->Get("/api/exception/detail/view", [this](const httplib::Request &req, httplib::Response &res) {
+        adminBookExceptionController->handleGetDetailBookExceptionReport(req, res);
+    });
 }
 
 void Router::registerBookRoutes() const {

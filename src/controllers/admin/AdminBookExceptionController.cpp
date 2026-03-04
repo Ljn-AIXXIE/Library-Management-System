@@ -89,3 +89,39 @@ void AdminBookExceptionController::handleGetAllBookExceptionReport(const httplib
         res = HttpUtils::createErrorResponse("异常报告加载失败", 500);
     }
 }
+
+//GET /api/exception/detail/view - 查看详细的异常请求
+void AdminBookExceptionController::handleGetDetailBookExceptionReport(const httplib::Request &req,
+                                                                      httplib::Response &res) const {
+    Logger::getInstance().logAccess("GET /api/exception/detail/view - 查看详细的异常请求");
+    const std::string copyId = req.get_param_value("copyId");
+    const std::string reporterId = req.get_param_value("reporterId");
+    std::string submitTime = req.get_param_value("submitTime");
+    std::string errorMessage = req.get_param_value("errorMessage");
+    const BookExceptionReport report = bookExceptionReportService->getDetailBookExceptionReport(
+        copyId, reporterId, submitTime, errorMessage);
+
+    if (errorMessage.empty()) {
+        std::string handledTime;
+        if (report.getHandledTime() != 0) {
+            handledTime = TimeUtils::formatTime(report.getHandledTime());
+        }
+        const nlohmann::json data = {
+            {"copyId", report.getCopyId()},
+            {"errorType", report.getErrorType()},
+            {"submitTime", submitTime},
+            {"reporterId", report.getReporterId()},
+            {"handlerId", report.getHandlerId()},
+            {"handleTime", handledTime},
+            {"status", report.getStatus()},
+            {"exceptionDescription", report.getExceptionDescription()}
+        };
+        const nlohmann::json responseData = {
+            {"success", true},
+            {"data", data}
+        };
+        res = HttpUtils::createSuccessResponse(responseData, 201);
+    } else {
+        res = HttpUtils::createErrorResponse("获取详细信息失败", 500);
+    }
+}

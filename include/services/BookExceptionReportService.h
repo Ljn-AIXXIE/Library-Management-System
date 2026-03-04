@@ -31,6 +31,12 @@ public:
     //获取指定管理员处理的图书异常报告
     [[nodiscard]] std::vector<BookExceptionReport> getBookExceptionReportByHandlerId(
         const std::string &handlerId, std::string &errorMassage) const;
+
+    //获取详细的异常报告
+    [[nodiscard]] BookExceptionReport getDetailBookExceptionReport(const std::string &copyId,
+                                                                   const std::string &reporter,
+                                                                   const std::string &submitTime,
+                                                                   std::string &errorMessage) const;
 };
 
 
