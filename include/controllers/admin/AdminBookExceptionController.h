@@ -24,5 +24,8 @@ public:
 
     //GET /api/exception/detail/view - 查看详细的异常请求
     void handleGetDetailBookExceptionReport(const httplib::Request &req, httplib::Response &res) const;
+
+    //POST /api/exception/handle - 处理异常
+    void handleHandleBookExceptionReport(const httplib::Request &req, httplib::Response &res) const;
 };
 #endif //LIBRARY_MANAGEMENT_SYSTEM_ADMINBOOKEXCEPTIONCONTROLLER_H

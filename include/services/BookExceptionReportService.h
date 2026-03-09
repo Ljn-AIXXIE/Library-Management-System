@@ -1,13 +1,19 @@
 #ifndef LIBRARY_MANAGEMENT_SYSTEM_BOOKEXCEPTIONREPORTSERVICE_H
 #define LIBRARY_MANAGEMENT_SYSTEM_BOOKEXCEPTIONREPORTSERVICE_H
 #include "database/dao/BookExceptionReportDAO.h"
+#include "database/dao/BookCopyDAO.h"
 
 class BookExceptionReportService {
     BookExceptionReportDAO *db;
+    BookCopyDAO *copyDAO;
+    DatabaseOperator *databaseOperator;
 
 public:
-    explicit BookExceptionReportService(BookExceptionReportDAO *bookExceptionReportDAO) : db(
-        bookExceptionReportDAO) {
+    explicit BookExceptionReportService(BookExceptionReportDAO *bookExceptionReportDAO, BookCopyDAO *copyDao,
+                                        DatabaseOperator *databaseOperator) : db(
+                                                                                  bookExceptionReportDAO),
+                                                                              copyDAO(copyDao),
+                                                                              databaseOperator(databaseOperator) {
     }
 
     //用于添加书本异常报告
@@ -37,6 +43,10 @@ public:
                                                                    const std::string &reporter,
                                                                    const std::string &submitTime,
                                                                    std::string &errorMessage) const;
+
+    //解决图书异常报告
+    [[nodiscard]] bool handleBookExceptionReport(const std::string &copyId, const std::string &reporter,
+                                                 const std::string &submitTime, const std::string &handledId) const;
 };
 
 
