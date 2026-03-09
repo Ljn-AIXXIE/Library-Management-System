@@ -125,3 +125,24 @@ void AdminBookExceptionController::handleGetDetailBookExceptionReport(const http
         res = HttpUtils::createErrorResponse("获取详细信息失败", 500);
     }
 }
+
+//POST /api/exception/handle - 处理异常
+void AdminBookExceptionController::handleHandleBookExceptionReport(const httplib::Request &req,
+                                                                   httplib::Response &res) const {
+    Logger::getInstance().logAccess("POST /api/exception/handle - 处理异常");
+    nlohmann::json requestData = HttpUtils::parseRequestBody(req);
+    const std::string copyId = requestData["copyId"];
+    const std::string reporterId = requestData["reporterId"];
+    const std::string submitTime = requestData["submitTime"];
+    const std::string handledId = requestData["handlerId"];
+
+    if (bookExceptionReportService->handleBookExceptionReport(copyId, reporterId, submitTime, handledId)) {
+        const nlohmann::json responseData = {
+            {"success", true},
+            {"message", "异常报告已成功处理"}
+        };
+        res = HttpUtils::createSuccessResponse(responseData, 201);
+    } else {
+        res = HttpUtils::createErrorResponse("异常报告处理失败", 500);
+    }
+}

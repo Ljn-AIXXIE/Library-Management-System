@@ -68,7 +68,7 @@ int main() {
     BlackListService blackListService(&blackListDAO);
     BatchAddService batchAddService(&bookDAO, &userDAO, &bookCopyDAO, &recordDAO, &blackListDAO, &databaseOperator,
                                     &inventoryService);
-    BookExceptionReportService bookExceptionReportService(&bookExceptionReportDAO);
+    BookExceptionReportService bookExceptionReportService(&bookExceptionReportDAO, &bookCopyDAO, &databaseOperator);
 
     cout << "✓ Service层初始化完成" << endl;
     cout << endl;

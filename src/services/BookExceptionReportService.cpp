@@ -48,3 +48,22 @@ BookExceptionReport BookExceptionReportService::getDetailBookExceptionReport(
     std::string &errorMessage) const {
     return db->getBookExceptionReport(copyId, reporter, submitTime, errorMessage);
 }
+
+bool BookExceptionReportService::handleBookExceptionReport(const std::string &copyId, const std::string &reporterId,
+                                                           const std::string &submitTime,
+                                                           const std::string &handledId) const {
+    databaseOperator->beginTransaction();
+
+    if (!copyDAO->updateBookCopyStatus(copyId, "available")) {
+        databaseOperator->rollback();
+        return false;
+    }
+
+    if (!db->updateBookExceptionReport(copyId, reporterId, submitTime, handledId)) {
+        databaseOperator->rollback();
+        return false;
+    }
+
+    databaseOperator->commit();
+    return true;
+}
