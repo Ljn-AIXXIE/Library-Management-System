@@ -12,8 +12,11 @@ class Logger {
     std::ofstream businessFile;
     std::ofstream errorFile;
     std::mutex logMutex;
+    std::string currentLogDay;
 
     static std::string getCurrentTimestamp();
+    static std::string getCurrentDateYmd();
+    void ensureFilesForCurrentDay();
 
 public:
     static Logger &getInstance();
