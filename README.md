@@ -27,6 +27,32 @@ user表中role为admin的用户为管理员，role为student的用户为普通�
 
 ---
 
+### 环境变量
+
+#### `LIBRARY_LOG_DIR`（可选）
+
+- **作用**：指定日志根目录；建议使用**绝对路径**。设置后，访问 / 业务 / 错误日志分别写入该目录下的 `access`、`business`、
+  `error` 子目录，文件按日期命名（如 `2026-04-22.log`）。
+- **未设置时**：默认写入 **CMake 配置时的项目源码根目录**下的 `logs` 目录（同样包含上述子目录）。
+- **部署注意**：若将可执行文件拷贝到其他机器、或构建机路径在目标环境无效，请设置 `LIBRARY_LOG_DIR` 指向目标机上可写目录（例如
+  Linux 下的 `/var/log/<应用名>`）。
+
+**Windows（PowerShell）示例**
+
+```powershell
+$env:LIBRARY_LOG_DIR = "D:\logs\library-system"
+.\Library_Management_System.exe
+```
+
+**Linux / macOS 示例**
+
+```bash
+export LIBRARY_LOG_DIR=/var/log/library-system
+./Library_Management_System
+```
+
+---
+
 ### 已经实现的功能
 
 ##### 普通学生端
@@ -57,6 +83,7 @@ user表中role为admin的用户为管理员，role为student的用户为普通�
 
 - [x] 密码加密
 - [x] 黑名单
+- [x] 日志（文件分流、按日切分；路径见上文「环境变量」）
 
 ---
 
@@ -74,6 +101,8 @@ user表中role为admin的用户为管理员，role为student的用户为普通�
 
 - [ ] 导出书籍异常处理报告为excel
 - [ ] 对超期图书进行操作
+- [ ] 后台应有对距离当天多久为新书的设置
+- [ ] 支持批量导入读者信息
 
 #### 1.1 用户体验优化
 
@@ -103,6 +132,5 @@ user表中role为admin的用户为管理员，role为student的用户为普通�
 
 - [ ] 多线程
 - [ ] 从SQLite迁移到MySQL
-- [ ] 日志
 
 ---
