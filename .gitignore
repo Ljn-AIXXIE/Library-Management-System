@@ -1,6 +1,7 @@
 # 忽略文件
 assets/library.db
 external
+logs/
 
 # 可执行文件
 *.exe

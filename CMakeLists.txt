@@ -84,3 +84,7 @@ target_link_libraries(Library_Management_System PRIVATE
 
 target_include_directories(Library_Management_System PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/include)
 target_include_directories(Library_Management_System PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+file(TO_CMAKE_PATH "${CMAKE_SOURCE_DIR}" LIBRARY_PROJECT_ROOT_NORMALIZED)
+target_compile_definitions(Library_Management_System PRIVATE
+        "LIBRARY_PROJECT_ROOT_STR=\"${LIBRARY_PROJECT_ROOT_NORMALIZED}\"")
