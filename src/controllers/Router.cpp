@@ -144,7 +144,7 @@ void Router::registerAdminBatchAddRoutes() const {
 }
 
 void Router::registerAdminBookExceptionReportRoutes() const {
-    //POST /api/exception/handle - 提交异常
+    //POST /api/exception/submit - 提交异常
     server->Post("/api/exception/submit", [this](const httplib::Request &req, httplib::Response &res) {
         adminBookExceptionController->handleAddException(req, res);
     });
@@ -152,6 +152,16 @@ void Router::registerAdminBookExceptionReportRoutes() const {
     //GET /api/exception/search - 加载异常请求
     server->Get("/api/exception/search", [this](const httplib::Request &req, httplib::Response &res) {
         adminBookExceptionController->handleGetAllBookExceptionReport(req, res);
+    });
+
+    //GET /api/exception/detail/view - 查看详细的异常请求
+    server->Get("/api/exception/detail/view", [this](const httplib::Request &req, httplib::Response &res) {
+        adminBookExceptionController->handleGetDetailBookExceptionReport(req, res);
+    });
+
+    //POST /api/exception/handle - 处理异常
+    server->Post("/api/exception/handle", [this](const httplib::Request &req, httplib::Response &res) {
+        adminBookExceptionController->handleHandleBookExceptionReport(req, res);
     });
 }
 

@@ -9,9 +9,9 @@ bool BookExceptionReportService::addBookExceptionReport(const BookExceptionRepor
 
 bool BookExceptionReportService::isBookExceptionReportExist(const std::string &copyId) const {
     if (db->isBookExceptionReportExist(copyId)) {
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 std::vector<BookExceptionReport>
@@ -41,4 +41,29 @@ std::vector<BookExceptionReport> BookExceptionReportService::getBookExceptionRep
 std::vector<BookExceptionReport> BookExceptionReportService::getBookExceptionReportByHandlerId(
     const std::string &handlerId, std::string &errorMassage) const {
     return db->getBookExceptionReportByHandlerId(handlerId, errorMassage);
+}
+
+BookExceptionReport BookExceptionReportService::getDetailBookExceptionReport(
+    const std::string &copyId, const std::string &reporter, const std::string &submitTime,
+    std::string &errorMessage) const {
+    return db->getBookExceptionReport(copyId, reporter, submitTime, errorMessage);
+}
+
+bool BookExceptionReportService::handleBookExceptionReport(const std::string &copyId, const std::string &reporterId,
+                                                           const std::string &submitTime,
+                                                           const std::string &handledId) const {
+    databaseOperator->beginTransaction();
+
+    if (!copyDAO->updateBookCopyStatus(copyId, "available")) {
+        databaseOperator->rollback();
+        return false;
+    }
+
+    if (!db->updateBookExceptionReport(copyId, reporterId, submitTime, handledId)) {
+        databaseOperator->rollback();
+        return false;
+    }
+
+    databaseOperator->commit();
+    return true;
 }

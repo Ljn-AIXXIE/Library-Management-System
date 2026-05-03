@@ -161,7 +161,7 @@
             <div class="book-icon-large">⚠️</div>
             <div class="book-title-section">
                 <h1 id="copyId">加载中...</h1>
-                <div class="book-author" id="adminId">加载中...</div>
+                <div class="book-author" id="reporterId">加载中...</div>
                 <div class="book-meta-badge" id="errorType">加载中...</div>
             </div>
             <div style="display: flex; flex-grow: 1; flex-direction: row-reverse">
@@ -174,7 +174,7 @@
                 <h3>提交信息</h3>
                 <div class="info-item">
                     <span class="info-label">提交者ID：</span>
-                    <span class="info-value" id="reporterId">加载中...</span>
+                    <span class="info-value" id="reporterId2">加载中...</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">提交时间：</span>
@@ -255,10 +255,11 @@
             document.getElementById('errorType').textContent = reduceData.errorType || '暂无信息';
             document.getElementById('errorType2').textContent = reduceData.errorType || '暂无信息';
             document.getElementById('reporterId').textContent = reduceData.reporterId || '暂无信息';
+            document.getElementById('reporterId2').textContent = reduceData.reporterId || '暂无信息';
             document.getElementById('submitTime').textContent = reduceData.submitTime || '暂无信息';
             document.getElementById('handleTime').textContent = reduceData.handleTime || '暂无信息';
             document.getElementById('handlerId').textContent = reduceData.handlerId || '暂无信息';
-            document.getElementById('status').textContent = reduceData.status === 'Processed' ? '已处理' : '未处理';
+            document.getElementById('status').textContent = reduceData.status === 'processed' ? '已处理' : '未处理';
             document.getElementById('exceptionDescription').textContent = reduceData.exceptionDescription || '暂无信息';
 
         } catch (error) {
