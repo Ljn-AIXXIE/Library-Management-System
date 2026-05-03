@@ -86,16 +86,16 @@
     </div>
     <script type="module">
         import {checkAndBackUser} from "./js/reader.js";
+        import {readerRecommendations} from "./js/web.js";
         window.switchTab = switchTab;
 
-        const API_BASE_URL = 'http://localhost:8080';
         let currentUser = null;
         let currentTab = 'personal';
         let loadedTabs = new Set();
 
         window.onload = function() {
-            // currentUser = checkAndBackUser();
-            // if (!currentUser) return;
+            currentUser = checkAndBackUser();
+            if (!currentUser) return;
 
             document.getElementById('userName').textContent = currentUser.name;
             loadRecommendations('personal');
@@ -112,16 +112,15 @@
 
         async function loadRecommendations(type) {
             const endpoints = {
-                personal: '/api/recommend/personal',
-                similar: '/api/recommend/similar',
-                popular: '/api/recommend/popular',
-                category: '/api/recommend/category',
-                new: '/api/recommend/new',
-                hybrid: '/api/recommend/hybrid'
+                personal: 'personal',
+                similar: 'similar',
+                popular: 'popular',
+                category: 'category',
+                new: 'new',
+                hybrid: 'hybrid'
             };
             try {
-                const response = await fetch(`${API_BASE_URL}${endpoints[type]}?userId=${currentUser.userId}`);
-                const data = await response.json();
+                const data = await readerRecommendations(currentUser.userId, endpoints[type])
                 if (data.success) { displayBooks(type, data.data); loadedTabs.add(type); }
                 else { showEmpty(type, data.message || '加载失败'); }
             } catch (error) { console.error('加载推荐失败:', error); showEmpty(type, '网络错误'); }
