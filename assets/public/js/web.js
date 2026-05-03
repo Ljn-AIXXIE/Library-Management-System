@@ -2,7 +2,6 @@ export const API_BASE_URL = 'http://localhost:8080';
 
 /**
  * 登录请求
- * @function login
  * @param {string} userId 用户名
  * @param {string} password 密码
  * @return {Promise<any>}
@@ -20,7 +19,6 @@ export async function login(userId, password) {
 
 /**
  * 注册请求
- * @function register
  * @param {string} userId 用户名
  * @param {string} name 名称
  * @param {string} password 密码
@@ -39,8 +37,27 @@ export async function register(userId, name, password) {
 }
 
 /**
+ * 修改密码请求
+ * @param userId 用户名
+ * @param oldPassword 旧密码
+ * @param newPassword 新密码
+ * @return {Promise<any>}
+ */
+export async function changePwd(userId, oldPassword, newPassword) {
+    const response = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            userId: userId,
+            oldPassword,
+            newPassword
+        })
+    });
+    return await response.json();
+}
+
+/**
  * 获取管理员综合信息请求
- * @function adminStats
  * @return {Promise<any>}
  */
 export async function adminStats() {
@@ -50,7 +67,6 @@ export async function adminStats() {
 
 /**
  * 备份数据库请求
- * @function backupDataBase
  * @return {Promise<any>}
  */
 export async function adminBackupDataBase() {
@@ -60,7 +76,6 @@ export async function adminBackupDataBase() {
 
 /**
  * 处理借书请求
- * @function adminBorrowBook
  * @param {string} userId 用户名
  * @param {string} copyId 图书副本ID
  * @param {string} adminId 管理员ID
@@ -81,7 +96,6 @@ export async function adminBorrowBook(userId, copyId, adminId) {
 
 /**
  * 处理还书请求
- * @function adminReturnBook
  * @param {string} userId 用户名
  * @param {string} copyId 图书副本ID
  * @param {string} adminId 管理员ID
@@ -102,7 +116,6 @@ export async function adminReturnBook(userId, copyId, adminId) {
 
 /**
  * 所有图书请求
- * @function adminLoadBooks
  * @return {Promise<any>}
  */
 export async function adminLoadBooks() {
@@ -112,7 +125,6 @@ export async function adminLoadBooks() {
 
 /**
  * 搜索图书请求
- * @function adminSearchBooks
  * @return {Promise<any>}
  */
 export async function adminSearchBooks(keyword) {
@@ -122,7 +134,6 @@ export async function adminSearchBooks(keyword) {
 
 /**
  * 更新图书请求
- * @function adminUpdateBook
  * @param {string} isbn 图书ISBN
  * @param {string} title 书名
  * @param {string} author 作者
@@ -156,7 +167,6 @@ export async function adminUpdateBook(isbn, title, author, category, publisher,
 
 /**
  * 添加图书请求
- * @function adminAddBook
  * @param {string} isbn 图书ISBN
  * @param {string} title 书名
  * @param {string} author 作者
@@ -190,7 +200,6 @@ export async function adminAddBook(isbn, title, author, category, publisher,
 
 /**
  * 删除图书请求
- * @function adminDeleteBook
  * @param {string} isbn 图书ISBN
  * @return {Promise<any>}
  */
@@ -205,7 +214,6 @@ export async function adminDeleteBook(isbn) {
 
 /**
  * 所有图书副本请求
- * @function adminLoadCopies
  * @param {string} isbn 图书ISBN
  * @return {Promise<any>}
  */
@@ -216,7 +224,6 @@ export async function adminLoadCopies(isbn) {
 
 /**
  * 添加图书副本请求
- * @function adminAddCopy
  * @param {string} isbn 图书ISBN
  * @return {Promise<any>}
  */
@@ -231,7 +238,6 @@ export async function adminAddCopy(isbn) {
 
 /**
  * 删除图书副本请求
- * @function adminDeleteCopy
  * @param {string} copyId 图书副本ID
  * @return {Promise<any>}
  */
@@ -246,7 +252,6 @@ export async function adminDeleteCopy(copyId) {
 
 /**
  * 异常详细请求
- * @function adminLoadExceptionDetail
  * @param {string} copyId 图书副本ID
  * @param {string} reporterId 提交者ID
  * @param {string} submitTime 提交时间
@@ -261,7 +266,6 @@ export async function adminLoadExceptionDetail(copyId, reporterId, submitTime) {
 
 /**
  * 异常处理请求
- * @function adminLoadExceptionDetail
  * @param {string} copyId 图书副本ID
  * @param {string} reporterId 提交者ID
  * @param {string} submitTime 提交时间
@@ -279,7 +283,6 @@ export async function adminHandleExceptionDetail(copyId, reporterId, submitTime,
 
 /**
  * 异常提交请求
- * @function adminHandleException
  * @param {string} copyId 图书副本ID
  * @param {string} exceptionType 异常类型
  * @param {string} note 备注
@@ -302,7 +305,6 @@ export async function adminHandleException(copyId, exceptionType, note, adminId)
 
 /**
  * 加载异常请求
- * @function adminLoadExceptionDetails
  * @return {Promise<any>}
  */
 export async function adminLoadExceptionDetails() {
@@ -312,7 +314,6 @@ export async function adminLoadExceptionDetails() {
 
 /**
  * 搜索异常请求
- * @function adminSearchExceptionDetails
  * @param {string} searchType 搜索类型
  * @param {string} searchUnHandled 搜索未完成的
  * @param {string} searchInput 搜索内容
@@ -328,7 +329,6 @@ export async function adminSearchExceptionDetails(searchType, searchUnHandled, s
 
 /**
  * 加载所有读者请求
- * @function adminLoadReaders
  * @return {Promise<any>}
  */
 export async function adminLoadReaders() {
@@ -338,7 +338,6 @@ export async function adminLoadReaders() {
 
 /**
  * 搜索读者请求
- * @function adminSearchReaders
  * @param {string} userId 用户名
  * @return {Promise<any>}
  */
@@ -349,7 +348,6 @@ export async function adminSearchReaders(userId) {
 
 /**
  * 查看读者请求
- * @function adminViewReader
  * @param {string} userId 用户名
  * @return {Promise<any>}
  */
@@ -360,7 +358,6 @@ export async function adminViewReader(userId) {
 
 /**
  * 冻结读者请求
- * @function adminFreezeReader
  * @param {string} userId 用户名
  * @return {Promise<any>}
  */
@@ -375,7 +372,6 @@ export async function adminFreezeReader(userId) {
 
 /**
  * 解冻读者请求
- * @function adminUnfreezeReader
  * @param {string} userId 用户名
  * @return {Promise<any>}
  */
@@ -385,5 +381,125 @@ export async function adminUnfreezeReader(userId) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({userId})
     });
+    return await response.json();
+}
+
+/**
+ * 获取图书详细信息
+ * @param {string} isbn 图书ISBN
+ * @return {Promise<any>}
+ */
+export async function readerLoadBookDetails(isbn) {
+    const response = await fetch(`${API_BASE_URL}/api/books/detail/book?isbn=${isbn}`);
+    return await response.json();
+}
+
+/**
+ * 获取副本信息
+ * @param userId 用户名
+ * @param isbn 图书ISBN
+ * @return {Promise<any>}
+ */
+export async function readerLoadBookCopies(userId, isbn) {
+    const response = await fetch(`${API_BASE_URL}/api/books/detail/copies?isbn=${isbn}`);
+    return await response.json();
+}
+
+/**
+ * 读者借书
+ * @param userId 用户名
+ * @param isbn 图书ISBN
+ * @param copyId 图书副本ID
+ * @return {Promise<any>}
+ */
+export async function readerBorrowBook(userId, isbn, copyId) {
+    const borrowData = { userId, isbn, copyId };
+    const response = await fetch(`${API_BASE_URL}/api/borrow`, {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify(borrowData)
+    });
+    return await response.json();
+}
+
+/**
+ * 读者查找图书
+ * @param searchType 图书类型
+ * @param searchInput 关键字
+ * @return {Promise<any>}
+ */
+export async function readerSearchBooks(searchType, searchInput) {
+    const response = await fetch(`${API_BASE_URL}/api/books/search?type=${searchType}&keyword=${encodeURIComponent(searchInput)}`);
+    return await response.json();
+}
+
+/**
+ * 读者当前借阅
+ * @param userId 用户名
+ * @return {Promise<any>}
+ */
+export async function readerCurrentBorrowedBooks(userId) {
+    const response = await fetch(`${API_BASE_URL}/api/borrow/current?userId=${userId}`);
+    return await response.json();
+}
+
+/**
+ * 读者借阅历史
+ * @param userId 用户名
+ * @return {Promise<any>}
+ */
+export async function readerBorrowedBooksHistory(userId) {
+    const response = await fetch(`${API_BASE_URL}/api/borrow/history?userId=${userId}`);
+    return await response.json();
+}
+
+/**
+ * 读者继续借阅请求
+ * @param userId 用户名
+ * @param copyId 图书副本ID
+ * @return {Promise<any>}
+ */
+export async function readerContinueBorrowBook(userId, copyId) {
+    const response = await fetch(`${API_BASE_URL}/api/borrow/coBorrow`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({copyId, userId: userId})
+    });
+    return await response.json();
+}
+
+/**
+ * 读者归还图书
+ * @param userId 用户名
+ * @param copyId 图书副本ID
+ * @return {Promise<any>}
+ */
+export async function readerReturnBook(userId, copyId) {
+    const response = await fetch(`${API_BASE_URL}/api/borrow/return`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({copyId, userId: userId})
+    });
+    return await response.json();
+}
+
+/**
+ * 读者借阅概览
+ * @param userId 用户名
+ * @return {Promise<any>}
+ */
+export async function readerBorrowStats(userId) {
+    const response = await fetch(`${API_BASE_URL}/api/reader/stats?userId=${userId}`);
+    return await response.json();
+}
+
+/**
+ * 读者推荐图书
+ * @param userId 用户名
+ * @param type 推荐类型
+ * @return {Promise<any>}
+ */
+export async function readerRecommendations(userId, type) {
+    const response = await fetch(`${API_BASE_URL}/api/recommend/${type}?userId=${currentUser.userId}`);
     return await response.json();
 }

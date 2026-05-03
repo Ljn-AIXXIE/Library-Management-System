@@ -319,10 +319,10 @@
     <script type="module">
         import {checkAndBackUser} from "./js/reader.js";
         import {showMessage} from "./js/common.js";
+        import {changePwd, readerBorrowStats} from "./js/web.js";
         window.closePasswordModal = closePasswordModal;
         window.showChangePasswordModal = showChangePasswordModal;
 
-        const API_BASE_URL = 'http://localhost:8080';
         let currentUser = null;
 
         window.onload = function() {
@@ -341,8 +341,7 @@
                     currentUser.role === 'student' ? '普通读者' : '管理员';
 
                 // 加载借阅统计
-                const response = await fetch(`${API_BASE_URL}/api/reader/stats?userId=${currentUser.userId}`);
-                const data = await response.json();
+                const data = await readerBorrowStats(currentUser.userId);
 
                 if (data.success) {
                     document.getElementById('currentBorrow').textContent = `${data.data.currentBorrow} 本`;
@@ -379,17 +378,7 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: currentUser.userId,
-                        oldPassword,
-                        newPassword
-                    })
-                });
-
-                const data = await response.json();
+                const data = await changePwd(currentUser.userId, oldPassword, newPassword);
 
                 if (data.success) {
                     showMessage('密码修改成功', 'success');

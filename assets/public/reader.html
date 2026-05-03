@@ -229,9 +229,8 @@
     <script type="module">
         import {checkAndBackUser} from "./js/reader.js";
         import {logout} from "./js/common.js";
+        import {readerBorrowStats} from "./js/web.js";
         window.logout = logout;
-
-        const API_BASE_URL = 'http://localhost:8080';
 
         // 页面加载时获取用户信息
         window.onload = function() {
@@ -250,8 +249,7 @@
         // 加载借阅统计
         async function loadBorrowStats(userId) {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/reader/stats?userId=${userId}`);
-                const data = await response.json();
+                const data = await readerBorrowStats(userId);
 
                 if (data.success) {
                     document.getElementById('currentBorrow').innerHTML =

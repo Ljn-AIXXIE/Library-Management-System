@@ -423,10 +423,9 @@
 <script type="module">
     import {checkAndBackUser} from "./js/reader.js";
     import {showMessage} from "./js/common.js";
+    import {readerLoadBookDetails, readerLoadBookCopies, readerBorrowBook} from "./js/web.js";
 
     window.borrowBook = borrowBook;
-
-    const API_BASE_URL = 'http://localhost:8080';
 
     window.onload = function () {
         const user = checkAndBackUser();
@@ -439,79 +438,71 @@
             fetchBookDetails(isbn);
             fetchBookCopies(user.userId, isbn);
         } else {
+            showMessage('缺少ISBN参数，无法获取图书信息', 'error');
             document.querySelector('.book-detail-card').innerHTML =
                 '<div class="error-message">缺少ISBN参数，无法获取图书信息</div>';
         }
     };
 
-    function fetchBookDetails(isbn) {
-        fetch(`${API_BASE_URL}/api/books/detail/book?isbn=${isbn}`)
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    console.error('获取图书详情失败:', data.message);
-                    return;
-                }
+    async function fetchBookDetails(isbn) {
+        try {
+            const data = await readerLoadBookDetails(isbn)
 
-                const bookData = data.data;
-                document.getElementById('isbn').textContent = bookData.isbn || '暂无信息';
-                document.getElementById('title').textContent = bookData.title || '暂无信息';
-                document.getElementById('author').textContent = bookData.author || '暂无信息';
-                document.getElementById('category').textContent = bookData.category || '暂无信息';
-                document.getElementById('publisher').textContent = bookData.publisher || '暂无信息';
-                document.getElementById('publishDate').textContent = bookData.publishDate || '暂无信息';
-                document.getElementById('price').textContent = bookData.price ? `¥${bookData.price}` : '暂无信息';
-                document.getElementById('pages').textContent = bookData.pages ? `${bookData.pages}页` : '暂无信息';
-                document.getElementById('description').textContent = bookData.description || '暂无简介';
+            if (!data.success) return;
+            const bookData = await data.json();
+            document.getElementById('isbn').textContent = bookData.isbn || '暂无信息';
+            document.getElementById('title').textContent = bookData.title || '暂无信息';
+            document.getElementById('author').textContent = bookData.author || '暂无信息';
+            document.getElementById('category').textContent = bookData.category || '暂无信息';
+            document.getElementById('publisher').textContent = bookData.publisher || '暂无信息';
+            document.getElementById('publishDate').textContent = bookData.publishDate || '暂无信息';
+            document.getElementById('price').textContent = bookData.price ? `¥${bookData.price}` : '暂无信息';
+            document.getElementById('pages').textContent = bookData.pages ? `${bookData.pages}页` : '暂无信息';
+            document.getElementById('description').textContent = bookData.description || '暂无简介';
 
-                document.getElementById('total-copies').textContent = `${bookData.totalCount}`;
-                document.getElementById('available-copies').textContent = `${bookData.availableCount}`;
-                document.getElementById('borrowed-copies').textContent = `${bookData.totalCount - bookData.availableCount}`;
-            })
-            .catch(error => {
-                console.error('获取图书详情失败:', error);
-                document.querySelector('.book-detail-card').innerHTML =
-                    '<div class="error-message">加载图书详情失败，请稍后重试</div>';
-            });
+            document.getElementById('total-copies').textContent = `${bookData.totalCount}`;
+            document.getElementById('available-copies').textContent = `${bookData.availableCount}`;
+            document.getElementById('borrowed-copies').textContent = `${bookData.totalCount - bookData.availableCount}`;
+        } catch (e) {
+            console.error('获取图书详情失败:', e);
+            showMessage('加载图书详情失败，请稍后重试', 'error');
+            document.querySelector('.book-detail-card').innerHTML =
+                '<div class="error-message">加载图书详情失败，请稍后重试</div>';
+        }
     }
 
-    function fetchBookCopies(userId, isbn) {
-        fetch(`${API_BASE_URL}/api/books/detail/copies?isbn=${isbn}`)
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    showMessage('加载副本信息失败，请稍后重试', 'error');
-                    return;
-                }
+    async function fetchBookCopies(userId, isbn) {
+        try {
+            const data = await readerLoadBookCopies(userId, isbn)
 
-                const copiesData = data.data;
-                if (!copiesData || copiesData.length <= 0) {
-                    renderEmptyCopies();
-                    return;
-                }
-
-                renderCopiesList(userId, copiesData, isbn);
-            })
-            .catch(() => {
+            if (!data.success) {
                 showMessage('加载副本信息失败，请稍后重试', 'error');
-            });
+                return;
+            }
+
+            const copiesData = data.data;
+            if (!copiesData || copiesData.length <= 0) {
+                renderEmptyCopies();
+                return;
+            }
+
+            renderCopiesList(userId, copiesData, isbn);
+        } catch (e) {
+            showMessage('加载副本信息失败，请稍后重试', 'error');
+        }
     }
 
-    function borrowBook(userId, isbn, copyId) {
-        const borrowData = {userId, isbn, copyId};
-        fetch(`${API_BASE_URL}/api/borrow`, {
-            method: 'POST',
-            headers: {'content-type': 'application/json'},
-            body: JSON.stringify(borrowData)
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) showMessage('网络错误', 'error');
+    async function borrowBook(userId, isbn, copyId) {
+        try {
+            const data = await readerBorrowBook(userId, isbn, copyId);
 
-                fetchBookDetails(isbn);
-                fetchBookCopies(userId, isbn);
-            })
-            .catch(() => showMessage('网络错误', 'error'));
+            if (!data.success) showMessage('网络错误', 'error');
+
+            await fetchBookDetails(isbn);
+            await fetchBookCopies(userId, isbn);
+        } catch (error) {
+            showMessage('网络错误', 'error')
+        }
     }
 
     function renderCopiesList(userId, copies, isbn) {
