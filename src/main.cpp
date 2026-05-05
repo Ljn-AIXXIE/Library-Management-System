@@ -11,6 +11,7 @@
 #include "database/dao/BlackListDAO.h"
 #include "database/dao/BookCopyDAO.h"
 #include "database/dao/BookDAO.h"
+#include "database/dao/BookExceptionReportDAO.h"
 #include "database/dao/RecordDAO.h"
 #include "database/dao/UserDAO.h"
 #include "services/BatchAddService.h"
@@ -62,6 +63,7 @@ int main() {
     BookExceptionReportDAO bookExceptionReportDAO(&databaseOperator);
 
     UserService userService(&userDAO);
+    userService.ensureBootstrapSuperAdmin();
     InventoryService inventoryService(&bookDAO, &bookCopyDAO, &databaseOperator);
     SearchService searchService(&bookDAO);
     BorrowService borrowService(&bookCopyDAO, &recordDAO, &userDAO);
@@ -103,6 +105,7 @@ int main() {
 
     cout << "可用的页面:" << endl;
     cout << "  http://localhost:" << port << "/login.html - 登录页面" << endl;
+    cout << "  http://localhost:" << port << "/super-admin.html - 超级管理员控制台" << endl;
     cout << endl;
 
     cout << "========================================" << endl;

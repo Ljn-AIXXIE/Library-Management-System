@@ -23,6 +23,7 @@ void Router::initializeRoutes(UserService *userService, InventoryService *invent
     adminController = make_unique<AdminController>(userService, inventoryService, borrowService);
     adminBookExceptionController = make_unique<AdminBookExceptionController>(
         bookExceptionReportService, inventoryService);
+    superAdminController = make_unique<SuperAdminController>(userService);
 
     // 设置CORS
     setupCORS();
@@ -38,6 +39,7 @@ void Router::initializeRoutes(UserService *userService, InventoryService *invent
     registerAdminBookExceptionReportRoutes();
     registerBookRoutes();
     registerProfileRoutes();
+    registerSuperAdminRoutes();
 }
 
 // 注册，登录，登出的路由
@@ -212,6 +214,18 @@ void Router::registerProfileRoutes() const {
     //GET /api/admin/stats - 获取管理员统计信息
     server->Get("/api/admin/stats", [this](const httplib::Request &req, httplib::Response &res) {
         adminController->handleGetStats(res);
+    });
+}
+
+void Router::registerSuperAdminRoutes() const {
+    server->Get("/api/super-admin/managers", [this](const httplib::Request &req, httplib::Response &res) {
+        superAdminController->handleListManagers(req, res);
+    });
+    server->Post("/api/super-admin/managers/promote", [this](const httplib::Request &req, httplib::Response &res) {
+        superAdminController->handlePromote(req, res);
+    });
+    server->Post("/api/super-admin/managers/demote", [this](const httplib::Request &req, httplib::Response &res) {
+        superAdminController->handleDemote(req, res);
     });
 }
 

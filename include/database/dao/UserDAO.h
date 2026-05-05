@@ -2,6 +2,7 @@
 #define LIBRARY_MANAGEMENT_SYSTEM_USERDAO_H
 
 #include <string>
+#include <vector>
 
 #include "database/DatabaseOperator.h"
 #include "entities/User.h"
@@ -12,6 +13,12 @@ class UserDAO {
 public:
     explicit UserDAO(DatabaseOperator *userDatabase) : userDatabase(userDatabase) {
     }
+
+    struct AdministratorRecord {
+        std::string userId;
+        std::string name;
+        std::string role;
+    };
 
     //核心操作
     [[nodiscard]] bool addUser(const User &user, std::string &errorMessage) const; //添加用户
@@ -28,6 +35,10 @@ public:
     [[nodiscard]] bool verifyUser(const std::string &userId, const std::string &password) const; //验证用户登录
     [[nodiscard]] int getBorrowedBookCount(const std::string &userId) const; //获取用户已借阅数量
     [[nodiscard]] int getTotalUserCount() const; //获取用户总数
+
+    [[nodiscard]] int countUsersWithRole(const std::string &role) const;
+    [[nodiscard]] bool updateUserRole(const std::string &userId, const std::string &newRole, std::string &errorMessage) const;
+    [[nodiscard]] std::vector<AdministratorRecord> listAdministratorAccounts() const;
 
     //std::vector<User> getAllUsers();//获取所有用户信息，用于管理员查询所有用户
 };

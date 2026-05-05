@@ -10,6 +10,7 @@
 #include "admin/AdminBookExceptionController.h"
 #include "admin/AdminController.h"
 #include "admin/AdminUserController.h"
+#include "admin/SuperAdminController.h"
 #include "user/AuthController.h"
 #include "user/BookController.h"
 #include "user/UserController.h"
@@ -27,6 +28,7 @@ class Router {
     std::unique_ptr<AdminBatchAddController> adminBatchAddController;
     std::unique_ptr<AdminController> adminController;
     std::unique_ptr<AdminBookExceptionController> adminBookExceptionController;
+    std::unique_ptr<SuperAdminController> superAdminController;
 
     void registerAuthRoutes() const; //注册，登录，登出的路由
     void registerAdminBookRoutes() const; //注册管理员图书管理的路由
@@ -35,6 +37,7 @@ class Router {
     void registerAdminBookExceptionReportRoutes() const; //注册管理员书本异常处理的路由
     void registerBookRoutes() const; //注册图书相关的路由
     void registerProfileRoutes() const; //注册显示用户信息相关的路由
+    void registerSuperAdminRoutes() const;
 
     //注册中间件
     void registerMiddleware() const;

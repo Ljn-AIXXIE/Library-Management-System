@@ -28,6 +28,12 @@ void AuthController::handleRegister(const httplib::Request &req, httplib::Respon
         return;
     }
 
+    // 保留给系统默认超级管理员
+    if (userId == "000000000001") {
+        res = HttpUtils::createErrorResponse("该用户ID为系统保留，无法注册", 400);
+        return;
+    }
+
     // 验证密码强度
     if (password.length() < 6) {
         res = HttpUtils::createErrorResponse("密码长度至少为6个字符", 400);
