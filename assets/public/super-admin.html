@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超级管理员 - 图书管理系统</title>
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/admin.css">
+    <style>
+        .sa-hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #eee;
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(15, 52, 96, 0.35);
+        }
+        .sa-hero h2 { margin: 0 0 10px 0; font-size: 22px; }
+        .sa-hero p { margin: 4px 0; font-size: 14px; opacity: 0.9; }
+        .sa-hero code { background: rgba(255,255,255,0.12); padding: 2px 8px; border-radius: 4px; }
+        .sa-panel {
+            background: #fff;
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+        .sa-panel h3 { margin: 0 0 16px 0; color: #333; }
+        .sa-form-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 8px; }
+        .sa-form-row label { display: flex; flex-direction: column; font-size: 14px; color: #555; }
+        .sa-form-row input { padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; min-width: 220px; }
+        .btn-sa { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-sa-primary {
+            background: linear-gradient(135deg, #0f3460 0%, #533483 100%);
+            color: #fff;
+        }
+        .btn-sa-danger { background: #c0392b; color: #fff; }
+        .btn-sa-secondary { background: #ecf0f1; color: #333; }
+        table.sa-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        table.sa-table th, table.sa-table td {
+            padding: 12px 10px; text-align: left; border-bottom: 1px solid #eee;
+        }
+        table.sa-table th { color: #888; font-weight: 600; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
+        .badge-super { background: #1a1a2e; color: #f1c40f; }
+        .badge-admin { background: #e8f4fc; color: #2980b9; }
+        .message { padding: 12px; border-radius: 6px; margin-bottom: 16px; display: none; }
+        .message.success { background: #d4edda; color: #155724; }
+        .message.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-brand" style="cursor:pointer" onclick="location.href='super-admin.html'">🔐 超级管理员控制台</div>
+    <div class="navbar-user">
+        <div class="user-info">
+            <span>👤</span>
+            <span id="userName">-</span>
+            <span>|</span>
+            <span id="userIdSpan"></span>
+        </div>
+        <button class="navbar-btn" type="button" onclick="location.href='admin.html'">图书管理后台</button>
+        <button class="navbar-btn" onclick="logout()">退出登录</button>
+    </div>
+</nav>
+<div class="container">
+    <div id="message" class="message"></div>
+
+    <div class="sa-hero">
+        <h2>系统级权限管理</h2>
+        <p>可提拔读者为<strong>管理员</strong>，或撤销管理员身份（恢复为读者）。超级管理员账号不可在此删除。</p>
+        <p>首次部署默认账号：<code>用户ID 000000000001</code>，默认密码：<code>123456</code> —— 登录后请尽快在读者端「修改密码」中更换。</p>
+    </div>
+
+    <div class="sa-panel">
+        <h3>提拔读者为管理员</h3>
+        <p style="color:#666;font-size:13px;margin:-8px 0 12px 0;">目标用户须已注册且当前角色为读者（student），用户 ID 为 12 位。</p>
+        <div class="sa-form-row">
+            <label>读者用户 ID
+                <input type="text" id="promoteUserId" maxlength="12" placeholder="12 位用户 ID" autocomplete="off">
+            </label>
+            <button type="button" class="btn-sa btn-sa-primary" id="btnPromote">提拔为管理员</button>
+        </div>
+    </div>
+
+    <div class="sa-panel">
+        <h3>管理员与超级管理员列表</h3>
+        <button type="button" class="btn-sa btn-sa-secondary" id="btnRefresh" style="margin-bottom:14px">刷新列表</button>
+        <div style="overflow-x:auto;">
+            <table class="sa-table">
+                <thead>
+                <tr>
+                    <th>用户 ID</th>
+                    <th>姓名</th>
+                    <th>角色</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="managerTableBody">
+                <tr><td colspan="4" style="color:#999;">加载中…</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import {checkAndBackSuperAdmin} from "./js/admin.js";
+    import {logout, showMessage} from "./js/common.js";
+    import {superAdminListManagers, superAdminDemote, superAdminPromote} from "./js/web.js";
+    window.logout = logout;
+
+    const user = checkAndBackSuperAdmin();
+    if (!user) {
+        /* 已提示并跳转登录 */
+    } else {
+    document.getElementById('userName').textContent = user.name || '超级管理员';
+    document.getElementById('userIdSpan').textContent = user.userId || '';
+
+    async function loadTable() {
+        const tbody = document.getElementById('managerTableBody');
+        tbody.innerHTML = '<tr><td colspan="4" style="color:#999;">加载中…</td></tr>';
+        try {
+            const data = await superAdminListManagers(user.userId);
+            if (!data.success) {
+                tbody.innerHTML = `<tr><td colspan="4" style="color:#c0392b">${data.message || '加载失败'}</td></tr>`;
+                return;
+            }
+            const rows = data.data || [];
+            if (rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="color:#999;">暂无数据</td></tr>';
+                return;
+            }
+            tbody.innerHTML = rows.map(r => {
+                const isSuper = r.role === 'super_admin';
+                const roleLabel = isSuper
+                    ? '<span class="badge badge-super">超级管理员</span>'
+                    : '<span class="badge badge-admin">管理员</span>';
+                const action = isSuper
+                    ? '<span style="color:#999;font-size:13px;">不可撤销</span>'
+                    : `<button type="button" class="btn-sa btn-sa-danger btn-demote" data-id="${r.userId}">撤销管理员</button>`;
+                return `<tr>
+                    <td>${escapeHtml(r.userId)}</td>
+                    <td>${escapeHtml(r.name)}</td>
+                    <td>${roleLabel}</td>
+                    <td>${action}</td>
+                </tr>`;
+            }).join('');
+
+            tbody.querySelectorAll('.btn-demote').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    if (!confirm(`确定撤销用户 ${id} 的管理员身份？将恢复为普通读者。`)) return;
+                    const res = await superAdminDemote(user.userId, id);
+                    if (res.success) {
+                        showMessage(res.message || '已撤销', 'success', true, 2500);
+                        loadTable();
+                    } else {
+                        showMessage(res.message || '操作失败', 'error', false, 4000, true);
+                    }
+                });
+            });
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="4" style="color:#c0392b">网络错误：${e.message}</td></tr>`;
+        }
+    }
+
+    function escapeHtml(s) {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    document.getElementById('btnRefresh').addEventListener('click', loadTable);
+    document.getElementById('btnPromote').addEventListener('click', async () => {
+        const target = document.getElementById('promoteUserId').value.trim();
+        if (target.length !== 12) {
+            showMessage('用户 ID 须为 12 位', 'error', false, 3000, true);
+            return;
+        }
+        const res = await superAdminPromote(user.userId, target);
+        if (res.success) {
+            showMessage(res.message || '已提拔', 'success', true, 2500);
+            document.getElementById('promoteUserId').value = '';
+            loadTable();
+        } else {
+            showMessage(res.message || '操作失败', 'error', false, 4000, true);
+        }
+    });
+
+    loadTable();
+    }
+
+</script>
+</body>
+</html>

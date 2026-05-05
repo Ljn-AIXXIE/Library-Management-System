@@ -338,7 +338,8 @@
                 document.getElementById('userId').textContent = currentUser.userId;
                 document.getElementById('userName').textContent = currentUser.name;
                 document.getElementById('userRole').textContent =
-                    currentUser.role === 'student' ? '普通读者' : '管理员';
+                    currentUser.role === 'student' ? '普通读者' :
+                    currentUser.role === 'super_admin' ? '超级管理员' : '管理员';
 
                 // 加载借阅统计
                 const data = await readerBorrowStats(currentUser.userId);

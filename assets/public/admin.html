@@ -90,6 +90,11 @@
             <p>管理员控制面板 - 管理图书、读者和借阅记录</p>
         </div>
         <div class="quick-actions">
+            <a href="super-admin.html" class="admin-card" id="superAdminCard" style="display:none;border-left:4px solid #f1c40f;">
+                <div class="admin-icon">🔐</div>
+                <h3>系统权限管理</h3>
+                <p>仅超级管理员：提拔或撤销管理员</p>
+            </a>
             <a href="admin-books.html" class="admin-card" target="_blank">
                 <div class="admin-icon">📚</div>
                 <h3>图书管理</h3>
@@ -160,6 +165,10 @@
             document.getElementById('userName').textContent = user.name || '管理员';
             document.getElementById('userId').textContent = user.userId || '';
             document.getElementById('welcomeName').textContent = user.name || '管理员';
+            if (user.role === 'super_admin') {
+                const c = document.getElementById('superAdminCard');
+                if (c) c.style.display = '';
+            }
             loadStats();
         };
         async function loadStats() {
