@@ -12,7 +12,7 @@ add_executable(Library_Management_System
         include/controllers/admin/AdminBookController.h
         include/controllers/admin/AdminBookExceptionController.h
         include/controllers/admin/AdminController.h
-        include/controllers/admin/AdminUserController.h
+        include/controllers/admin/SuperAdminController.h
         include/controllers/user/AuthController.h
         include/controllers/user/BookController.h
         include/controllers/user/UserController.h
@@ -51,6 +51,7 @@ add_executable(Library_Management_System
         src/controllers/admin/AdminBookExceptionController.cpp
         src/controllers/admin/AdminController.cpp
         src/controllers/admin/AdminUserController.cpp
+        src/controllers/admin/SuperAdminController.cpp
         src/controllers/user/AuthController.cpp
         src/controllers/user/BookController.cpp
         src/controllers/user/UserController.cpp
