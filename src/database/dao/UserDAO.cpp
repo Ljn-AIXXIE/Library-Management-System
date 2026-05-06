@@ -8,7 +8,7 @@ User
 -------------------------
 user_id        PK
 name
-role           (student / admin)
+role           (student / admin / super_admin)
 password
 borrow_count
 */
@@ -44,11 +44,12 @@ bool UserDAO::addUser(const User &user, std::string &errorMessage) const {
 }
 
 //删除用户
-bool UserDAO::deleteUser(const std::string &userId) const {
+bool UserDAO::deleteUser(const std::string &userId, std::string &errorMessage) const {
     const std::string sql = "DELETE FROM user WHERE user_id = ?;";
     sqlite3_stmt *stmt = nullptr;
 
     if (!userDatabase->prepare(sql, &stmt)) {
+        errorMessage = userDatabase->getLastError();
         Logger::getInstance().logError("UserDAO::deleteUser准备SQL失败:" + userDatabase->getLastError());
         return false;
     }
@@ -56,6 +57,7 @@ bool UserDAO::deleteUser(const std::string &userId) const {
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
+        errorMessage = sqlite3_errmsg(userDatabase->getDB());
         userDatabase->setLastError(sqlite3_errmsg(userDatabase->getDB()));
         Logger::getInstance().logError("UserDAO::deleteUser执行SQL失败:" + userDatabase->getLastError());
         sqlite3_finalize(stmt);
@@ -290,4 +292,62 @@ int UserDAO::getBorrowedBookCount(const std::string &userId) const {
     }
     sqlite3_finalize(stmt);
     return count;
+}
+
+int UserDAO::countUsersWithRole(const std::string &role) const {
+    const std::string sql = "SELECT COUNT(*) FROM user WHERE role = ?;";
+    sqlite3_stmt *stmt = nullptr;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::countUsersWithRole准备SQL失败:" + userDatabase->getLastError());
+        return 0;
+    }
+    sqlite3_bind_text(stmt, 1, role.c_str(), -1, SQLITE_TRANSIENT);
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    }
+    sqlite3_finalize(stmt);
+    return count;
+}
+
+bool UserDAO::updateUserRole(const std::string &userId, const std::string &newRole, std::string &errorMessage) const {
+    const std::string sql = "UPDATE user SET role = ? WHERE user_id = ?;";
+    sqlite3_stmt *stmt = nullptr;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        errorMessage = userDatabase->getLastError();
+        Logger::getInstance().logError("UserDAO::updateUserRole准备SQL失败:" + userDatabase->getLastError());
+        return false;
+    }
+    sqlite3_bind_text(stmt, 1, newRole.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, userId.c_str(), -1, SQLITE_TRANSIENT);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        errorMessage = sqlite3_errmsg(userDatabase->getDB());
+        userDatabase->setLastError(errorMessage);
+        Logger::getInstance().logError("UserDAO::updateUserRole执行SQL失败:" + userDatabase->getLastError());
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    sqlite3_finalize(stmt);
+    return true;
+}
+
+std::vector<UserDAO::AdministratorRecord> UserDAO::listAdministratorAccounts() const {
+    std::vector<AdministratorRecord> rows;
+    const std::string sql =
+            "SELECT user_id, name, role FROM user WHERE role IN ('admin', 'super_admin') ORDER BY "
+            "CASE role WHEN 'super_admin' THEN 0 ELSE 1 END, user_id;";
+    sqlite3_stmt *stmt = nullptr;
+    if (!userDatabase->prepare(sql, &stmt)) {
+        Logger::getInstance().logError("UserDAO::listAdministratorAccounts准备SQL失败:" + userDatabase->getLastError());
+        return rows;
+    }
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        AdministratorRecord r;
+        r.userId = columnText(stmt, 0);
+        r.name = columnText(stmt, 1);
+        r.role = columnText(stmt, 2);
+        rows.push_back(std::move(r));
+    }
+    sqlite3_finalize(stmt);
+    return rows;
 }

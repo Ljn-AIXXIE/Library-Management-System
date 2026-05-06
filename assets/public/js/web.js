@@ -500,6 +500,67 @@ export async function readerBorrowStats(userId) {
  * @return {Promise<any>}
  */
 export async function readerRecommendations(userId, type) {
-    const response = await fetch(`${API_BASE_URL}/api/recommend/${type}?userId=${currentUser.userId}`);
+    const response = await fetch(
+        `${API_BASE_URL}/api/recommend/${encodeURIComponent(type)}?userId=${encodeURIComponent(userId)}`
+    );
+    return await response.json();
+}
+
+/**
+ * 超级管理员：账号列表
+ */
+export async function superAdminListManagers(operatorUserId) {
+    const response = await fetch(
+        `${API_BASE_URL}/api/super-admin/managers?operatorUserId=${encodeURIComponent(operatorUserId)}`
+    );
+    return await response.json();
+}
+
+/**
+ * 超级管理员：将读者提拔为管理员（POST /api/super-admin/managers/promote）
+ */
+export async function superAdminPromoteStudent(operatorUserId, targetUserId) {
+    const response = await fetch(`${API_BASE_URL}/api/super-admin/managers/promote`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({operatorUserId, targetUserId})
+    });
+    return await response.json();
+}
+
+/**
+ * 超级管理员：移除管理员权限，降为读者（POST /api/super-admin/managers/demote）
+ */
+export async function superAdminRemoveAdminRole(operatorUserId, targetUserId) {
+    const response = await fetch(`${API_BASE_URL}/api/super-admin/managers/demote`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({operatorUserId, targetUserId})
+    });
+    return await response.json();
+}
+
+/**
+ * 超级管理员：添加管理员（POST /api/super-admin/managers/add）
+ * @param targetUserName 新管理员显示名
+ */
+export async function superAdminAddManager(operatorUserId, targetUserId, targetUserName) {
+    const response = await fetch(`${API_BASE_URL}/api/super-admin/managers/add`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({operatorUserId, targetUserId, targetUserName})
+    });
+    return await response.json();
+}
+
+/**
+ * 超级管理员：删除管理员用户记录（POST /api/super-admin/managers/delete）
+ */
+export async function superAdminDeleteManager(operatorUserId, targetUserId) {
+    const response = await fetch(`${API_BASE_URL}/api/super-admin/managers/delete`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({operatorUserId, targetUserId})
+    });
     return await response.json();
 }

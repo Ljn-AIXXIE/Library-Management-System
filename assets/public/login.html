@@ -149,7 +149,9 @@
 
                 // 跳转到主页（根据角色）
                 setTimeout(() => {
-                    if (user.role === 'admin') {
+                    if (user.role === 'super_admin') {
+                        window.location.href = 'super-admin.html';
+                    } else if (user.role === 'admin') {
                         console.log('跳转到管理员页面');
                         window.location.href = 'admin.html';
                     } else if (user.role === 'student') {

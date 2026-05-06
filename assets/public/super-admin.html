@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超级管理员 - 图书管理系统</title>
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/admin.css">
+    <style>
+        .sa-hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #eee;
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(15, 52, 96, 0.35);
+        }
+        .sa-hero h2 { margin: 0 0 8px 0; font-size: 22px; font-weight: 700; }
+        .sa-hero-sub {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.92;
+            line-height: 1.6;
+        }
+        .sa-hero code { background: rgba(255,255,255,0.12); padding: 2px 8px; border-radius: 4px; }
+        .sa-panel {
+            background: #fff;
+            border-radius: 12px;
+            padding: 22px 24px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        .sa-panel > h3 {
+            margin: 0 0 18px 0;
+            color: #1a1a2e;
+            font-size: 17px;
+            font-weight: 600;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .sa-panel-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .sa-panel-toolbar h3 { margin: 0; border: 0; padding: 0; }
+        .sa-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px 20px;
+            margin-bottom: 16px;
+        }
+        .sa-form-grid label {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #444;
+        }
+        .sa-form-grid input {
+            padding: 11px 14px;
+            border: 1px solid #d8dce0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .sa-form-grid input:focus {
+            outline: none;
+            border-color: #533483;
+            box-shadow: 0 0 0 3px rgba(83, 52, 131, 0.12);
+        }
+        .sa-form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn-sa {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .btn-sa-primary {
+            background: linear-gradient(135deg, #0f3460 0%, #533483 100%);
+            color: #fff;
+        }
+        .btn-sa-danger { background: #c0392b; color: #fff; }
+        .btn-sa-secondary { background: #ecf0f1; color: #333; }
+        .btn-sa-outline {
+            background: #fff;
+            color: #2980b9;
+            border: 2px solid #2980b9;
+        }
+        .sa-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        table.sa-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        table.sa-table th, table.sa-table td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        table.sa-table th { color: #888; font-weight: 600; font-size: 13px; }
+        table.sa-table tbody tr:hover { background: #fafbfd; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; }
+        .badge-super { background: #1a1a2e; color: #f1c40f; }
+        .badge-admin { background: #e8f4fc; color: #2980b9; }
+        .message { padding: 12px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .message.success { background: #d4edda; color: #155724; }
+        .message.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-brand" style="cursor:pointer" onclick="location.href='super-admin.html'">🔐 超级管理员控制台</div>
+    <div class="navbar-user">
+        <div class="user-info">
+            <span>👤</span>
+            <span id="userName">-</span>
+            <span>|</span>
+            <span id="userIdSpan"></span>
+        </div>
+        <button class="navbar-btn" type="button" onclick="location.href='admin.html'">图书管理后台</button>
+        <button class="navbar-btn" onclick="logout()">退出登录</button>
+    </div>
+</nav>
+<div class="container">
+    <div id="message" class="message"></div>
+
+    <div class="sa-hero">
+        <h2>系统级权限管理</h2>
+        <p class="sa-hero-sub">默认超级管理员账号 <code>000000000001</code>，初始密码 <code>123456</code>，登录后请及时修改密码。</p>
+    </div>
+
+    <div class="sa-panel">
+        <h3>添加管理员（新建账号）</h3>
+        <div class="sa-form-grid">
+            <label>新管理员用户 ID
+                <input type="text" id="addTargetUserId" maxlength="12" placeholder="12 位，须未被占用" autocomplete="off" spellcheck="false">
+            </label>
+            <label>显示姓名
+                <input type="text" id="addTargetUserName" maxlength="64" placeholder="姓名/称呼" autocomplete="name" spellcheck="false">
+            </label>
+        </div>
+        <div class="sa-form-actions">
+            <button type="button" class="btn-sa btn-sa-primary" id="btnAddManager">提交添加</button>
+        </div>
+    </div>
+
+    <div class="sa-panel">
+        <h3>读者提拔为管理员</h3>
+        <div class="sa-form-grid">
+            <label>读者用户 ID
+                <input type="text" id="promoteReaderUserId" maxlength="12" placeholder="12 位读者 ID" autocomplete="off" spellcheck="false">
+            </label>
+        </div>
+        <div class="sa-form-actions">
+            <button type="button" class="btn-sa btn-sa-primary" id="btnPromoteReader">提拔为管理员</button>
+        </div>
+    </div>
+
+    <div class="sa-panel">
+        <div class="sa-panel-toolbar">
+            <h3>管理员与超级管理员列表</h3>
+            <button type="button" class="btn-sa btn-sa-secondary" id="btnRefresh">刷新列表</button>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="sa-table">
+                <thead>
+                <tr>
+                    <th>用户 ID</th>
+                    <th>姓名</th>
+                    <th>角色</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="managerTableBody">
+                <tr><td colspan="4" style="color:#999;">加载中…</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import {checkAndBackSuperAdmin} from "./js/admin.js";
+    import {logout, showMessage} from "./js/common.js";
+    import {
+        superAdminListManagers,
+        superAdminAddManager,
+        superAdminDeleteManager,
+        superAdminPromoteStudent,
+        superAdminRemoveAdminRole
+    } from "./js/web.js";
+    window.logout = logout;
+
+    const user = checkAndBackSuperAdmin();
+    if (!user) {
+        /* 已提示并跳转登录 */
+    } else {
+    document.getElementById('userName').textContent = user.name || '超级管理员';
+    document.getElementById('userIdSpan').textContent = user.userId || '';
+
+    async function loadTable() {
+        const tbody = document.getElementById('managerTableBody');
+        tbody.innerHTML = '<tr><td colspan="4" style="color:#999;">加载中…</td></tr>';
+        try {
+            const data = await superAdminListManagers(user.userId);
+            if (!data.success) {
+                tbody.innerHTML = `<tr><td colspan="4" style="color:#c0392b">${data.message || '加载失败'}</td></tr>`;
+                return;
+            }
+            const rows = data.data || [];
+            if (rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="color:#999;">暂无数据</td></tr>';
+                return;
+            }
+            tbody.innerHTML = rows.map(r => {
+                const isSuper = r.role === 'super_admin';
+                const roleLabel = isSuper
+                    ? '<span class="badge badge-super">超级管理员</span>'
+                    : '<span class="badge badge-admin">管理员</span>';
+                const action = isSuper
+                    ? '<span style="color:#999;font-size:13px;">—</span>'
+                    : `<div class="sa-actions">
+                        <button type="button" class="btn-sa btn-sa-outline btn-remove-role" data-id="${r.userId}">移除权限</button>
+                        <button type="button" class="btn-sa btn-sa-danger btn-delete-manager" data-id="${r.userId}">删除账号</button>
+                    </div>`;
+                return `<tr>
+                    <td>${escapeHtml(r.userId)}</td>
+                    <td>${escapeHtml(r.name)}</td>
+                    <td>${roleLabel}</td>
+                    <td>${action}</td>
+                </tr>`;
+            }).join('');
+
+            tbody.querySelectorAll('.btn-remove-role').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    if (!confirm(`将用户「${id}」的管理员权限移除，并恢复为普通读者？\n\n（不删除账号，仅修改角色。）`)) return;
+                    const res = await superAdminRemoveAdminRole(user.userId, id);
+                    if (res.success) {
+                        showMessage(res.message || '已移除权限', 'success', true, 2500);
+                        loadTable();
+                    } else {
+                        showMessage(res.message || '操作失败', 'error', false, 4000, true);
+                    }
+                });
+            });
+            tbody.querySelectorAll('.btn-delete-manager').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    if (!confirm(`将永久从数据库删除用户「${id}」及其记录。\n\n此操作与「移除权限」不同，且若有借阅关联可能失败。确定继续？`)) return;
+                    const res = await superAdminDeleteManager(user.userId, id);
+                    if (res.success) {
+                        showMessage(res.message || '操作成功', 'success', true, 2500);
+                        loadTable();
+                    } else {
+                        showMessage(res.message || '操作失败', 'error', false, 4000, true);
+                    }
+                });
+            });
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="4" style="color:#c0392b">网络错误：${e.message}</td></tr>`;
+        }
+    }
+
+    function escapeHtml(s) {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    document.getElementById('btnPromoteReader').addEventListener('click', async () => {
+        const target = document.getElementById('promoteReaderUserId').value.trim();
+        if (target.length !== 12) {
+            showMessage('用户 ID 须为 12 位', 'error', false, 3000, true);
+            return;
+        }
+        const res = await superAdminPromoteStudent(user.userId, target);
+        if (res.success) {
+            showMessage(res.message || '提拔成功', 'success', true, 2500);
+            document.getElementById('promoteReaderUserId').value = '';
+            loadTable();
+        } else {
+            showMessage(res.message || '操作失败', 'error', false, 4000, true);
+        }
+    });
+
+    document.getElementById('btnRefresh').addEventListener('click', loadTable);
+    document.getElementById('btnAddManager').addEventListener('click', async () => {
+        const target = document.getElementById('addTargetUserId').value.trim();
+        const targetName = document.getElementById('addTargetUserName').value.trim();
+        if (target.length !== 12) {
+            showMessage('用户 ID 须为 12 位', 'error', false, 3000, true);
+            return;
+        }
+        if (!targetName) {
+            showMessage('请填写显示姓名', 'error', false, 3000, true);
+            return;
+        }
+        const res = await superAdminAddManager(user.userId, target, targetName);
+        if (res.success) {
+            showMessage(res.message || '添加成功', 'success', true, 2500);
+            document.getElementById('addTargetUserId').value = '';
+            document.getElementById('addTargetUserName').value = '';
+            loadTable();
+        } else {
+            showMessage(res.message || '操作失败', 'error', false, 4000, true);
+        }
+    });
+
+    loadTable();
+    }
+
+</script>
+</body>
+</html>
