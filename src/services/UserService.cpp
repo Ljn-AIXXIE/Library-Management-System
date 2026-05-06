@@ -3,11 +3,9 @@
 #include "common/Logger.h"
 
 namespace {
-
-constexpr char kBootstrapSuperAdminId[] = "000000000001";
-constexpr char kBootstrapSuperAdminName[] = "超级管理员";
-constexpr char kBootstrapSuperAdminPassword[] = "123456";
-
+    constexpr char kBootstrapSuperAdminId[] = "000000000001";
+    constexpr char kBootstrapSuperAdminName[] = "超级管理员";
+    constexpr char kBootstrapSuperAdminPassword[] = "123456";
 } // namespace
 
 void UserService::ensureBootstrapSuperAdmin() const {
@@ -18,7 +16,7 @@ void UserService::ensureBootstrapSuperAdmin() const {
     if (db->exists(kBootstrapSuperAdminId)) {
         if (db->updateUserRole(kBootstrapSuperAdminId, "super_admin", errorMessage)) {
             Logger::getInstance().logBusiness(
-                    std::string("已将既有账号 ") + kBootstrapSuperAdminId + " 升级为超级管理员");
+                std::string("已将既有账号 ") + kBootstrapSuperAdminId + " 升级为超级管理员");
         } else {
             Logger::getInstance().logError("升级超级管理员失败: " + errorMessage);
         }
@@ -31,7 +29,7 @@ void UserService::ensureBootstrapSuperAdmin() const {
         return;
     }
     Logger::getInstance().logBusiness(
-            std::string("首次部署：已创建默认超级管理员账号 ") + kBootstrapSuperAdminId + "（请尽快登录并修改密码）");
+        std::string("首次部署：已创建默认超级管理员账号 ") + kBootstrapSuperAdminId + "（请尽快登录并修改密码）");
 }
 
 bool UserService::isSuperAdministrator(const std::string &userId) const {
@@ -103,6 +101,65 @@ bool UserService::superAdminDemoteAdminToStudent(const std::string &operatorUser
     return true;
 }
 
+bool UserService::superAdminAddAdmin(const std::string &operatorUserId, const std::string &targetUserId,
+                                     const std::string &targetUserName,
+                                     std::string &errorMessage) const {
+    if (!isSuperAdministrator(operatorUserId)) {
+        errorMessage = "需要超级管理员权限";
+        return false;
+    }
+    if (targetUserId.length() != 12) {
+        errorMessage = "用户ID长度必须为12个字符";
+        return false;
+    }
+    if (targetUserId == kBootstrapSuperAdminId) {
+        errorMessage = "该用户ID为系统保留，无法用于新建管理员";
+        return false;
+    }
+    if (isUserExist(targetUserId)) {
+        errorMessage = "该账号已被占用，请换一个账户号";
+        return false;
+    }
+
+    const User newUser(targetUserId, targetUserName, "123456", "admin");
+    if (!db->addUser(newUser, errorMessage)) {
+        return false;
+    }
+    Logger::getInstance().logBusiness(
+        "超级管理员" + operatorUserId + "添加新管理员:" + targetUserId + "，初始密码为：123456，请尽快登录修改密码");
+    return true;
+}
+
+bool UserService::superAdminDeleteAdmin(const std::string &operatorUserId, const std::string &targetUserId,
+                                        std::string &errorMessage) const {
+    if (!isSuperAdministrator(operatorUserId)) {
+        errorMessage = "需要超级管理员权限";
+        return false;
+    }
+    if (targetUserId == operatorUserId) {
+        errorMessage = "不能删除当前登录账号";
+        return false;
+    }
+    User target;
+    if (!db->searchUserById(targetUserId, target)) {
+        errorMessage = "该账号不存在，请重新检查";
+        return false;
+    }
+    if (target.getType() == "super_admin") {
+        errorMessage = "不能删除超级管理员账号";
+        return false;
+    }
+    if (target.getType() != "admin") {
+        errorMessage = "只能删除角色为管理员（admin）的账号";
+        return false;
+    }
+    if (!db->deleteUser(targetUserId, errorMessage)) {
+        return false;
+    }
+    Logger::getInstance().logBusiness("超级管理员" + operatorUserId + "删除管理员账号:" + targetUserId);
+    return true;
+}
+
 bool UserService::registerUser(const User &user) const {
     Logger::getInstance().logBusiness("用户" + user.getId() + "注册");
     std::string errorMessage;
@@ -132,8 +189,8 @@ bool UserService::changePassword(const std::string &userId, const std::string &n
     return false;
 }
 
-bool UserService::deleteUser(const std::string &userId) const {
-    if (db->deleteUser(userId)) {
+bool UserService::deleteUser(const std::string &userId, std::string &errorMessage) const {
+    if (db->deleteUser(userId, errorMessage)) {
         Logger::getInstance().logBusiness("用户" + userId + "删除成功");
         return true;
     }

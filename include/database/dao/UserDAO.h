@@ -22,7 +22,7 @@ public:
 
     //核心操作
     [[nodiscard]] bool addUser(const User &user, std::string &errorMessage) const; //添加用户
-    [[nodiscard]] bool deleteUser(const std::string &userId) const; //删除用户
+    [[nodiscard]] bool deleteUser(const std::string &userId, std::string &errorMessage) const; //删除用户
 
     [[nodiscard]] bool updateUserPassword(const std::string &userId, const std::string &newPassword) const; //更新用户密码
     [[nodiscard]] bool updateUserBorrowInfo(const std::string &userId, bool flag) const; //更新用户借阅信息
@@ -37,7 +37,10 @@ public:
     [[nodiscard]] int getTotalUserCount() const; //获取用户总数
 
     [[nodiscard]] int countUsersWithRole(const std::string &role) const;
-    [[nodiscard]] bool updateUserRole(const std::string &userId, const std::string &newRole, std::string &errorMessage) const;
+
+    [[nodiscard]] bool updateUserRole(const std::string &userId, const std::string &newRole,
+                                      std::string &errorMessage) const;
+
     [[nodiscard]] std::vector<AdministratorRecord> listAdministratorAccounts() const;
 
     //std::vector<User> getAllUsers();//获取所有用户信息，用于管理员查询所有用户

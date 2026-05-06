@@ -227,6 +227,14 @@ void Router::registerSuperAdminRoutes() const {
     server->Post("/api/super-admin/managers/demote", [this](const httplib::Request &req, httplib::Response &res) {
         superAdminController->handleDemote(req, res);
     });
+
+    server->Post("/api/super-admin/managers/add", [this](const httplib::Request &req, httplib::Response &res) {
+        superAdminController->handleAddAdmin(req, res);
+    });
+
+    server->Post("/api/super-admin/managers/delete", [this](const httplib::Request &req, httplib::Response &res) {
+        superAdminController->handleDeleteAdmin(req, res);
+    });
 }
 
 // 注册中间件

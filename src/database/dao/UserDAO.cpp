@@ -44,11 +44,12 @@ bool UserDAO::addUser(const User &user, std::string &errorMessage) const {
 }
 
 //删除用户
-bool UserDAO::deleteUser(const std::string &userId) const {
+bool UserDAO::deleteUser(const std::string &userId, std::string &errorMessage) const {
     const std::string sql = "DELETE FROM user WHERE user_id = ?;";
     sqlite3_stmt *stmt = nullptr;
 
     if (!userDatabase->prepare(sql, &stmt)) {
+        errorMessage = userDatabase->getLastError();
         Logger::getInstance().logError("UserDAO::deleteUser准备SQL失败:" + userDatabase->getLastError());
         return false;
     }
@@ -56,6 +57,7 @@ bool UserDAO::deleteUser(const std::string &userId) const {
     sqlite3_bind_text(stmt, 1, userId.c_str(), -1, SQLITE_TRANSIENT);
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
+        errorMessage = sqlite3_errmsg(userDatabase->getDB());
         userDatabase->setLastError(sqlite3_errmsg(userDatabase->getDB()));
         Logger::getInstance().logError("UserDAO::deleteUser执行SQL失败:" + userDatabase->getLastError());
         sqlite3_finalize(stmt);
